@@ -36,54 +36,40 @@ class PaintWindow:
         canvas = Canvas(frame_canvas, bg='#f0f0f0', width=700, height=900, highlightthickness=0) # Canvas for drawing
         canvas.pack(pady=20, anchor="center") # Fill the frame for canvas completely
 
-        # Add buttons to the file frame with padding and styling
-        btn_file = Button(frame_file, text="File", bg= "#2b2b2b", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=5, activebackground="#6e6a6a")
-        btn_file.pack(side=LEFT) # Pack the button to the left side of the frame
-        btn_file.pack_propagate(False) # Prevent the button from resizing based on its content
-        btn_edit = Button(frame_file, text="Edit", bg= "#2b2b2b", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=5, activebackground="#6e6a6a")
-        btn_edit.pack(side=LEFT) # Pack the button to the left side of the frame
-        btn_edit.pack_propagate(False) # Prevent the button from resizing based on its content
-        btn_view = Button(frame_file, text="View", bg= "#2b2b2b", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=5, activebackground="#6e6a6a")
-        btn_view.pack(side=LEFT) # Pack the button to the left side of the frame
-        btn_view.pack_propagate(False) # Prevent the button from resizing based on its content
-        btn_save = Button(frame_file, text="Save", bg= "#2b2b2b", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=5, activebackground="#6e6a6a")
-        btn_save.pack(side=LEFT) # Pack the button to the right side of the frame
-        btn_save.pack_propagate(False) # Prevent the button from resizing based on its content
-        btn_undo = Button(frame_file, text="Undo", bg= "#2b2b2b", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=5, activebackground="#6e6a6a")
-        btn_undo.pack(side=LEFT) # Pack the button to the left side of the frame
-        btn_undo.pack_propagate(False) # Prevent the button from resizing based on its content
-        btn_redo = Button(frame_file, text="Redo", bg= "#2b2b2b", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=5, activebackground="#6e6a6a")
-        btn_redo.pack(side=LEFT) # Pack the button to the left side of the frame
-        btn_redo.pack_propagate(False) # Prevent the button from resizing based on its content
-        btn_dark_light_mode = Button(frame_file, text="Dark Mode", bg= "#2b2b2b", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=5, activebackground="#6e6a6a")
-        btn_dark_light_mode.pack(side=RIGHT) # Pack the button to the right side of the frame
-        btn_dark_light_mode.pack_propagate(False) # Prevent the button from resizing based on its content
-
-        # Add buttons to the tools frame with padding and styling
-        btn_fractal = Button(frame_tools, text="Fractal", bg= "#333333", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=10, activebackground="#6e6a6a")
-        btn_fractal.pack(side=LEFT) # Pack the button to the left side of the frame
-        btn_fractal.pack_propagate(False) # Prevent the button from resizing based on its content
-        btn_spiro = Button(frame_tools, text="Spiro", bg= "#333333", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=10, activebackground="#6e6a6a")
-        btn_spiro.pack(side=LEFT) # Pack the button to the left side of the frame
-        btn_spiro.pack_propagate(False) # Prevent the button from resizing based on its content
-        btn_color = Button(frame_tools, text="Color", bg= "#333333", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=10, activebackground="#6e6a6a")
-        btn_color.pack(side=LEFT) # Pack the button to the left side of the frame
-        btn_color.pack_propagate(False) # Prevent the button from resizing based on its content
-        btn_thickness = Button(frame_tools, text="Thickness", bg= "#333333", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=10, activebackground="#6e6a6a")
-        btn_thickness.pack(side=LEFT) # Pack the button to the left side of the frame
-        btn_thickness.pack_propagate(False) # Prevent the button from resizing based on its content
-        btn_line_style = Button(frame_tools, text="Line Style", bg= "#333333", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=10, activebackground="#6e6a6a")
-        btn_line_style.pack(side=LEFT) # Pack the button to the left side of the frame
-        btn_line_style.pack_propagate(False) # Prevent the button from resizing based on its content
-        btn_eraser = Button(frame_tools, text="Eraser", bg= "#333333", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=10, activebackground="#6e6a6a")
-        btn_eraser.pack(side=LEFT) # Pack the button to the left side of the frame
-        btn_eraser.pack_propagate(False) # Prevent the button from resizing based on its content
-        btn_clear = Button(frame_tools, text="Clear", bg= "#333333", fg="#f1f1f1", relief=FLAT, bd=0, padx=5, pady=10, activebackground="#6e6a6a")
-        btn_clear.pack(side=LEFT) # Pack the button to the left side of the frame
-        btn_clear.pack_propagate(False) # Prevent the button from resizing based on its content
-
+    
         
+        # Create buttons in the file frame
+        btn_file = self.create_buttons_file_frame(frame_file, "File")
+        btn_edit = self.create_buttons_file_frame(frame_file, "Edit")
+        btn_view = self.create_buttons_file_frame(frame_file, "View")
+        btn_save = self.create_buttons_file_frame(frame_file, "Save")
+        btn_undo = self.create_buttons_file_frame(frame_file, "Undo")
+        btn_redo = self.create_buttons_file_frame(frame_file, "Redo")
+        btn_dark_light_mode = self.create_buttons_file_frame(frame_file, "Dark Mode", side=RIGHT)
+        
+        
+        # Create buttons in the tools frame
+        btn_fractal = self.create_buttons_tools_frame(frame_tools, "Fractal")
+        btn_spiro = self.create_buttons_tools_frame(frame_tools, "Spiro")
+        btn_color = self.create_buttons_tools_frame(frame_tools, "Color")
+        btn_thickness = self.create_buttons_tools_frame(frame_tools, "Thickness")
+        btn_line_style = self.create_buttons_tools_frame(frame_tools, "Line Style")
+        btn_eraser = self.create_buttons_tools_frame(frame_tools, "Eraser")
+        btn_clear = self.create_buttons_tools_frame(frame_tools, "Clear")
 
+                
+    def create_buttons_file_frame(self, parent, texts, bg="#2b2b2b", fg="#f1f1f1", padx=5, pady=5, activebackground="#6e6a6a", side=LEFT):
+        # Helper function to create buttons in the file frame
+        btn = Button(parent, text=texts, bg=bg, fg=fg, relief=FLAT, bd=0, padx=padx, pady=pady, activebackground=activebackground)
+        btn.pack(side=side) # Pack the button to the specified side of the frame
+        return btn
+    
+    def create_buttons_tools_frame(self, parent, texts, bg="#333333", fg="#f1f1f1", padx=5, pady=10, activebackground="#6e6a6a", side=LEFT):
+        # Helper function to create buttons in the tools frame
+        btn = Button(parent, text=texts, bg=bg, fg=fg, relief=FLAT, bd=0, padx=padx, pady=pady, activebackground=activebackground)
+        btn.pack(side=side) # Pack the button to the specified side of the frame
+        return btn
+        
 
     def start(self):
         """Initialize window, buttons, and event loop."""
