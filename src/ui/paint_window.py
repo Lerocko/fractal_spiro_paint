@@ -12,25 +12,29 @@ class PaintWindow:
     Main application window for Fractal Spiro Paint.
     """
     def __init__(self, width=800, height=600):
+        # Set default window dimensions
         self.width = width
         self.height = height
+
         # Initialize the main application window
-        root = tk.Tk()
-        root.title("Fractal Spiro Paint")
-        root.geometry(f"{self.width}x{self.height}") # Set window size
-        root.geometry("+250+60")  # Position the window
-        root.configure(bg='grey2')
-        root.attributes('-alpha', 0.98)  # Set window transparency
+        self.root = tk.Tk() # Create the main window
+        self.root.title("Fractal Spiro Paint")
+        self.root.geometry(f"{self.width}x{self.height}") # Set window size
+        self.root.geometry("+250+60")  # Position the window
+        self.root.configure(bg='#1e1e1e') # Set background color
+        self.root.attributes('-alpha', 1)  # Set window transparency
 
-        frame1 = Frame(root, bg='dark slate gray') # Top frame for buttons
-        frame1.pack(side=TOP, fill=X) # Fill horizontally at the top of the window
-        frame2 = Frame(root, bg='grey2') # Bottom frame for canvas and controls
-        frame2.pack(side=TOP, fill=BOTH, expand=True) # Fill remaining space
-        canvas = Canvas(frame2, bg='white') # Drawing canvas
-        canvas.pack(side=LEFT, fill=BOTH, expand=True) # Fill left side of frame2
+        # Create frames and canvas
+        frame_file = Frame(self.root, bg='#2b2b2b', height=40) # Top frame for file operations
+        frame_file.pack(side=TOP, fill=X) # Fill horizontally at the top of the window
+        frame_tools = Frame(self.root, bg='#333333', height=60) # Top frame for buttons
+        frame_tools.pack(side=TOP, fill=X) # Fill horizontally at the top of the window
+        frame_canvas = Frame(self.root, bg='#252526') # Bottom frame for canvas and controls
+        frame_canvas.pack(side=TOP, fill=BOTH, expand=True) # Fill remaining space
+        canvas = Canvas(frame_canvas, bg='#f0f0f0', width=700, height=900, highlightthickness=0) # Canvas for drawing
+        canvas.pack(pady=20, anchor="center") # Fill the frame for canvas completely
 
 
-        root.mainloop()
 
     def start(self):
         """Initialize window, buttons, and event loop."""
