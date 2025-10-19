@@ -4,9 +4,9 @@
 import sys
 
 # Import our modules
-from fractal import fractal_drawer
-from spiro import spiro_drawer
-from ui import paint_window
+from src.fractal import fractal_drawer
+from src.spiro import spiro_drawer
+from src.ui import paint_window
 
 def main():
     """
@@ -19,3 +19,5 @@ def main():
     
 if __name__ == "__main__":
     main()
+    app = paint_window.PaintWindow()
+    app.start()
