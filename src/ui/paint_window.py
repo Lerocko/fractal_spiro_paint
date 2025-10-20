@@ -25,28 +25,62 @@ class PaintWindow:
         self.root.configure(bg="#1e1e1e")
         self.root.attributes("-alpha", 1)
 
-        # Command map for connecting buttons to actions
-        self.command_map = {
-            "Line": lambda: self.set_active_tool("Line"),
-            "Triangle": lambda: self.set_active_tool("Triangle"),
-            "Square": lambda: self.set_active_tool("Square"),
-            "Clear": self.clear_canvas,
-        }
+        # Files frame
+        self.files_frame = tk.Frame(self.root, bg="#252526", height=40)
+        self.files_frame.pack(side=tk.TOP, fill=tk.X)
 
         # Toolbar frame
-        self.toolbar = Toolbar(self.root, command_map=self.command_map, bg="#333333")
-        self.toolbar.pack(side=tk.TOP, fill=tk.X)
+        self.toolbar_frame = tk.Frame(self.root, bg="#252526", height=100)
+        self.toolbar_frame.pack(side=tk.TOP, fill=tk.X)
+        
+    def create_toolbar_subframes(self, name_subframes, bg="#252526", side=tk.LEFT, padx=120):
+        """Create sub-frames within the toolbar for different tool categories."""
+        self.name_subframes = tk.Frame(self.toolbar_frame, bg=bg)
+        self.name_subframes.pack(side=side, padx=padx)
+        self.name_subframes_label = tk.Label(self.name_subframes, text=f"{self.name_subframes} Tools", bg=bg, fg="white")
+        self.name_subframes_label.pack()
 
+        # Sub-frame for toolbar buttons
+        self.Fractal = tk.Frame(self.toolbar_frame, bg="#252526")
+        self.Fractal.pack(side=tk.LEFT, padx=120)
+        self.Fractal_label = tk.Label(self.Fractal, text="Fractal Tools", bg="#252526", fg="white")
+        self.Fractal_label.pack()
+        self.Spiro = tk.Frame(self.toolbar_frame, bg="#252526")
+        self.Spiro.pack(side=tk.LEFT, padx=120)
+        self.Spiro_label = tk.Label(self.Spiro, text="Spiro Tools", bg="#252526", fg="white")
+        self.Spiro_label.pack()
+        self.Drawing = tk.Frame(self.toolbar_frame, bg="#252526")
+        self.Drawing.pack(side=tk.LEFT, padx=120)
+        self.Drawing_label = tk.Label(self.Drawing, text="Drawing Tools", bg="#252526", fg="white")
+        self.Drawing_label.pack()
+        self.Edit = tk.Frame(self.toolbar_frame, bg="#252526")
+        self.Edit.pack(side=tk.LEFT, padx=120)
+        self.Edit_label = tk.Label(self.Edit, text="Edit Tools", bg="#252526", fg="white")
+        self.Edit_label.pack()  
+    
         # Canvas frame
         self.canvas_frame = tk.Frame(self.root, bg="#252526")
         self.canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.Main_Canvas = tk.Canvas(self.canvas_frame, bg="#252526")
+        self.Main_Canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        # Initialize secondary canvas but do not pack it yet
+        self.secundary_canvas_frame = tk.Frame(self.canvas_frame, bg="#252526")    
+        self.Secundary_Canvas = tk.Canvas(self.secundary_canvas_frame, bg="#252526", height=2)
 
-        # Drawing canvas
-        self.canvas = DrawingCanvas(self.canvas_frame, width=700, height=500, bg="#f0f0f0")
-        self.canvas.pack(pady=20, anchor="center")
-        self.canvas.bind("<Button-1>", self.on_canvas_click)
+    def update_secondary_canvas(self, active_fractal_tools):
+        """Show or hide the secondary canvas based on selected fractal tools."""
+        fractal_tool = "SomeFractalTool"  # Replace with actual tool name to check):
+        self.secundary_canvas_frame.pack_forget()
+        self.Secundary_Canvas.pack_forget()
+        if fractal_tool in active_fractal_tools:
+            self.secundary_canvas_frame.pack(side=tk.BOTTOM, padx=150, pady=50)
+            self.Secundary_Canvas.pack(side=tk.BOTTOM, fill=tk.X)
+                
+            
+                
+        
 
-        # State variables
+     '''   # State variables
         self.active_tool = None
         self.start_point = None
 
@@ -66,7 +100,7 @@ class PaintWindow:
 
     def clear_canvas(self):
         """Clear all drawings from the canvas."""
-        self.canvas.clear()
+        self.canvas.clear()'''
 
     def start(self):
         """Start the Tkinter main event loop."""
