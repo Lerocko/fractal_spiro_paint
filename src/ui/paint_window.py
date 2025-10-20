@@ -5,8 +5,8 @@ Integrates Toolbar and Canvas widgets modules.
 """
 
 import tkinter as tk
-from src.ui.toolbar import Toolbar
-from src.ui.canvas_widgets import DrawingCanvas
+#from src.ui.toolbar import Toolbar
+#from src.ui.canvas_widgets import DrawingCanvas
 
 class PaintWindow:
     """
@@ -28,40 +28,23 @@ class PaintWindow:
         # Files frame
         self.files_frame = tk.Frame(self.root, bg="#252526", height=40)
         self.files_frame.pack(side=tk.TOP, fill=tk.X)
+        self.files_frame.pack_propagate(False)
 
         # Toolbar frame
-        self.toolbar_frame = tk.Frame(self.root, bg="#252526", height=100)
+        self.toolbar_frame = tk.Frame(self.root, bg="#252526", height=120)
         self.toolbar_frame.pack(side=tk.TOP, fill=tk.X)
+        self.toolbar_frame.pack_propagate(False)
         
-    def create_toolbar_subframes(self, name_subframes, bg="#252526", side=tk.LEFT, padx=120):
-        """Create sub-frames within the toolbar for different tool categories."""
-        self.name_subframes = tk.Frame(self.toolbar_frame, bg=bg)
-        self.name_subframes.pack(side=side, padx=padx)
-        self.name_subframes_label = tk.Label(self.name_subframes, text=f"{self.name_subframes} Tools", bg=bg, fg="white")
-        self.name_subframes_label.pack()
+        # Create specific tool buttons (placeholders)
+        self.create_toolbar_subframes("Fractal")
+        self.create_toolbar_subframes("Spiro")
+        self.create_toolbar_subframes("Drawing")
+        self.create_toolbar_subframes("Edit")
 
-        # Sub-frame for toolbar buttons
-        self.Fractal = tk.Frame(self.toolbar_frame, bg="#252526")
-        self.Fractal.pack(side=tk.LEFT, padx=120)
-        self.Fractal_label = tk.Label(self.Fractal, text="Fractal Tools", bg="#252526", fg="white")
-        self.Fractal_label.pack()
-        self.Spiro = tk.Frame(self.toolbar_frame, bg="#252526")
-        self.Spiro.pack(side=tk.LEFT, padx=120)
-        self.Spiro_label = tk.Label(self.Spiro, text="Spiro Tools", bg="#252526", fg="white")
-        self.Spiro_label.pack()
-        self.Drawing = tk.Frame(self.toolbar_frame, bg="#252526")
-        self.Drawing.pack(side=tk.LEFT, padx=120)
-        self.Drawing_label = tk.Label(self.Drawing, text="Drawing Tools", bg="#252526", fg="white")
-        self.Drawing_label.pack()
-        self.Edit = tk.Frame(self.toolbar_frame, bg="#252526")
-        self.Edit.pack(side=tk.LEFT, padx=120)
-        self.Edit_label = tk.Label(self.Edit, text="Edit Tools", bg="#252526", fg="white")
-        self.Edit_label.pack()  
-    
         # Canvas frame
         self.canvas_frame = tk.Frame(self.root, bg="#252526")
         self.canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        self.Main_Canvas = tk.Canvas(self.canvas_frame, bg="#252526")
+        self.Main_Canvas = tk.Canvas(self.canvas_frame, bg="#1E1E20", highlightthickness=0)
         self.Main_Canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         # Initialize secondary canvas but do not pack it yet
         self.secundary_canvas_frame = tk.Frame(self.canvas_frame, bg="#252526")    
@@ -75,12 +58,22 @@ class PaintWindow:
         if fractal_tool in active_fractal_tools:
             self.secundary_canvas_frame.pack(side=tk.BOTTOM, padx=150, pady=50)
             self.Secundary_Canvas.pack(side=tk.BOTTOM, fill=tk.X)
+
+    # Create toolbar sub-frames
+    def create_toolbar_subframes(self, name, bg="#252526", side=tk.LEFT, padx=120):
+        """Create sub-frames within the toolbar for different tool categories."""
+        frame = tk.Frame(self.toolbar_frame, bg=bg)
+        frame.pack(side=side, padx=padx)
+        label = tk.Label(frame, text=f"{name} Tools", bg=bg, fg="white")
+        label.pack()
+        setattr(self, f"{name}_frame", frame)
+        setattr(self, f"{name}_label", label)
                 
             
                 
         
 
-     '''   # State variables
+    '''   # State variables
         self.active_tool = None
         self.start_point = None
 
