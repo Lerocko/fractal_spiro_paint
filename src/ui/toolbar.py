@@ -9,7 +9,7 @@ class Toolbar_button(tk.Frame):
     """
     Generator of toolbar buttons
     """
-    def __init__(self, parent, text, width, height, bg_color, fg_color, command=None):
+    def __init__(self, parent, text, width, height, bg_color = "#252526", fg_color = "white", command=None):
         super().__init__(parent)
         self.text = text
         self.width = width
