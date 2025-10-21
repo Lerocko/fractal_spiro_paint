@@ -68,32 +68,44 @@ class PaintWindow:
         label.pack()
         setattr(self, f"{name}_frame", frame)
         setattr(self, f"{name}_label", label)
-                
-            
-                
+    
+    def toggle_theme(self, theme):
+        # Define color schemes for dark and light themes
+        colors = {
+        "root": ("#1e1e1e", "#f0f0f0"),
+        "files_frame": ("#252526", "#dcdcdc"),
+        "toolbar_frame": ("#252526", "#dcdcdc"),
+        "canvas_main": ("#1E1E20", "#ffffff"),
+        "canvas_sec": ("#252526", "#e0e0e0"),
+        "labels_bg": ("#252526", "#dcdcdc"),
+        "labels_fg": ("white", "black"),
+        "button_bg": ("#3c3c3c", "#e0e0e0"),
+        "button_fg": ("white", "black"),
+        }
+
+        index = 0 if theme == "dark" else 1
+    
+        # Apply colors on root and frames
+        for attr in ["root", "files_frame", "toolbar_frame", "canvas_frame"]:
+            widget = getattr(self, attr)
+            widget.configure(bg=colors[attr][index])
+
+        # Apply colors on canvases
+        self.Main_Canvas.configure(bg=colors["canvas_main"][index])
+        self.secundary_canvas_frame.configure(bg=colors["canvas_sec"][index])
+        self.Secundary_Canvas.configure(bg=colors["canvas_sec"][index])
+
+        # Apply colors on labels
+        for label_attr in ["Fractal_label", "Spiro_label", "Drawing_label", "Edit_label"]:
+            label = getattr(self, label_attr)
+            label.configure(bg=colors["labels_bg"][index], fg=colors["labels_fg"][index])
+
+        # Apply colors on any buttons if they exist
+        for btn in self.buttons if hasattr(self, 'buttons') else []:
+            btn.configure(bg=colors["button_bg"][index], fg=colors["button_fg"][index])
+        
         
 
-    '''   # State variables
-        self.active_tool = None
-        self.start_point = None
-
-    def set_active_tool(self, tool_name):
-        """Set the currently active drawing tool."""
-        self.active_tool = tool_name
-        self.start_point = None
-
-    def on_canvas_click(self, event):
-        """Handle canvas click events for drawing."""
-        if self.active_tool == "Line":
-            if self.start_point is None:
-                self.start_point = (event.x, event.y)
-            else:
-                self.canvas.draw_line(self.start_point, (event.x, event.y))
-                self.start_point = None
-
-    def clear_canvas(self):
-        """Clear all drawings from the canvas."""
-        self.canvas.clear()'''
 
     def start(self):
         """Start the Tkinter main event loop."""
