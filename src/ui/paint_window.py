@@ -5,8 +5,7 @@ Integrates Toolbar and Canvas widgets modules.
 """
 
 import tkinter as tk
-#from src.ui.toolbar import Toolbar
-#from src.ui.canvas_widgets import DrawingCanvas
+from toolbar import Toolbar
 
 class PaintWindow:
     """
@@ -36,10 +35,22 @@ class PaintWindow:
         self.toolbar_frame.pack_propagate(False)
         
         # Create specific tool buttons (placeholders)
-        self.create_toolbar_subframes("Fractal")
+        """self.create_toolbar_subframes("Fractal")
         self.create_toolbar_subframes("Spiro")
         self.create_toolbar_subframes("Drawing")
-        self.create_toolbar_subframes("Edit")
+        self.create_toolbar_subframes("Edit")"""
+
+        self.subframe_dict = {}
+        self.subframes_list = ["Fractal", "Spiro", "Drawing", "Edit"]
+        for category in self.subframes_list:
+            frame = self.create_toolbar_subframes(category)
+            self.subframe_dict[category] = frame
+            toolbar = Toolbar(frame, category=category, bg="#252526", fg="white")
+            toolbar.pack()
+            
+            
+
+
 
         # Canvas frame
         self.canvas_frame = tk.Frame(self.root, bg="#252526")
@@ -49,6 +60,8 @@ class PaintWindow:
         # Initialize secondary canvas but do not pack it yet
         self.secundary_canvas_frame = tk.Frame(self.canvas_frame, bg="#252526")    
         self.Secundary_Canvas = tk.Canvas(self.secundary_canvas_frame, bg="#252526", height=2)
+
+        
 
     def update_secondary_canvas(self, active_fractal_tools):
         """Show or hide the secondary canvas based on selected fractal tools."""
