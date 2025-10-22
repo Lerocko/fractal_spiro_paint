@@ -30,27 +30,14 @@ class PaintWindow:
         self.files_frame.pack_propagate(False)
 
         # Toolbar frame
-        self.toolbar_frame = tk.Frame(self.root, bg="#252526", height=120)
+        self.toolbar_frame = tk.Frame(self.root, bg="#252526", height=80)
         self.toolbar_frame.pack(side=tk.TOP, fill=tk.X)
         self.toolbar_frame.pack_propagate(False)
         
         # Create specific tool buttons (placeholders)
-        """self.create_toolbar_subframes("Fractal")
-        self.create_toolbar_subframes("Spiro")
-        self.create_toolbar_subframes("Drawing")
-        self.create_toolbar_subframes("Edit")"""
-
-        self.subframe_dict = {}
-        self.subframes_list = ["Fractal", "Spiro", "Drawing", "Edit"]
-        for category in self.subframes_list:
-            frame = self.create_toolbar_subframes(category)
-            self.subframe_dict[category] = frame
-            toolbar = Toolbar(frame, category=category, bg="#252526", fg="white")
-            toolbar.pack()
-            
-            
-
-
+        subframes = ["Fractal", "Spiro", "Drawing", "Edit"]
+        for name in subframes:
+            self.create_toolbar_subframes(name)
 
         # Canvas frame
         self.canvas_frame = tk.Frame(self.root, bg="#252526")
@@ -73,14 +60,30 @@ class PaintWindow:
             self.Secundary_Canvas.pack(side=tk.BOTTOM, fill=tk.X)
 
     # Create toolbar sub-frames
-    def create_toolbar_subframes(self, name, bg="#252526", side=tk.LEFT, padx=120):
+    def create_toolbar_subframes(self, name, bg="#252526"):
         """Create sub-frames within the toolbar for different tool categories."""
+        # Outer frame for each category
         frame = tk.Frame(self.toolbar_frame, bg=bg)
-        frame.pack(side=side, padx=padx)
-        label = tk.Label(frame, text=f"{name} Tools", bg=bg, fg="white")
-        label.pack()
+        frame.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, padx=0, pady=0)
         setattr(self, f"{name}_frame", frame)
+
+        # Inner frame for buttons
+        buttons_frame = tk.Frame(frame, bg=bg)
+        buttons_frame.pack(side=tk.TOP, pady=2)  
+
+        # Create Toolbar instance for the category
+        buttons = Toolbar(buttons_frame, category=name)
+        buttons.pack()  
+        setattr(self, f"{name}_buttons", buttons)
+
+        # Label for the category
+        label = tk.Label(frame, text=f"{name} Tools", bg=bg, fg="white")
+        label.pack(side=tk.BOTTOM, pady=2)  
         setattr(self, f"{name}_label", label)
+
+        return frame
+
+
     
     def toggle_theme(self, theme):
         # Define color schemes for dark and light themes
