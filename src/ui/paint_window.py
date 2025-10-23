@@ -24,6 +24,7 @@ class PaintWindow:
         self.root.geometry(f"{self.width}x{self.height}+250+60")
         self.root.configure(bg="#1e1e1e")
         self.root.attributes("-alpha", 1)
+        self.current_theme = "dark"  # Default theme
 
         # Files frame
         self.files_frame = tk.Frame(self.root, bg="#252526", height=40)
@@ -36,34 +37,55 @@ class PaintWindow:
         self.toolbar_frame.pack_propagate(False)
 
         # Create File frame buttons
-        self.files_frame_buttons = Menubar(self.files_frame)
+        self.files_frame_buttons = Menubar(self.files_frame, self.on_file_action)
         self.files_frame_buttons.pack(fill=tk.X)
-        
-        
-        # Create specific tool buttons (placeholders)
+
+        # Create specific tool buttons frames in the toolbar frame
         subframes = ["Fractal", "Spiro", "Drawing", "Edit"]
         for name in subframes:
-            self.create_toolbar_subframes(name)
-
+            self.create_toolbar_subframes(name, on_click_callback=self.on_tool_selected)      
+        
         # Canvas frame
         self.canvas_frame = tk.Frame(self.root, bg="#252526")
         self.canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         self.Main_Canvas = tk.Canvas(self.canvas_frame, bg="#1E1E20", highlightthickness=0)
         self.Main_Canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
         # Initialize secondary canvas but do not pack it yet
-        self.secundary_canvas_frame = tk.Frame(self.canvas_frame, bg="#252526")    
-        self.Secundary_Canvas = tk.Canvas(self.secundary_canvas_frame, bg="#252526", height=2)
+        self.secondary_canvas_frame = tk.Frame(self.canvas_frame, bg="#252526")    
+        self.Secondary_Canvas = tk.Canvas(self.secondary_canvas_frame, bg="#252526", height=2)
 
-        
+    def on_file_action(self, action):
+        """Handle clicks from Menubar buttons."""
+        if action == "Dark/Light":
+            new_theme = "light" if self.current_theme == "dark" else "dark"
+            self.toggle_theme(new_theme)
 
-    def update_secondary_canvas(self, active_fractal_tools):
+    def on_tool_selected(self, category, tool):
+        """Handle clicks from Toolbar buttons."""
+        if category == "Fractal":
+            self.activate_fractal_canvas()
+        else:
+            self.deactivate_fractal_canvas()
+
+    def activate_fractal_canvas(self):
+        """Show the secondary canvas."""
+        self.secondary_canvas_frame.pack(side=tk.BOTTOM, padx=150, pady=50)
+        self.Secondary_Canvas.pack(side=tk.BOTTOM, fill=tk.X)
+
+    def deactivate_fractal_canvas(self):
+        """Hide the secondary canvas."""
+        self.secondary_canvas_frame.pack_forget()
+        self.Secondary_Canvas.pack_forget()
+
+    '''def update_secondary_canvas(self, active_fractal_tools):
         """Show or hide the secondary canvas based on selected fractal tools."""
         fractal_tool = "SomeFractalTool"  # Replace with actual tool name to check):
-        self.secundary_canvas_frame.pack_forget()
-        self.Secundary_Canvas.pack_forget()
+        self.secondary_canvas_frame.pack_forget()
+        self.Secondary_Canvas.pack_forget()
         if fractal_tool in active_fractal_tools:
-            self.secundary_canvas_frame.pack(side=tk.BOTTOM, padx=150, pady=50)
-            self.Secundary_Canvas.pack(side=tk.BOTTOM, fill=tk.X)
+            self.secondary_canvas_frame.pack(side=tk.BOTTOM, padx=150, pady=50)
+            self.Secondary_Canvas.pack(side=tk.BOTTOM, fill=tk.X)'''
 
     # Create toolbar sub-frames
     def create_toolbar_subframes(self, name, bg="#252526"):
@@ -114,8 +136,8 @@ class PaintWindow:
 
         # Apply colors on canvases
         self.Main_Canvas.configure(bg=colors["canvas_main"][index])
-        self.secundary_canvas_frame.configure(bg=colors["canvas_sec"][index])
-        self.Secundary_Canvas.configure(bg=colors["canvas_sec"][index])
+        self.secondary_canvas_frame.configure(bg=colors["canvas_sec"][index])
+        self.Secondary_Canvas.configure(bg=colors["canvas_sec"][index])
 
         # Apply colors on labels
         for label_attr in ["Fractal_label", "Spiro_label", "Drawing_label", "Edit_label"]:
@@ -125,6 +147,8 @@ class PaintWindow:
         # Apply colors on any buttons if they exist
         for btn in self.buttons if hasattr(self, 'buttons') else []:
             btn.configure(bg=colors["button_bg"][index], fg=colors["button_fg"][index])
+
+        self.current_theme = theme
         
         
 
