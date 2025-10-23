@@ -9,14 +9,15 @@ class Toolbar(tk.Frame):
     """
     Generator of toolbar buttons
     """
-    def __init__(self, parent, category, bg="#252526", fg="white"):
+    def __init__(self, parent, category, bg="#252526", fg="white", on_click_callback=None):
         super().__init__(parent, bg=bg)
-        self.parent = parent
+        #self.parent = parent
         self.category = category
         self.bg = bg
         self.fg = fg
-        self.current_tool = None
-        self.current_category = None
+        #self.current_tool = None
+        #self.current_category = None
+        self.on_click_callback = on_click_callback
                 
         self.buttons_by_category = {
             "Fractal": ["Line", "Path", "Poligon"],
@@ -36,15 +37,14 @@ class Toolbar(tk.Frame):
                 fg=self.fg,
                 width=10,
                 height=2,
-                command=lambda n=name: self.on_button_click(n)   
+                command=lambda n=name: self.on_click_callback(self.category, n)   
             )
             button.pack(side=tk.LEFT, padx=5, pady=5)
 
     def on_button_click(self, name):
         """Handle button click events."""
-        
-        self.current_category = self.category
-        self.current_tool = name
+        if self.on_click_callback:
+            self.on_click_callback(self.category, name)
 
     
         

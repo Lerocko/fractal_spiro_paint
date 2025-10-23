@@ -10,11 +10,11 @@ class Menubar(tk.Frame):
     """
     def __init__(self, parent, bg="#252526", fg="white", on_click_callback=None):
         super().__init__(parent, bg=bg)
-        self.parent = parent
+        #self.parent = parent
         self.bg = bg
         self.fg = fg
         self.on_click_callback = on_click_callback
-        self.current_file_action = None
+        #self.current_file_action = None
                 
         self.file_buttons = ["New", "Open", "Save", "Save As", "Export", "Exit", "Dark/Light"]
         self.generate_file_buttons()
@@ -22,6 +22,7 @@ class Menubar(tk.Frame):
     def generate_file_buttons(self):
         """Generate file menu buttons dynamically."""
         for name in self.file_buttons:
+            side = tk.RIGHT if name == "Dark/Light" else tk.LEFT
             button = tk.Button(
                 self,
                 text=name,
@@ -31,16 +32,10 @@ class Menubar(tk.Frame):
                 height=2,
                 command=lambda n=name: self.on_file_button_click(n)   
             )
-            if name is not "Dark/Light":
-                button.config(command=lambda n=name: self.on_click_callback(n))
-                button.pack(side=tk.LEFT, padx=5, pady=5)
-            else:
-                button.pack(side=tk.RIGHT, padx=5, pady=5)
+            button.pack(side=side, padx=5, pady=5)
             
 
     def on_file_button_click(self, name):
         """Handle file button click events."""
-        if name == "Dark/Light":
-            self.current_file_action = "light"
-        else:
-            self.current_file_action = name
+        if self.on_click_callback:
+            self.on_click_callback(name)

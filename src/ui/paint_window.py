@@ -37,7 +37,7 @@ class PaintWindow:
         self.toolbar_frame.pack_propagate(False)
 
         # Create File frame buttons
-        self.files_frame_buttons = Menubar(self.files_frame, self.on_file_action)
+        self.files_frame_buttons = Menubar(self.files_frame, on_click_callback=self.on_file_action)
         self.files_frame_buttons.pack(fill=tk.X)
 
         # Create specific tool buttons frames in the toolbar frame
@@ -64,20 +64,12 @@ class PaintWindow:
     def on_tool_selected(self, category, tool):
         """Handle clicks from Toolbar buttons."""
         if category == "Fractal":
-            self.activate_fractal_canvas()
+            self.secondary_canvas_frame.pack(side=tk.BOTTOM, padx=150, pady=50)
+            self.Secondary_Canvas.pack(side=tk.BOTTOM, fill=tk.X)
         else:
-            self.deactivate_fractal_canvas()
-
-    def activate_fractal_canvas(self):
-        """Show the secondary canvas."""
-        self.secondary_canvas_frame.pack(side=tk.BOTTOM, padx=150, pady=50)
-        self.Secondary_Canvas.pack(side=tk.BOTTOM, fill=tk.X)
-
-    def deactivate_fractal_canvas(self):
-        """Hide the secondary canvas."""
-        self.secondary_canvas_frame.pack_forget()
-        self.Secondary_Canvas.pack_forget()
-
+            self.secondary_canvas_frame.pack_forget()
+            self.Secondary_Canvas.pack_forget()
+        
     '''def update_secondary_canvas(self, active_fractal_tools):
         """Show or hide the secondary canvas based on selected fractal tools."""
         fractal_tool = "SomeFractalTool"  # Replace with actual tool name to check):
@@ -88,7 +80,7 @@ class PaintWindow:
             self.Secondary_Canvas.pack(side=tk.BOTTOM, fill=tk.X)'''
 
     # Create toolbar sub-frames
-    def create_toolbar_subframes(self, name, bg="#252526"):
+    def create_toolbar_subframes(self, name, bg="#252526", on_click_callback=None):
         """Create sub-frames within the toolbar for different tool categories."""
         # Outer frame for each category
         frame = tk.Frame(self.toolbar_frame, bg=bg)
@@ -100,7 +92,7 @@ class PaintWindow:
         buttons_frame.pack(side=tk.TOP, pady=2)  
 
         # Create Toolbar instance for the category
-        buttons = Toolbar(buttons_frame, category=name)
+        buttons = Toolbar(buttons_frame, category=name, on_click_callback=on_click_callback)
         buttons.pack()  
         setattr(self, f"{name}_buttons", buttons)
 
