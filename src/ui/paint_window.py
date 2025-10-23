@@ -81,7 +81,7 @@ class PaintWindow:
         label.pack(side=tk.BOTTOM, pady=2)  
         setattr(self, f"{name}_label", label)
 
-        return frame
+        #return frame
 
 
     
