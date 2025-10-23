@@ -111,6 +111,7 @@ class PaintWindow:
         "root": ("#1e1e1e", "#f0f0f0"),
         "files_frame": ("#252526", "#dcdcdc"),
         "toolbar_frame": ("#252526", "#dcdcdc"),
+        "canvas_frame": ("#252526", "#e0e0e0"),
         "canvas_main": ("#1E1E20", "#ffffff"),
         "canvas_sec": ("#252526", "#e0e0e0"),
         "labels_bg": ("#252526", "#dcdcdc"),
