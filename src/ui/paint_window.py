@@ -6,6 +6,7 @@ Integrates Toolbar and Canvas widgets modules.
 
 import tkinter as tk
 from toolbar import Toolbar
+from menubar import Menubar
 
 class PaintWindow:
     """
@@ -33,6 +34,11 @@ class PaintWindow:
         self.toolbar_frame = tk.Frame(self.root, bg="#252526", height=80)
         self.toolbar_frame.pack(side=tk.TOP, fill=tk.X)
         self.toolbar_frame.pack_propagate(False)
+
+        # Create File frame buttons
+        self.files_frame_buttons = Menubar(self.files_frame)
+        self.files_frame_buttons.pack(fill=tk.X)
+        
         
         # Create specific tool buttons (placeholders)
         subframes = ["Fractal", "Spiro", "Drawing", "Edit"]
@@ -81,7 +87,7 @@ class PaintWindow:
         label.pack(side=tk.BOTTOM, pady=2)  
         setattr(self, f"{name}_label", label)
 
-        #return frame
+        
 
 
     

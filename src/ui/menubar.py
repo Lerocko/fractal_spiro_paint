@@ -17,35 +17,24 @@ class Menubar(tk.Frame):
                 
         self.file_buttons = ["New", "Open", "Save", "Save As", "Export", "Exit", "Dark/Light"]
         self.generate_file_buttons()
-        
-        
 
     def generate_file_buttons(self):
         """Generate file menu buttons dynamically."""
-        if not self.file_buttons == "Dark/Light":
-            for name in self.file_buttons:
-                button = tk.Button(
-                    self,
-                    text=name,
-                    bg=self.bg,
-                    fg=self.fg,
-                    width=10,
-                    height=2,
-                    command=lambda n=name: self.on_file_button_click(n)   
-                )
-                button.pack(side=tk.LEFT, padx=5, pady=5)
-            
-        else:
+        for name in self.file_buttons:
             button = tk.Button(
                 self,
-                text="Dark/Light",
+                text=name,
                 bg=self.bg,
                 fg=self.fg,
                 width=10,
                 height=2,
-                command=lambda: self.on_file_button_click("Dark/Light")   
+                command=lambda n=name: self.on_file_button_click(n)   
             )
-            button.pack(side=tk.LEFT, padx=5, pady=5)
+            if name is not "Dark/Light":
+                button.pack(side=tk.LEFT, padx=5, pady=5)
+            else:
+                button.pack(side=tk.RIGHT, padx=5, pady=5)
+            
 
     def on_file_button_click(self, name):
         """Handle file button click events."""
