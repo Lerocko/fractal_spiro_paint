@@ -20,15 +20,15 @@ class Toolbar(tk.Frame):
         self.on_click_callback = on_click_callback
 
         self.subframe = tk.Frame(self, bg=self.bg)
-        self.subframe.pack()
+        self.subframe.pack(fill=tk.BOTH, expand=True)
         self.subframe.pack_propagate(False)
 
         self.button_frames = tk.Frame(self.subframe, bg=self.bg)
-        self.button_frames.pack()
+        self.button_frames.pack(fill=tk.BOTH, expand=True)
         self.button_frames.pack_propagate(False)
 
         self.label_subframe = tk.Label(self.subframe, bg=self.bg, fg=self.fg, text=f"{self.category} Tools")
-        self.label_subframe.pack(side=tk.BOTTOM)
+        self.label_subframe.pack(side=tk.BOTTOM, fill=tk.X)
         
                 
         self.buttons_by_category = {
@@ -51,12 +51,12 @@ class Toolbar(tk.Frame):
                 height=2,
                 command=lambda n=name: self.on_click_callback(self.category, n)   
             )
-            button.pack(side=tk.LEFT, padx=5, pady=5)
+            button.pack(side=tk.LEFT, padx=5, pady=5, expand=True)
 
     def update_theme(self, colors, index):
         self.subframe.configure(bg=colors["subframe"][index])
         self.button_frames.configure(bg=colors["buttonsframe"][index])
-        self.label_subframe.configure(bg=colors["labels_bg"][index])
+        self.label_subframe.configure(bg=colors["labels_bg"][index], fg=colors["labels_fg"][index])
         for btn in self.button_frames.winfo_children():
             btn.configure(bg=colors["buttons_bg"][index], fg=colors["buttons_fg"][index])
 

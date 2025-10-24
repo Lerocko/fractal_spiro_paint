@@ -83,7 +83,7 @@ class PaintWindow:
             "canvas_frame": ("#252526", "#e0e0e0"),
             "canvas_main": ("#1E1E20", "#ffffff"),
             "canvas_sec": ("#252526", "#e0e0e0"),
-            "labels_bg": ("white", "black"),
+            "labels_bg": ("#252526", "#dcdcdc"),
             "labels_fg": ("white", "black"),
             "buttons_bg": ("#252526", "#dcdcdc"),
             "buttons_fg": ("white", "black"),

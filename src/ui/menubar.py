@@ -37,6 +37,7 @@ class Menubar(tk.Frame):
             self.file_buttons_widgets.append(button)
 
     def update_theme(self, colors, index):
+        self.configure(bg=colors["files_frame"][index])
         for btn in self.file_buttons_widgets:
             btn.configure(bg=colors["buttons_bg"][index], fg=colors["buttons_fg"][index])
             
