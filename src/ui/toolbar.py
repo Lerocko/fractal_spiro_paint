@@ -18,6 +18,18 @@ class Toolbar(tk.Frame):
         #self.current_tool = None
         #self.current_category = None
         self.on_click_callback = on_click_callback
+
+        self.subframe = tk.Frame(self, bg=self.bg)
+        self.subframe.pack()
+        self.subframe.pack_propagate(False)
+
+        self.button_frames = tk.Frame(self.subframe, bg=self.bg)
+        self.button_frames.pack()
+        self.button_frames.pack_propagate(False)
+
+        self.label_subframe = tk.Label(self.subframe, bg=self.bg, fg=self.fg, text=f"{self.category} Tools")
+        self.label_subframe.pack(side=tk.BOTTOM)
+        
                 
         self.buttons_by_category = {
             "Fractal": ["Line", "Path", "Poligon"],
@@ -31,7 +43,7 @@ class Toolbar(tk.Frame):
         """Generate toolbar buttons dynamically, given a list of button names."""
         for name in self.buttons_by_category.get(self.category, []):
             button = tk.Button(
-                self,
+                self.button_frames,
                 text=name,
                 bg=self.bg,
                 fg=self.fg,
@@ -40,6 +52,13 @@ class Toolbar(tk.Frame):
                 command=lambda n=name: self.on_click_callback(self.category, n)   
             )
             button.pack(side=tk.LEFT, padx=5, pady=5)
+
+    def update_theme(self, colors, index):
+        self.subframe.configure(bg=colors["subframe"][index])
+        self.button_frames.configure(bg=colors["buttonsframe"][index])
+        self.label_subframe.configure(bg=colors["labels_bg"][index])
+        for btn in self.button_frames.winfo_children():
+            btn.configure(bg=colors["buttons_bg"][index], fg=colors["buttons_fg"][index])
 
     def on_button_click(self, name):
         """Handle button click events."""

@@ -21,6 +21,7 @@ class Menubar(tk.Frame):
 
     def generate_file_buttons(self):
         """Generate file menu buttons dynamically."""
+        self.file_buttons_widgets = []
         for name in self.file_buttons:
             side = tk.RIGHT if name == "Dark/Light" else tk.LEFT
             button = tk.Button(
@@ -33,6 +34,11 @@ class Menubar(tk.Frame):
                 command=lambda n=name: self.on_file_button_click(n)   
             )
             button.pack(side=side, padx=5, pady=5)
+            self.file_buttons_widgets.append(button)
+
+    def update_theme(self, colors, index):
+        for btn in self.file_buttons_widgets:
+            btn.configure(bg=colors["buttons_bg"][index], fg=colors["buttons_fg"][index])
             
 
     def on_file_button_click(self, name):
