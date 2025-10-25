@@ -92,9 +92,18 @@ class PaintWindow:
         self.main_canvas = tk.Canvas(self.canvas_frame, bg=COLORS["canvas_main"][0], highlightthickness=0)
         self.main_canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        self.secondary_canvas_frame = tk.Frame(self.canvas_frame, bg=COLORS["canvas_sec"][0])    
-        self.secondary_canvas = tk.Canvas(self.secondary_canvas_frame, bg=COLORS["canvas_sec"][0], 
-                                          width=SECONDARY_CANVAS_WIDTH , height=SECONDARY_CANVAS_HEIGHT)
+        self.secondary_canvas_frame = tk.Frame(
+            self.canvas_frame,
+            width=SECONDARY_CANVAS_WIDTH , 
+            height=SECONDARY_CANVAS_HEIGHT,
+            bg=COLORS["canvas_sec"][0])                                     
+        
+
+        self.secondary_canvas = tk.Canvas(
+            self.secondary_canvas_frame,
+            bg=COLORS["canvas_sec"][0])
+        self.secondary_canvas.pack(fill=tk.BOTH, expand=True)
+        
         
     
     # --- Event handlers ---
@@ -107,11 +116,10 @@ class PaintWindow:
     def on_tool_selected(self, category: str, tool: str) -> None:
         """Handle toolbar button clicks."""
         if category == "Fractal":
-            self.secondary_canvas_frame.pack(side=tk.BOTTOM, padx=150, pady=50)
-            self.secondary_canvas.pack(side=tk.BOTTOM, fill=tk.X)
+            self.secondary_canvas_frame.place(x=10, y=self.height - SECONDARY_CANVAS_HEIGHT - 10)
         else:
-            self.secondary_canvas_frame.pack_forget()
-            self.secondary_canvas.pack_forget()
+            self.secondary_canvas_frame.place_forget()
+            
 
     # --- Theme handling ---    
     def toggle_theme(self, theme: Literal["dark", "light"]) -> None:
@@ -134,7 +142,7 @@ class PaintWindow:
 
         self.current_theme = theme
 
-    def start(self):
+    def start(self) -> None:
         """Start the Tkinter main event loop."""
         self.root.mainloop()
 
