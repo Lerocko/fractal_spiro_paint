@@ -41,7 +41,24 @@ class Toolbar(tk.Frame):
 
     def generate_buttons(self):
         """Generate toolbar buttons dynamically, given a list of button names."""
-        for name in self.buttons_by_category.get(self.category, []):
+        for child in self.button_frames.winfo_children():
+            child.destroy()
+            
+        names = self.buttons_by_category.get(self.category, [])
+        for col, name in enumerate(names):
+            btn = tk.Button(
+                self.button_frames,
+                text=name,
+                bg=self.bg,
+                fg=self.fg,
+                command=lambda n=name: self.on_click_callback(self.category, n)
+            )
+            btn.grid(row=0, column=col, sticky="nsew", padx=3, pady=3)
+        
+        for i in range(len(names)):
+            self.button_frames.columnconfigure(i, weight=1)
+        self.button_frames.rowconfigure(0, weight=1)
+        '''for name in self.buttons_by_category.get(self.category, []):
             button = tk.Button(
                 self.button_frames,
                 text=name,
@@ -51,7 +68,7 @@ class Toolbar(tk.Frame):
                 height=2,
                 command=lambda n=name: self.on_click_callback(self.category, n)   
             )
-            button.pack(side=tk.LEFT, padx=5, pady=5, expand=True)
+            button.pack(side=tk.LEFT, padx=5, pady=5, expand=True)'''
 
     def update_theme(self, colors, index):
         self.subframe.configure(bg=colors["subframe"][index])

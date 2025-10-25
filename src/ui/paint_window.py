@@ -52,6 +52,9 @@ class PaintWindow:
         self.root = tk.Tk()
         self.root.title("Fractal Spiro Paint")
         self.root.geometry(f"{self.width}x{self.height}+{WINDOW_X_OFFSET}+{WINDOW_Y_OFFSET}")
+        self.root.update_idletasks()
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight() - 40 
         self.root.configure(bg=COLORS["root"][0])
         self.root.attributes("-alpha", 1)
 
@@ -60,6 +63,16 @@ class PaintWindow:
         self._init_toolbars()
         self._init_canvases()
 
+        self.root.bind("<Configure>", self._on_window_resize)
+
+    def _on_window_resize(self, event):
+        """Keep secondary canvas visible inside canvas_frame."""
+        if hasattr(self, "secondary_canvas_frame") and self.secondary_canvas_frame.winfo_ismapped():
+            max_x = self.canvas_frame.winfo_width() - SECONDARY_CANVAS_WIDTH - 10
+            max_y = self.canvas_frame.winfo_height() - SECONDARY_CANVAS_HEIGHT - 10
+            # Mantener en esquina inferior izquierda por defecto
+            self.secondary_canvas_frame.place(x=10, y=max_y)
+        
         # --- Initialization methods ---
     def _init_frames(self) -> None:
         """Initialize main frames: files frame, toolbar frame, canvas frame."""
@@ -85,7 +98,8 @@ class PaintWindow:
         for category in CATEGORIES:
             tb = Toolbar(self.toolbar_frame, category=category, on_click_callback=self.on_tool_selected)
             tb.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, padx=2, pady=2)
-            self.toolbars[category] = tb   
+            tb.pack_propagate(False)
+            self.toolbars[category] = tb     
 
     def _init_canvases(self) -> None:
         """Initialize main and secondary canvases."""
@@ -96,11 +110,14 @@ class PaintWindow:
             self.canvas_frame,
             width=SECONDARY_CANVAS_WIDTH , 
             height=SECONDARY_CANVAS_HEIGHT,
-            bg=COLORS["canvas_sec"][0])                                     
+            bg=COLORS["canvas_sec"][0])         
+        self.secondary_canvas_frame.pack_propagate(False)                            
         
 
         self.secondary_canvas = tk.Canvas(
             self.secondary_canvas_frame,
+            width=SECONDARY_CANVAS_WIDTH,
+            height=SECONDARY_CANVAS_HEIGHT,
             bg=COLORS["canvas_sec"][0])
         self.secondary_canvas.pack(fill=tk.BOTH, expand=True)
         
@@ -115,8 +132,12 @@ class PaintWindow:
 
     def on_tool_selected(self, category: str, tool: str) -> None:
         """Handle toolbar button clicks."""
+        self.root.update_idletasks()
         if category == "Fractal":
-            self.secondary_canvas_frame.place(x=10, y=self.height - SECONDARY_CANVAS_HEIGHT - 10)
+            max_y = self.canvas_frame.winfo_height() - SECONDARY_CANVAS_HEIGHT - 10
+            if max_y < 0:
+                max_y = 10
+            self.secondary_canvas_frame.place(x=10, y=max_y)
         else:
             self.secondary_canvas_frame.place_forget()
             
