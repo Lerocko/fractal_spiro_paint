@@ -29,11 +29,11 @@ class Menubar(tk.Frame):
                 text=name,
                 bg=self.bg,
                 fg=self.fg,
-                width=10,
-                height=2,
+                width=8,
+                height=1,
                 command=lambda n=name: self.on_file_button_click(n)   
             )
-            button.pack(side=side, padx=5, pady=5)
+            button.pack(side=side, padx=3, pady=5)
             self.file_buttons_widgets.append(button)
 
     def update_theme(self, colors, index):

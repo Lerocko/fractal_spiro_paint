@@ -58,10 +58,10 @@ class PaintWindow:
         self.root.configure(bg=COLORS["root"][0])
         self.root.attributes("-alpha", 1)
 
-        self._init_frames()
+        #self._init_frames()
         self._init_menubar()
         self._init_toolbars()
-        self._init_canvases()
+        #self._init_canvases()
 
         self.root.bind("<Configure>", self._on_window_resize)
 
@@ -89,17 +89,22 @@ class PaintWindow:
         
     def _init_menubar(self) -> None:
         """Initialize the file menu buttons (Menubar)."""
-        self.files_frame_buttons = Menubar(self.files_frame, on_click_callback=self.on_file_action)
-        self.files_frame_buttons.pack(fill=tk.X)
+        self.files_frame_buttons = Menubar(self.root, on_click_callback=self.on_file_action)
+        self.files_frame_buttons.pack(side=tk.TOP, fill=tk.X)
         
     def _init_toolbars(self) -> None:
         """Initialize toolbar buttons for each category."""
-        self.toolbars = {}
+        tb = Toolbar(self.root, on_click_callback=self.on_tool_selected)
+        tb.generate_tools()
+        tb.pack(side=tk.TOP, fill=tk.X)
+
+        '''self.toolbars = {}
         for category in CATEGORIES:
-            tb = Toolbar(self.toolbar_frame, category=category, on_click_callback=self.on_tool_selected)
-            tb.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, padx=2, pady=2)
+            tb = Toolbar(self.root, category=category, on_click_callback=self.on_tool_selected)
+            tb.pack(side=tk.TOP, expand=True, fill=tk.X)#, padx=2, pady=2)
             tb.pack_propagate(False)
-            self.toolbars[category] = tb     
+            self.toolbars[category] = tb'''
+             
 
     def _init_canvases(self) -> None:
         """Initialize main and secondary canvases."""
