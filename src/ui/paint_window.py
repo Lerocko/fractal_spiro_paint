@@ -97,15 +97,7 @@ class PaintWindow:
         tb = Toolbar(self.root, on_click_callback=self.on_tool_selected)
         tb.generate_tools()
         tb.pack(side=tk.TOP, fill=tk.X)
-
-        '''self.toolbars = {}
-        for category in CATEGORIES:
-            tb = Toolbar(self.root, category=category, on_click_callback=self.on_tool_selected)
-            tb.pack(side=tk.TOP, expand=True, fill=tk.X)#, padx=2, pady=2)
-            tb.pack_propagate(False)
-            self.toolbars[category] = tb'''
-             
-
+     
     def _init_canvases(self) -> None:
         """Initialize main and secondary canvases."""
         self.main_canvas = tk.Canvas(self.canvas_frame, bg=COLORS["canvas_main"][0], highlightthickness=0)
@@ -117,7 +109,6 @@ class PaintWindow:
             height=SECONDARY_CANVAS_HEIGHT,
             bg=COLORS["canvas_sec"][0])         
         self.secondary_canvas_frame.pack_propagate(False)                            
-        
 
         self.secondary_canvas = tk.Canvas(
             self.secondary_canvas_frame,

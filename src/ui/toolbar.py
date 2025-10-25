@@ -29,21 +29,22 @@ class Toolbar(tk.Frame):
         self.buttons_dic = {}
         for subfr in CATEGORIES:
             subframe = tk.Frame(self, bg=self.bg)
-            subframe.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            subframe.pack(side=tk.LEFT, fill=tk.Y, expand=True)
             self.subframes_dic[subfr] = subframe
 
             buttons = BUTTONS_BY_CATEGORY[subfr]
             self.buttons_dic[subfr] = []
             for i, name in enumerate(buttons):
-                row, col = i // 2, i % 2
+                row, col = i // 3, i % 3
                 btn = tk.Button(subframe, text=name, bg=self.bg, fg=self.fg,
                         command=lambda n=name: self.on_click_callback(subfr, n))
-                btn.grid(row=row, column=col, sticky="nsew", padx=1, pady=1)
+                btn.grid(row=row, column=col, sticky="nsew", padx=3, pady=1, ipadx=5, ipady=5)
                 self.buttons_dic[subfr].append(btn)
 
+            
             label_row = (len(buttons)+1)//2
             label = tk.Label(subframe, text=f"{subfr} Tools", bg=self.bg, fg=self.fg)
-            label.grid(row=label_row, column=0, columnspan=2)
+            label.grid(row=label_row, column=0, columnspan=3)
             self.buttons_dic[subfr].append(label)
 
     def update_theme(self, colors, index):
