@@ -1,7 +1,11 @@
 import tkinter as tk
+from typing import Literal
+
+SECONDARY_CANVAS_WIDTH = 200
+SECONDARY_CANVAS_HEIGHT = 150
 
 
-class CanvasWidget(tk.Frame):
+class MainCanvas(tk.Frame):
     """
     Main interactive drawing area of the application.
     
@@ -10,7 +14,7 @@ class CanvasWidget(tk.Frame):
     between the UI (Toolbar) and the mathematical modules (Fractal/Spiro logic).
     """
 
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent, bg="#252526", fg="white"):
         """
         Initialize the main canvas widget.
 
@@ -18,18 +22,20 @@ class CanvasWidget(tk.Frame):
             parent (tk.Widget): The parent frame or window.
             **kwargs: Optional configuration parameters (e.g., background color).
         """
-        super().__init__(parent, **kwargs)
-
-        # Canvas setup
-        self.canvas = tk.Canvas(self, bg="white", cursor="cross")
+        super().__init__(parent, bg=bg)
+        self.bg = bg
+        self.fg = fg
+        self.canvas = None
+        self.current_tool = None
+        self.start_x = self.start_y = self.temp_shape = None
+        
+    def generate_main_canvas(self):
+        # Main canvas
+        self.canvas = tk.Canvas(self, bg=self.bg, cursor="cross")
         self.canvas.pack(fill=tk.BOTH, expand=True)
+        self._bind_events_main_canvas()
 
-        # Current drawing state
-        self.current_tool = None       # e.g., "line", "triangle", "spiro"
-        self.start_x = None
-        self.start_y = None
-        self.temp_shape = None         # Temporary preview shape
-
+    def _bind_events_main_canvas(self):
         # Bind mouse events
         self.canvas.bind("<Button-1>", self.on_click)
         self.canvas.bind("<B1-Motion>", self.on_drag)
@@ -99,3 +105,36 @@ class CanvasWidget(tk.Frame):
         """
         self.canvas.delete("all")
         print("[INFO] Canvas cleared")
+
+
+class SecundaryCanvas(tk.Frame):
+    def __init__(self, parent, bg="#252526", fg="white"):
+        super().__init__(parent, bg=bg)
+        self.bg = bg
+        self.fg = fg
+        self.secondary_canvas = None
+        self.current_tool = None
+        self.start_x = self.start_y = self.temp_shape = None
+
+    def generate_secondary_canvas(self):
+        # Secondary canvas
+        self.secondary_canvas = tk.Canvas(self, bg=self.bg, cursor="cross")
+        self.secondary_canvas.place(fill=tk.BOTH, expand=True)
+        self._bind_events_secondary_canvas()
+        self.hide()  # Oculto por defecto
+
+    def _bind_events_secondary_canvas(self):
+        self.secondary_canvas.bind("<Button-1>", self.on_click)
+        self.secondary_canvas.bind("<B1-Motion>", self.on_drag)
+        self.secondary_canvas.bind("<ButtonRelease-1>", self.on_release)
+
+    def show(self, x=10, y=None, width=200, height=150):
+        if y is None:
+            y = self.winfo_height() - height - 10
+        self.secondary_canvas.place(x=x, y=y, width=width, height=height)
+
+    def hide(self):
+        self.secondary_canvas.place_forget()
+
+
+

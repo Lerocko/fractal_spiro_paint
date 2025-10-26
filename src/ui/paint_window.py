@@ -58,7 +58,6 @@ class PaintWindow:
         self.root.configure(bg=COLORS["root"][0])
         self.root.attributes("-alpha", 1)
 
-        #self._init_frames()
         self._init_menubar()
         self._init_toolbars()
         #self._init_canvases()
@@ -73,20 +72,6 @@ class PaintWindow:
             # Mantener en esquina inferior izquierda por defecto
             self.secondary_canvas_frame.place(x=10, y=max_y)
         
-        # --- Initialization methods ---
-    def _init_frames(self) -> None:
-        """Initialize main frames: files frame, toolbar frame, canvas frame."""
-        self.files_frame = tk.Frame(self.root, bg=COLORS["files_frame"][0], height=40)
-        self.files_frame.pack(side=tk.TOP, fill=tk.X)
-        self.files_frame.pack_propagate(False)
-
-        self.toolbar_frame = tk.Frame(self.root, bg=COLORS["toolbar_frame"][0], height=80)
-        self.toolbar_frame.pack(side=tk.TOP, fill=tk.X)
-        self.toolbar_frame.pack_propagate(False)
-        
-        self.canvas_frame = tk.Frame(self.root, bg=COLORS["canvas_frame"][0])
-        self.canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        
     def _init_menubar(self) -> None:
         """Initialize the file menu buttons (Menubar)."""
         self.files_frame_buttons = Menubar(self.root, on_click_callback=self.on_file_action)
@@ -100,22 +85,7 @@ class PaintWindow:
      
     def _init_canvases(self) -> None:
         """Initialize main and secondary canvases."""
-        self.main_canvas = tk.Canvas(self.canvas_frame, bg=COLORS["canvas_main"][0], highlightthickness=0)
-        self.main_canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        self.secondary_canvas_frame = tk.Frame(
-            self.canvas_frame,
-            width=SECONDARY_CANVAS_WIDTH , 
-            height=SECONDARY_CANVAS_HEIGHT,
-            bg=COLORS["canvas_sec"][0])         
-        self.secondary_canvas_frame.pack_propagate(False)                            
-
-        self.secondary_canvas = tk.Canvas(
-            self.secondary_canvas_frame,
-            width=SECONDARY_CANVAS_WIDTH,
-            height=SECONDARY_CANVAS_HEIGHT,
-            bg=COLORS["canvas_sec"][0])
-        self.secondary_canvas.pack(fill=tk.BOTH, expand=True)
+        
         
         
     
