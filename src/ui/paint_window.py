@@ -99,11 +99,10 @@ class PaintWindow:
     def on_file_action(self, action: str) -> None:
         """Handle file menu button clicks."""
         if action in ["Light", "Dark"]:
+            new_theme = "light" if self.current_theme == "dark" else "dark"
             self.toggle_theme(new_theme)
             # Update the Dark/Light button text
-            self.menubar.file_buttons_widgets[-1].configure(
-                text="Light" if new_theme == "dark" else "Dark"
-            )
+            self.menubar.file_buttons_widgets[-1].configure(text="Light" if new_theme == "dark" else "Dark")
 
     # =============================================================
     # Theme handling
