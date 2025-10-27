@@ -149,21 +149,3 @@ class PaintWindow:
 if __name__ == "__main__":
     app = PaintWindow()
     app.start()
-    
-        
-    
-     
-    
-        
-    
-        
-    
-    
-
-    
-            
-
-
-    
-
-

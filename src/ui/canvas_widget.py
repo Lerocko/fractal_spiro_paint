@@ -74,8 +74,8 @@ class SecondaryCanvas(tk.Frame):
 
     def generate_secondary_canvas(self) -> None:
         """Create the secondary canvas and hide it by default."""
-        self.secondary_canvas = tk.Canvas(self, bg=self.bg, cursor="cross")
-        self.secondary_canvas.place(fill=tk.BOTH, expand=True)
+        self.secondary_canvas = tk.Canvas(self, bg=self.bg, cursor="cross", width=SECONDARY_CANVAS_WIDTH, height=SECONDARY_CANVAS_HEIGHT)
+        self.secondary_canvas.place(x=10, y=10)
         self._bind_events_secondary_canvas()
         self.hide()
 
