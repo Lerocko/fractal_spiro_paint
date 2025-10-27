@@ -49,7 +49,7 @@ class Menubar(tk.Frame):
     def generate_file_buttons(self) -> None:
         """Generate file menu buttons dynamically."""
         for name in FILE_BUTTONS:
-            side = tk.RIGHT if if name in ("Light", "Dark") else tk.LEFT
+            side = tk.RIGHT if name in ("Light", "Dark") else tk.LEFT
             button = tk.Button(
                 self,
                 text=name,
