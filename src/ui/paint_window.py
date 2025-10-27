@@ -7,6 +7,7 @@ Integrates Toolbar and Canvas widgets modules.
 import tkinter as tk
 from toolbar import Toolbar
 from menubar import Menubar
+from canvas_widget import MainCanvas, SecondaryCanvas
 from typing import Literal
 
 # Constants
@@ -79,23 +80,16 @@ class PaintWindow:
         
     def _init_toolbars(self) -> None:
         """Initialize toolbar buttons for each category."""
-        tb = Toolbar(self.root, on_click_callback=self.on_tool_selected)
-        tb.generate_tools()
-        tb.pack(side=tk.TOP, fill=tk.X)
+        self.toolbar = Toolbar(self.root, on_click_callback=self.on_tool_selected)
+        self.toolbar.generate_tools()
+        self.toolbar.pack(side=tk.TOP, fill=tk.X)
      
     def _init_canvases(self) -> None:
         """Initialize main and secondary canvases."""
+        self.maincanvas = MainCanvas(self.root, on_click_callback=self.on_tool_selected)
+        self.maincanvas.pack(side=tk.TOP, fill=tk.X)
+        self.secondarycanvas = SecondaryCanvas(self.maincanvas, on_click_callback=self.on_tool_selected)
         
-        
-        
-    
-    # --- Event handlers ---
-    def on_file_action(self, action: str) -> None:
-        """Handle file menu button clicks."""
-        if action == "Dark/Light":
-            new_theme = "light" if self.current_theme == "dark" else "dark"
-            self.toggle_theme(new_theme)
-
     def on_tool_selected(self, category: str, tool: str) -> None:
         """Handle toolbar button clicks."""
         self.root.update_idletasks()
@@ -106,6 +100,16 @@ class PaintWindow:
             self.secondary_canvas_frame.place(x=10, y=max_y)
         else:
             self.secondary_canvas_frame.place_forget()
+        
+    
+    # --- Event handlers ---
+    def on_file_action(self, action: str) -> None:
+        """Handle file menu button clicks."""
+        if action == "Dark/Light":
+            new_theme = "light" if self.current_theme == "dark" else "dark"
+            self.toggle_theme(new_theme)
+
+    
             
 
     # --- Theme handling ---    

@@ -41,7 +41,6 @@ class Toolbar(tk.Frame):
                 btn.grid(row=row, column=col, sticky="nsew", padx=3, pady=1, ipadx=5, ipady=5)
                 self.buttons_dic[subfr].append(btn)
 
-            
             label_row = (len(buttons)+1)//2
             label = tk.Label(subframe, text=f"{subfr} Tools", bg=self.bg, fg=self.fg)
             label.grid(row=label_row, column=0, columnspan=3)
