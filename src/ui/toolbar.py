@@ -110,6 +110,7 @@ class Toolbar(tk.Frame):
             index (int): Index for dark/light selection.
         """
         for subfr_name, subframe in self.subframes_dic.items():
+            self.configure(bg=colors["toolbar_frame"][index])
             subframe.configure(bg=colors["subframe"][index])
             for widget in subframe.winfo_children():
                 if isinstance(widget, tk.Button):
