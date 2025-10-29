@@ -2,16 +2,11 @@
 theme_manager.py
 Handles Dark and Light theme switching for the Fractal Spiro Paint window.
 """
-
-import tkinter as tk
 from typing import Literal
-
 # =============================================================
 # Constants
 # =============================================================
-
 DEFAULT_THEME: Literal["dark", "light"] = "dark"
-
 LIGHT_THEME = {
     "root": "#f0f0f0",
     "files_frame": "#dcdcdc",
@@ -25,7 +20,6 @@ LIGHT_THEME = {
     "buttons_bg": "#dcdcdc",
     "buttons_fg": "black",
 }
-
 DARK_THEME = {
     "root": "#1e1e1e",
     "files_frame": "#252526",
@@ -39,13 +33,10 @@ DARK_THEME = {
     "buttons_bg": "#252526",
     "buttons_fg": "white",
 }
-
 current_theme = DARK_THEME  # Start in dark mode
-
 # =============================================================
 # Theme management functions
 # =============================================================
-
 def set_theme(theme_name: str):
     """Switch between dark and light theme."""
     global current_theme

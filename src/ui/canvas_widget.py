@@ -57,44 +57,42 @@ class MainCanvas(tk.Frame):
 # ------------------------------------------------------------
 # Secondary Canvas
 # ------------------------------------------------------------
-class SecondaryCanvas(tk.Frame):
+class SecondaryCanvas(tk.Canvas):
     """
     Secondary canvas, hidden by default and shown when a specific
     tool/category is active.
     """
     def __init__(self, parent: tk.Widget, bg: str = DEFAULT_BG, fg: str = DEFAULT_FG) -> None:
-        super().__init__(parent, bg=bg)
+        super().__init__(parent, bg=bg, cursor="cross", width=SECONDARY_CANVAS_WIDTH, height=SECONDARY_CANVAS_HEIGHT)
         self.bg = bg
         self.fg = fg
-        self.secondary_canvas: tk.Canvas | None = None
         self.current_tool: str | None = None
         self.start_x: int | None = None
         self.start_y: int | None = None
         self.temp_shape: int | None = None
 
-    def generate_secondary_canvas(self) -> None:
-        """Create the secondary canvas and hide it by default."""
-        self.secondary_canvas = tk.Canvas(self, bg=self.bg, cursor="cross", width=SECONDARY_CANVAS_WIDTH, height=SECONDARY_CANVAS_HEIGHT)
-        self.secondary_canvas.place(x=10, y=10)
-        self._bind_events_secondary_canvas()
-        self.hide()
+        self._bind_events()
+        self.place_forget()
 
-    def _bind_events_secondary_canvas(self) -> None:
+    def _bind_events(self) -> None:
         """Bind mouse events to placeholder methods."""
-        self.secondary_canvas.bind("<Button-1>", self.on_click)
-        self.secondary_canvas.bind("<B1-Motion>", self.on_drag)
-        self.secondary_canvas.bind("<ButtonRelease-1>", self.on_release)
+        self.bind("<Button-1>", self.on_click)
+        self.bind("<B1-Motion>", self.on_drag)
+        self.bind("<ButtonRelease-1>", self.on_release)
 
     # ------------------------------------------------------------
     # Show/Hide
     # ------------------------------------------------------------
-    def show(self, x: int = 10, y: int | None = None, width: int = SECONDARY_CANVAS_WIDTH, height: int = SECONDARY_CANVAS_HEIGHT) -> None:
-        if y is None:
-            y = self.winfo_height() - height - 10
-        self.secondary_canvas.place(x=x, y=y, width=width, height=height)
+    def show(self) -> None:
+        """Show canvas in the bottom-left corner, adjusting to window size."""
+        self.master.update_idletasks()  # ensure geometry is updated
+        parent_height = self.master.winfo_height()
+        # Position 10px from left, 30px above bottom edge (avoid taskbar overlap)
+        y_position = max(10, parent_height - SECONDARY_CANVAS_HEIGHT - 30)
+        self.place(x=10, y=y_position)
 
     def hide(self) -> None:
-        self.secondary_canvas.place_forget()
+        self.place_forget()
 
     # ------------------------------------------------------------
     # Event placeholders (to be overridden by controller)

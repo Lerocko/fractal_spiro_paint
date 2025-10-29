@@ -9,6 +9,7 @@ from typing import Literal
 from toolbar import Toolbar
 from menubar import Menubar
 from canvas_widget import MainCanvas, SecondaryCanvas
+from theme_manager import set_theme, current_theme
 
 # =============================================================
 # Constants
@@ -84,7 +85,7 @@ class PaintWindow:
         self.main_canvas.pack(fill=tk.BOTH, expand=True)
 
         self.secondary_canvas = SecondaryCanvas(self.main_canvas)
-        self.secondary_canvas.generate_secondary_canvas()
+        
 
     # =============================================================
     # Event Handlers
@@ -120,7 +121,7 @@ class PaintWindow:
 
         # --- Canvases ---
         self.main_canvas.canvas.configure(bg=COLORS["canvas_main"][index])
-        self.secondary_canvas.secondary_canvas.configure(bg=COLORS["canvas_sec"][index])
+        self.secondary_canvas.configure(bg=COLORS["canvas_sec"][index])
 
         self.current_theme = theme
 
