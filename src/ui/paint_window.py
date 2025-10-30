@@ -9,7 +9,7 @@ from typing import Literal
 from toolbar import Toolbar
 from menubar import Menubar
 from canvas_widget import MainCanvas, SecondaryCanvas
-from theme_manager import set_theme, current_theme
+from theme_manager import set_theme, get_color
 
 # =============================================================
 # Constants
@@ -54,7 +54,8 @@ class PaintWindow:
         self.root = tk.Tk()
         self.root.title("Fractal Spiro Paint")
         self.root.geometry(f"{self.width}x{self.height}+{WINDOW_X_OFFSET}+{WINDOW_Y_OFFSET}") 
-        self.root.configure(bg=COLORS["root"][0])
+        self.root.configure(bg=get_color("root"))
+        #self.root.configure(bg=COLORS["root"][0])
 
         # --- Initialize UI components ---
         self._init_menubar()
@@ -108,9 +109,17 @@ class PaintWindow:
     # =============================================================
     # Theme handling
     # =============================================================   
-    def toggle_theme(self, theme: Literal["dark", "light"]) -> None:
+    def toggle_theme(self, mode: Literal["dark", "light"]) -> None:
         """Switch colors between dark and light themes."""
-        index = 0 if theme == "dark" else 1
+        set_theme(mode)
+        self.current_theme = mode
+        self.root.configure(bg=get_color("root"))
+        self.menubar.update_theme(mode)
+        self.toolbar.update_theme(mode)
+        self.main_canvas.update_theme(mode)
+        self.secondary_canvas.update_theme(mode)
+
+        '''index = 0 if theme == "dark" else 1
 
         # Main window ---
         self.root.configure(bg=COLORS["root"][index])
@@ -123,18 +132,18 @@ class PaintWindow:
         self.main_canvas.canvas.configure(bg=COLORS["canvas_main"][index])
         self.secondary_canvas.configure(bg=COLORS["canvas_sec"][index])
 
-        self.current_theme = theme
+        self.current_theme = theme'''
 
     # =============================================================
     # Window Events
     # =============================================================
     def _on_window_resize(self, event) -> None:
         """Keep secondary canvas visible inside main canvas_frame."""
-        if self.secondary_canvas.secondary_canvas.winfo_ismapped():
+        if self.secondary_canvas.winfo_ismapped():
             max_y = self.main_canvas.winfo_height() - SECONDARY_CANVAS_HEIGHT - 10
             if max_y < 0:
                 max_y = 10
-            self.secondary_canvas.secondary_canvas.place(x=10, y=max_y)
+            self.secondary_canvas.place(x=10, y=max_y)
 
     # =============================================================
     # Main loop

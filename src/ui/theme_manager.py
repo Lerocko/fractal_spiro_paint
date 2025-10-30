@@ -7,6 +7,7 @@ from typing import Literal
 # Constants
 # =============================================================
 DEFAULT_THEME: Literal["dark", "light"] = "dark"
+
 LIGHT_THEME = {
     "root": "#f0f0f0",
     "files_frame": "#dcdcdc",
@@ -37,14 +38,21 @@ current_theme = DARK_THEME  # Start in dark mode
 # =============================================================
 # Theme management functions
 # =============================================================
-def set_theme(theme_name: str):
-    """Switch between dark and light theme."""
+def set_theme(mode: Literal["dark", "light"]):
+    """Change global theme."""
     global current_theme
-    if theme_name.lower() == "dark":
-        current_theme = DARK_THEME
-    else:
-        current_theme = LIGHT_THEME
+    current_theme = DARK_THEME if mode == "dark" else LIGHT_THEME
 
-def get_color(name: str):
-    """Return color by name for the current theme."""
-    return current_theme.get(name)
+def get_color(key: str) -> str:
+    """Return color for the current theme."""
+    return current_theme.get(key, "#252526")
+
+def toggle_theme() -> str:
+    """Switch between dark and light."""
+    global current_theme
+    if current_theme is DARK_THEME:
+        current_theme = LIGHT_THEME
+        return "light"
+    else:
+        current_theme = DARK_THEME
+        return "dark"

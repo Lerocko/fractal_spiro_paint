@@ -5,6 +5,7 @@ Creation of Tools buttons modules and catching their events.
 
 import tkinter as tk
 from typing import Callable, Dict, List, Literal, Optional
+from theme_manager import get_color
 
 # ------------------------------------------------------------
 # Constants
@@ -101,7 +102,7 @@ class Toolbar(tk.Frame):
     # ------------------------------------------------------------
     # Theme handling
     # ------------------------------------------------------------
-    def update_theme(self, colors, index) -> None:
+    def update_theme(self, mode) -> None:
         """
         Update button and label colors for the current theme.
 
@@ -109,13 +110,23 @@ class Toolbar(tk.Frame):
             colors (dict): Color mapping dictionary.
             index (int): Index for dark/light selection.
         """
-        for subfr_name, subframe in self.subframes_dic.items():
+        self.configure(bg=get_color("toolbar_frame"))
+        for subframe in self.subframes_dic.values():
+            subframe.configure(bg=get_color("subframe"))
+            for widget in subframe.winfo_children():
+                if isinstance(widget, tk.Button):
+                    widget.configure(bg=get_color("buttons_bg"), fg=get_color("buttons_fg"))
+                elif isinstance(widget, tk.Label):
+                    widget.configure(bg=get_color("labels_bg"), fg=get_color("labels_fg"))
+
+
+        '''for subfr_name, subframe in self.subframes_dic.items():
             self.configure(bg=colors["toolbar_frame"][index])
             subframe.configure(bg=colors["subframe"][index])
             for widget in subframe.winfo_children():
                 if isinstance(widget, tk.Button):
                     widget.configure(bg=colors["buttons_bg"][index], fg=colors["buttons_fg"][index])
                 elif isinstance(widget, tk.Label):
-                    widget.configure(bg=colors["labels_bg"][index], fg=colors["labels_fg"][index])
+                    widget.configure(bg=colors["labels_bg"][index], fg=colors["labels_fg"][index])'''
 
     

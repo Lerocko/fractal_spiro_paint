@@ -1,4 +1,5 @@
 import tkinter as tk
+from theme_manager import get_color
 from typing import Literal
 
 # ------------------------------------------------------------
@@ -42,6 +43,9 @@ class MainCanvas(tk.Frame):
         self.canvas.bind("<B1-Motion>", self.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
 
+    def update_theme(self, mode):
+        self.canvas.configure(bg=get_color("canvas_main"))
+
     # ------------------------------------------------------------
     # Event placeholders (to be overridden by controller)
     # ------------------------------------------------------------
@@ -79,6 +83,9 @@ class SecondaryCanvas(tk.Canvas):
         self.bind("<Button-1>", self.on_click)
         self.bind("<B1-Motion>", self.on_drag)
         self.bind("<ButtonRelease-1>", self.on_release)
+
+    def update_theme(self, mode):
+        self.configure(bg=get_color("canvas_sec"))
 
     # ------------------------------------------------------------
     # Show/Hide
