@@ -22,21 +22,6 @@ SECONDARY_CANVAS_WIDTH = 200
 SECONDARY_CANVAS_HEIGHT = 150
 DEFAULT_THEME: Literal["dark", "light"] = "dark"
 
-# Colors dictionary: index 0 = dark, index 1 = light
-COLORS = {
-    "root": ("#1e1e1e", "#f0f0f0"),
-    "files_frame": ("#252526", "#dcdcdc"),
-    "toolbar_frame": ("#252526", "#dcdcdc"),
-    "subframe": ("#252526", "#dcdcdc"),
-    "canvas_frame": ("#252526", "#e0e0e0"),
-    "canvas_main": ("#1E1E20", "#ffffff"),
-    "canvas_sec": ("#252526", "#e0e0e0"),
-    "labels_bg": ("#252526", "#dcdcdc"),
-    "labels_fg": ("white", "black"),
-    "buttons_bg": ("#252526", "#dcdcdc"),
-    "buttons_fg": ("white", "black"),
-}
-
 # =============================================================
 # PaintWindow Class
 # =============================================================
@@ -55,7 +40,6 @@ class PaintWindow:
         self.root.title("Fractal Spiro Paint")
         self.root.geometry(f"{self.width}x{self.height}+{WINDOW_X_OFFSET}+{WINDOW_Y_OFFSET}") 
         self.root.configure(bg=get_color("root"))
-        #self.root.configure(bg=COLORS["root"][0])
 
         # --- Initialize UI components ---
         self._init_menubar()
@@ -87,7 +71,6 @@ class PaintWindow:
 
         self.secondary_canvas = SecondaryCanvas(self.main_canvas)
         
-
     # =============================================================
     # Event Handlers
     # =============================================================
@@ -118,21 +101,6 @@ class PaintWindow:
         self.toolbar.update_theme(mode)
         self.main_canvas.update_theme(mode)
         self.secondary_canvas.update_theme(mode)
-
-        '''index = 0 if theme == "dark" else 1
-
-        # Main window ---
-        self.root.configure(bg=COLORS["root"][index])
-
-        # --- Toolbar and Menubar ---
-        self.toolbar.update_theme(COLORS, index)
-        self.menubar.update_theme(COLORS, index)
-
-        # --- Canvases ---
-        self.main_canvas.canvas.configure(bg=COLORS["canvas_main"][index])
-        self.secondary_canvas.configure(bg=COLORS["canvas_sec"][index])
-
-        self.current_theme = theme'''
 
     # =============================================================
     # Window Events

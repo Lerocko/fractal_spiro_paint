@@ -118,15 +118,4 @@ class Toolbar(tk.Frame):
                     widget.configure(bg=get_color("buttons_bg"), fg=get_color("buttons_fg"))
                 elif isinstance(widget, tk.Label):
                     widget.configure(bg=get_color("labels_bg"), fg=get_color("labels_fg"))
-
-
-        '''for subfr_name, subframe in self.subframes_dic.items():
-            self.configure(bg=colors["toolbar_frame"][index])
-            subframe.configure(bg=colors["subframe"][index])
-            for widget in subframe.winfo_children():
-                if isinstance(widget, tk.Button):
-                    widget.configure(bg=colors["buttons_bg"][index], fg=colors["buttons_fg"][index])
-                elif isinstance(widget, tk.Label):
-                    widget.configure(bg=colors["labels_bg"][index], fg=colors["labels_fg"][index])'''
-
-    
+   
