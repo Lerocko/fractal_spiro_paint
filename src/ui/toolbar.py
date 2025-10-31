@@ -15,7 +15,7 @@ from tools_manager import BUTTONS_DICTIONARY
 CATEGORIES: List[str] = ["Fractal", "Spiro", "Drawing", "Edit"]
 DEFAULT_BG = "#252526"
 DEFAULT_FG = "white"
-BUTTONS_BY_CATEGORY: Dict = BUTTONS_DICTIONARY
+BUTTONS_BY_CATEGORY: Dict= BUTTONS_DICTIONARY
 
 class Toolbar(tk.Frame):
     """

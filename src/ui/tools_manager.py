@@ -3,16 +3,17 @@ tools_manager.py
 Control and managing activeted tools and theyre staites
 """
 import tkinter as tk
-from typing import Dict, List
+from typing import Dict, List, Optional
 import toolbar
 
 # =============================================================
 # Constants and global variables
 # =============================================================
-active_tool = None
-color = "white"
+#main_category: Optional["Fractal", "Spiro"] = None
+#secondary_category: Optional["Drawing", "Edit"] = None
+active_main_tool = None
+#color: Optional["white", "black"]= None
 width = 2
-draw_type = "line"
 eraser = False
 fill = False
 
@@ -26,8 +27,13 @@ BUTTONS_DICTIONARY: Dict[str, List[str]] = {
 # =============================================================
 # Tools management functions
 # =============================================================
-def set_tools():
-    pass
+def set_tools(category, tool):
+    if category in ["Fractal", "Spiro"]:
+        main_category["category"] = category
+    else:
+        secondary_category["sec_category"] = category
+
+
 
 def get_tools():
     pass

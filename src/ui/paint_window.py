@@ -78,7 +78,7 @@ class PaintWindow:
         """Handle toolbar button clicks."""
         if category == "Fractal":
             self.secondary_canvas.show()
-        else:
+        elif category == "Spiro":
             self.secondary_canvas.hide()
 
     def on_file_action(self, action: str) -> None:

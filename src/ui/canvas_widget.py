@@ -50,7 +50,9 @@ class MainCanvas(tk.Frame):
     # Event placeholders (to be overridden by controller)
     # ------------------------------------------------------------
     def on_click(self, event) -> None:
-        pass
+        start_x, start_y = event.x, event.y
+        
+
 
     def on_drag(self, event) -> None:
         pass
