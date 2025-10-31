@@ -17,7 +17,7 @@ eraser = False
 fill = False
 
 BUTTONS_DICTIONARY: Dict[str, List[str]] = {
-    "Fractal": ["Line", "Path", "Poligon"],
+    "Fractal": ["Line", "Path", "Poligon", "RegPoly"],
     "Spiro": ["Circle", "Hypotrochoid", "Epitrochoid"],
     "Drawing": ["Color", "Width", "Type", "Eraser", "Fill"],
     "Edit": ["Clear"]
