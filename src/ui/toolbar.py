@@ -4,8 +4,9 @@ Creation of Tools buttons modules and catching their events.
 """
 
 import tkinter as tk
-from typing import Callable, Dict, List, Literal, Optional
+from typing import Callable, Dict, List, Optional
 from theme_manager import get_color
+from tools_manager import BUTTONS_DICTIONARY
 
 # ------------------------------------------------------------
 # Constants
@@ -14,12 +15,7 @@ from theme_manager import get_color
 CATEGORIES: List[str] = ["Fractal", "Spiro", "Drawing", "Edit"]
 DEFAULT_BG = "#252526"
 DEFAULT_FG = "white"
-BUTTONS_BY_CATEGORY: Dict[str, List[str]] = {
-    "Fractal": ["Line", "Path", "Poligon"],
-    "Spiro": ["Circle", "Hypotrochoid", "Epitrochoid"],
-    "Drawing": ["Color", "Width", "Type", "Eraser", "Fill"],
-    "Edit": ["Clear"]
-}
+BUTTONS_BY_CATEGORY: Dict[str, List[str]] = {BUTTONS_DICTIONARY}
 
 class Toolbar(tk.Frame):
     """

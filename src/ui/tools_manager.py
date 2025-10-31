@@ -3,7 +3,8 @@ tools_manager.py
 Control and managing activeted tools and theyre staites
 """
 import tkinter as tk
-from typing import Literal
+from typing import Dict, List
+import toolbar
 
 # =============================================================
 # Constants and global variables
@@ -14,6 +15,13 @@ width = 2
 draw_type = "line"
 eraser = False
 fill = False
+
+BUTTONS_DICTIONARY: Dict[str, List[str]] = {
+    "Fractal": ["Line", "Path", "Poligon"],
+    "Spiro": ["Circle", "Hypotrochoid", "Epitrochoid"],
+    "Drawing": ["Color", "Width", "Type", "Eraser", "Fill"],
+    "Edit": ["Clear"]
+}
 
 # =============================================================
 # Tools management functions
