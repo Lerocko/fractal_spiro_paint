@@ -1,6 +1,9 @@
 import tkinter as tk
 from theme_manager import get_color
-from typing import Literal
+from typing import Optional
+import tools_manager
+from fractal.fractal_tools import FractalTools
+from spiro.spiro_tools import SpiroTools
 
 # ------------------------------------------------------------
 # Constants
@@ -8,7 +11,7 @@ from typing import Literal
 SECONDARY_CANVAS_WIDTH = 200
 SECONDARY_CANVAS_HEIGHT = 150
 DEFAULT_BG = "#252526"
-DEFAULT_FG = "white"
+DEFAULT_FG = "#e6e6e6"
 
 # ------------------------------------------------------------
 # Main Canvas
@@ -25,11 +28,11 @@ class MainCanvas(tk.Frame):
         super().__init__(parent, bg=bg)
         self.bg = bg
         self.fg = fg
-        self.canvas: tk.Canvas | None = None
-        self.current_tool: str | None = None
-        self.start_x: int | None = None
-        self.start_y: int | None = None
-        self.temp_shape: int | None = None
+
+        self.canvas: Optional[tk.Canvas] = None
+        self.start_point: Optional[tuple[int, int]] = None
+        self.temp_shape: Optional[int] = None
+        self.draw_color: str = "white"
         
     def generate_main_canvas(self) -> None:
         """Create and pack the main canvas."""
@@ -40,25 +43,67 @@ class MainCanvas(tk.Frame):
     def _bind_events_main_canvas(self) -> None:
         """Bind mouse events to placeholder methods."""
         self.canvas.bind("<Button-1>", self.on_click)
-        self.canvas.bind("<B1-Motion>", self.on_drag)
+        self.canvas.bind("<Motion>", self.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
 
     def update_theme(self, mode):
         self.canvas.configure(bg=get_color("canvas_main"))
 
+    def set_draw_color(self, color: str):
+        self.draw_color = color
+    
     # ------------------------------------------------------------
-    # Event placeholders (to be overridden by controller)
+    # Event handlers
     # ------------------------------------------------------------
     def on_click(self, event) -> None:
-        start_x, start_y = event.x, event.y
+        if not self.start_point:
+            self.start_point = (event.x, event.y)
+        else:
+            end_point = (event.x, event.y)
+            tool = tools_manager.current_main_tool()
+            if not tool:
+                self.start_point = None
+                return
         
-
-
     def on_drag(self, event) -> None:
-        pass
+        if not hasattr(self, "start_point"):
+            return
+
+        if self.temp_shape:
+            self.canvas.delete(self.temp_shape)
+            self.temp_shape = None
+
+        self.temp_shape = self.canvas.create_line(
+            self.start_point[0], self.start_point[1],
+            event.x, event.y,
+            fill=getattr(self, "draw_color", "white"),
+            width=tools_manager.current_width()
+        )
 
     def on_release(self, event) -> None:
-        pass
+        tool = tools_manager.current_main_tool()
+        if not tool:
+            return
+        
+        shape_data = None
+
+        if tool in ["Line", "Path", "Poligon", "RegPoly"]:
+            shape_data = FractalTools.get_final_shape(
+                tool,
+                self.start_x, self.start_y,
+                event.x, event.y,
+                color=tools_manager.current_color(),
+                width=tools_manager.current_width()
+            )
+
+        elif tool in ["Circle", "Hypotrochoid", "Epitrochoid"]:
+            shape_data = SpiroTools.get_final_shape(
+                tool,
+                self.start_x, self.start_y,
+                event.x, event.y,
+                color=tools_manager.current_color(),
+                width=tools_manager.current_width()
+            )
 
 # ------------------------------------------------------------
 # Secondary Canvas

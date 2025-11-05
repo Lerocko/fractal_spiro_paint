@@ -10,6 +10,7 @@ from toolbar import Toolbar
 from menubar import Menubar
 from canvas_widget import MainCanvas, SecondaryCanvas
 from theme_manager import set_theme, get_color
+import tools_manager
 
 # =============================================================
 # Constants
@@ -76,6 +77,8 @@ class PaintWindow:
     # =============================================================
     def on_tool_selected(self, category: str, tool: str) -> None:
         """Handle toolbar button clicks."""
+        tools_manager.set_tools(category, tool)
+
         if category == "Fractal":
             self.secondary_canvas.show()
         elif category == "Spiro":
@@ -101,6 +104,9 @@ class PaintWindow:
         self.toolbar.update_theme(mode)
         self.main_canvas.update_theme(mode)
         self.secondary_canvas.update_theme(mode)
+        self.main_canvas.set_draw_color(get_color("line"))
+        #self.secondary_canvas.set_draw_color(get_color("line"))
+        
 
     # =============================================================
     # Window Events
