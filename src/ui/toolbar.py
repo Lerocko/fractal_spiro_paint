@@ -11,8 +11,6 @@ from .config import BUTTONS_DICTIONARY
 # ------------------------------------------------------------
 # Constants
 # ------------------------------------------------------------
-
-CATEGORIES: List[str] = ["Fractal", "Spiro", "Drawing", "Edit"]
 DEFAULT_BG = "#252526"
 DEFAULT_FG = "white"
 
@@ -53,7 +51,7 @@ class Toolbar(tk.Frame):
     # ------------------------------------------------------------
     def generate_tools(self) -> None:
         """Create subframes and buttons for all categories."""
-        for category in CATEGORIES:
+        for category in BUTTONS_DICTIONARY.keys():
             subframe = tk.Frame(self, bg=self.bg)
             subframe.pack(side=tk.LEFT, fill=tk.Y, expand=True)
             self.subframes_dic[category] = subframe
