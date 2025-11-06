@@ -6,11 +6,11 @@ Integrates Toolbar and Canvas widgets modules.
 
 import tkinter as tk
 from typing import Literal
-from toolbar import Toolbar
-from menubar import Menubar
-from canvas_widget import MainCanvas, SecondaryCanvas
-from theme_manager import set_theme, get_color
-import tools_manager
+from src.ui.toolbar import Toolbar
+from src.ui.menubar import Menubar
+from src.ui.canvas_widget import MainCanvas, SecondaryCanvas
+from src.ui.theme_manager import set_theme, get_color
+from src.ui import tools_manager
 
 # =============================================================
 # Constants
@@ -79,6 +79,9 @@ class PaintWindow:
         """Handle toolbar button clicks."""
         tools_manager.set_tools(category, tool)
 
+        if category in ["Fractal", "Spiro"]:
+            self.main_canvas.set_active_tool(tool)
+
         if category == "Fractal":
             self.secondary_canvas.show()
         elif category == "Spiro":
@@ -125,10 +128,3 @@ class PaintWindow:
     def start(self) -> None:
         """Start the Tkinter main event loop."""
         self.root.mainloop()
-
-# =============================================================
-# Run application
-# =============================================================
-if __name__ == "__main__":
-    app = PaintWindow()
-    app.start()

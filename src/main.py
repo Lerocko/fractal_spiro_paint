@@ -1,23 +1,33 @@
-# src/main.py
+"""
+main.py
+Entry point for the Fractal Spiro Paint application.
 
-# Import standard libraries
-import sys
+This script is responsible for initializing and starting the application.
+It registers all available tools and launches the main GUI window.
+"""
 
-# Import our modules
-from src.fractal import fractal_drawer
-from src.spiro import spiro_drawer
-from src.ui import paint_window
+# --- Import necessary components ---
+from src.fractal.line_tool import LineTool
+from src.ui import tools_manager
+from src.ui.paint_window import PaintWindow
 
 def main():
     """
-    Entry point for the Fractal Spiro Paint application.
+    Main function to run the application.
     """
     print("Welcome to Fractal Spiro Paint!")
-    # Aquí más adelante iniciaremos la interfaz y lógica
-    # por ahora solo prueba que los imports funcionan
-    # y que el programa corre sin errores.
+    print("Registering tools...")
+
+    # --- Register all available drawing tools here ---
+    # This is the "catalog" of tools for the application.
+    tools_manager.register_tool("Line", LineTool)
     
+    print("Tools registered. Starting application...")
+
+    # --- Create and start the main application window ---
+    app = PaintWindow()
+    app.start()
+
+# This standard construct ensures that main() is called only when the script is executed directly.
 if __name__ == "__main__":
     main()
-    app = paint_window.PaintWindow()
-    app.start()

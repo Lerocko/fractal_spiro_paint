@@ -1,9 +1,18 @@
+"""
+Canvas widget module.
+
+Provides the MainCanvas and SecondaryCanvas widgets. The MainCanvas
+has been refactored to use a modular tool-based architecture, delegating
+all drawing logic to active tool instances.
+"""
+
 import tkinter as tk
-from theme_manager import get_color
-from typing import Optional
-import tools_manager
-from fractal.fractal_tools import FractalTools
-from spiro.spiro_tools import SpiroTools
+from typing import Optional, TYPE_CHECKING
+from .theme_manager import get_color
+from . import tools_manager
+
+if TYPE_CHECKING:
+    from ui.base_tool import BaseTool
 
 # ------------------------------------------------------------
 # Constants
@@ -19,9 +28,7 @@ DEFAULT_FG = "#e6e6e6"
 class MainCanvas(tk.Frame):
     """
     Main interactive drawing area of the application.
-    
-    Handles user input events and serves as the communication layer
-    between the UI (Toolbar) and the drawing logic modules.
+    Now delegates all drawing logic to the active tool instance.
     """
 
     def __init__(self, parent: tk.Widget, bg: str = DEFAULT_BG, fg: str = DEFAULT_FG) -> None:
@@ -30,9 +37,10 @@ class MainCanvas(tk.Frame):
         self.fg = fg
 
         self.canvas: Optional[tk.Canvas] = None
-        self.start_point: Optional[tuple[int, int]] = None
-        self.temp_shape: Optional[int] = None
-        self.draw_color: str = "white"
+        self.draw_color: str = "#F0F0F0"
+
+        self.is_drawing: bool = False
+        self.active_tool_instance: Optional[BaseTool] = None
         
     def generate_main_canvas(self) -> None:
         """Create and pack the main canvas."""
@@ -46,64 +54,51 @@ class MainCanvas(tk.Frame):
         self.canvas.bind("<Motion>", self.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
 
-    def update_theme(self, mode):
-        self.canvas.configure(bg=get_color("canvas_main"))
+    def set_active_tool(self, tool_name: str) -> None:
+        """
+        Sets the active tool by getting a new instance from the tools_manager.
+        """
+        if self.is_drawing and self.active_tool_instance:
+            self.active_tool_instance._clear_preview()
+            self.is_drawing = False
+        self.active_tool_instance = tools_manager.get_active_tool_instance(self.canvas)
+        print(f"Canvas: Active tool set to {tool_name}") # Debug
 
-    def set_draw_color(self, color: str):
+    def update_theme(self, mode: str) -> None:
+        """Updates the canvas background color based on the theme."""
+        if self.canvas:
+            self.canvas.configure(bg=get_color("canvas_main"))
+
+    def set_draw_color(self, color: str) -> None:
+        """Sets the default drawing color for the canvas."""
         self.draw_color = color
-    
+
     # ------------------------------------------------------------
-    # Event handlers
+    # Delegating Event Handlers
     # ------------------------------------------------------------
-    def on_click(self, event) -> None:
-        if not self.start_point:
-            self.start_point = (event.x, event.y)
+    def on_click(self, event: tk.Event) -> None:
+        """Delegates click events to the active tool."""
+        if not self.active_tool_instance:
+            return
+
+        if not self.is_drawing:
+            self.active_tool_instance.on_first_click(event)
+            self.is_drawing = True
         else:
-            end_point = (event.x, event.y)
-            tool = tools_manager.current_main_tool()
-            if not tool:
-                self.start_point = None
-                return
+            self.active_tool_instance.on_second_click(event)
+            self.is_drawing = False
         
-    def on_drag(self, event) -> None:
-        if not hasattr(self, "start_point"):
-            return
+    def on_drag(self, event: tk.Event) -> None:
+        """Delegates drag events to the active tool if a drawing is in progress."""
+        if self.is_drawing and self.active_tool_instance:
+            self.active_tool_instance.on_drag(event)
 
-        if self.temp_shape:
-            self.canvas.delete(self.temp_shape)
-            self.temp_shape = None
-
-        self.temp_shape = self.canvas.create_line(
-            self.start_point[0], self.start_point[1],
-            event.x, event.y,
-            fill=getattr(self, "draw_color", "white"),
-            width=tools_manager.current_width()
-        )
-
-    def on_release(self, event) -> None:
-        tool = tools_manager.current_main_tool()
-        if not tool:
-            return
-        
-        shape_data = None
-
-        if tool in ["Line", "Path", "Poligon", "RegPoly"]:
-            shape_data = FractalTools.get_final_shape(
-                tool,
-                self.start_x, self.start_y,
-                event.x, event.y,
-                color=tools_manager.current_color(),
-                width=tools_manager.current_width()
-            )
-
-        elif tool in ["Circle", "Hypotrochoid", "Epitrochoid"]:
-            shape_data = SpiroTools.get_final_shape(
-                tool,
-                self.start_x, self.start_y,
-                event.x, event.y,
-                color=tools_manager.current_color(),
-                width=tools_manager.current_width()
-            )
+    def on_release(self, event: tk.Event) -> None:
+        """
+        Release event is not used for the two-click logic, but is kept
+        in case it's needed for future tools.
+        """
+        pass
 
 # ------------------------------------------------------------
 # Secondary Canvas
@@ -131,7 +126,8 @@ class SecondaryCanvas(tk.Canvas):
         self.bind("<B1-Motion>", self.on_drag)
         self.bind("<ButtonRelease-1>", self.on_release)
 
-    def update_theme(self, mode):
+    def update_theme(self, mode: str) -> None:
+        """Updates the canvas background color based on the theme."""
         self.configure(bg=get_color("canvas_sec"))
 
     # ------------------------------------------------------------

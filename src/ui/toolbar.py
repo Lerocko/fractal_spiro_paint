@@ -5,8 +5,8 @@ Creation of Tools buttons modules and catching their events.
 
 import tkinter as tk
 from typing import Callable, Dict, List, Optional
-from theme_manager import get_color
-from tools_manager import BUTTONS_DICTIONARY
+from .theme_manager import get_color
+from .config import BUTTONS_DICTIONARY
 
 # ------------------------------------------------------------
 # Constants
@@ -15,7 +15,6 @@ from tools_manager import BUTTONS_DICTIONARY
 CATEGORIES: List[str] = ["Fractal", "Spiro", "Drawing", "Edit"]
 DEFAULT_BG = "#252526"
 DEFAULT_FG = "white"
-BUTTONS_BY_CATEGORY: Dict= BUTTONS_DICTIONARY
 
 class Toolbar(tk.Frame):
     """
@@ -59,7 +58,7 @@ class Toolbar(tk.Frame):
             subframe.pack(side=tk.LEFT, fill=tk.Y, expand=True)
             self.subframes_dic[category] = subframe
 
-            buttons = BUTTONS_BY_CATEGORY[category]
+            buttons = BUTTONS_DICTIONARY[category]
             self.buttons_dic[category] = []
 
             for i, name in enumerate(buttons):

@@ -3,9 +3,10 @@ tools_manager.py
 Control and managing activeted tools and theyre staites
 """
 import tkinter as tk
-from typing import Dict, List, Optional
-import toolbar
+from typing import Dict, List, Optional, TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from .base_tool import BaseTool
 # =============================================================
 # Global tool state
 # =============================================================
@@ -18,27 +19,21 @@ color: str = "white"
 width: int = 2
 eraser: bool = False
 fill: bool = False
-
-# =============================================================
-# Button dictionary (for reference)
-# =============================================================
-BUTTONS_DICTIONARY: Dict[str, List[str]] = {
-    "Fractal": ["Line", "Path", "Poligon", "RegPoly"],
-    "Spiro": ["Circle", "Hypotrochoid", "Epitrochoid"],
-    "Drawing": ["Color", "Width", "Type", "Eraser", "Fill"],
-    "Edit": ["Clear"]
-}
+_active_tool_class: Optional[type] = None
 
 # =============================================================
 # Tools management functions
 # =============================================================
 def set_tools(category: str, tool: str) -> None:
-    """Set the currently active tool according to its category."""
-    global main_category, main_tool, secondary_category, secondary_tool
+    """Set the currently active tool according to its category.
+    Now also sets the active tool class.
+    """
+    global main_category, main_tool, secondary_category, secondary_tool,  _active_tool_class
 
     if category in ["Fractal", "Spiro"]:
         main_category = category
         main_tool = tool
+        _active_tool_class = get_tool(tool)
     elif category in ["Drawing", "Edit"]:
         secondary_category = category
         secondary_tool = tool
@@ -85,9 +80,23 @@ def is_fill_active() -> bool:
 _registered_tools: Dict[str, type] = {}
 
 def register_tool(name: str, cls: type) -> None:
-    """Register a tool class (called by each tool module)."""
+    """
+    Register a tool class to make it available in the application.
+    This should be called once at application startup.
+    """
     _registered_tools[name] = cls
+    print(f"Registered tool: {name}") #Debug
 
 def get_tool(name: str) -> Optional[type]:
     """Retrieve a registered tool class by name."""
     return _registered_tools.get(name)
+
+def get_active_tool_instance(canvas: tk.Canvas) -> Optional["BaseTool"]:
+    """
+    Creates and returns an instance of the currently active tool.
+    """
+    if _active_tool_class:
+        from .base_tool import BaseTool
+        if issubclass(_active_tool_class, BaseTool):
+            return _active_tool_class(canvas)
+    return None

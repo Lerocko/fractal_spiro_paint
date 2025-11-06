@@ -4,7 +4,7 @@ Creation of File buttons modules and catching their events.
 """
 import tkinter as tk
 from typing import Literal
-from theme_manager import get_color
+from .theme_manager import get_color
 
 # =============================================================
 # Constants
