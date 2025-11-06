@@ -14,6 +14,9 @@ from .config import BUTTONS_DICTIONARY
 DEFAULT_BG = "#252526"
 DEFAULT_FG = "white"
 
+# ------------------------------------------------------------
+# Class Toolbar
+# ------------------------------------------------------------
 class Toolbar(tk.Frame):
     """
     Toolbar generator class.
@@ -77,20 +80,6 @@ class Toolbar(tk.Frame):
             label = tk.Label(subframe, text=f"{category} Tools", bg=self.bg, fg=self.fg)
             label.grid(row=label_row, column=0, columnspan=3)
             self.buttons_dic[category].append(label)
-
-    # ------------------------------------------------------------
-    # Event handling
-    # ------------------------------------------------------------
-    def on_button_click(self, name) -> None:
-        """
-        Internal button click handler.
-        
-        Args:
-            category (str): Category of the button.
-            name (str): Name of the button clicked.
-        """
-        if self.on_click_callback:
-            self.on_click_callback(self.category, name)
 
     # ------------------------------------------------------------
     # Theme handling
