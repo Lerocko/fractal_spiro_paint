@@ -10,7 +10,7 @@ from typing import Dict, List
 # Button dictionary for the toolbar
 # =============================================================
 BUTTONS_DICTIONARY: Dict[str, List[str]] = {
-    "Fractal": ["Line", "Path", "Poligon", "RegPoly"],
+    "Fractal": ["Line", "Polyline", "Polygon"],
     "Spiro": ["Circle", "Hypotrochoid", "Epitrochoid"],
     "Drawing": ["Color", "Width", "Type", "Eraser", "Fill"],
     "Edit": ["Clear"]
