@@ -1,58 +1,58 @@
 """
 theme_manager.py
 Handles Dark and Light theme switching for the Fractal Spiro Paint window.
+This module is the single source of truth for all application colors.
 """
-from typing import Literal
+from typing import Literal, Dict
 # =============================================================
-# Constants
+# Professional Color Palettes
 # =============================================================
-DEFAULT_THEME: Literal["dark", "light"] = "dark"
-
-LIGHT_THEME = {
-    "root": "#f0f0f0",
-    "files_frame": "#dcdcdc",
-    "toolbar_frame": "#dcdcdc",
-    "subframe": "#dcdcdc",
-    "canvas_frame": "#e0e0e0",
-    "canvas_main": "#ffffff",
-    "canvas_sec": "#e0e0e0",
-    "labels_bg": "#dcdcdc",
-    "labels_fg": "black",
-    "buttons_bg": "#dcdcdc",
-    "buttons_fg": "black",
-}
 DARK_THEME = {
-    "root": "#1e1e1e",
+    "root": "#1E1E1E",
     "files_frame": "#252526",
     "toolbar_frame": "#252526",
     "subframe": "#252526",
-    "canvas_frame": "#252526",
     "canvas_main": "#1E1E20",
     "canvas_sec": "#252526",
     "labels_bg": "#252526",
-    "labels_fg": "white",
+    "labels_fg": "#CCCCCC",
     "buttons_bg": "#252526",
-    "buttons_fg": "white",
+    "buttons_fg": "#FFFFFF",
+    "drawing_default": "#F0F0F0", # High contrast white
+    "drawing_secondary": "#4FC3F7", # A nice blue for previews
 }
-current_theme = DARK_THEME  # Start in dark mode
+
+LIGHT_THEME = {
+    "root": "#F3F3F3",
+    "files_frame": "#E1E1E1",
+    "toolbar_frame": "#E1E1E1",
+    "subframe": "#E1E1E1",
+    "canvas_main": "#FFFFFF",
+    "canvas_sec": "#F0F0F0",
+    "labels_bg": "#E1E1E1",
+    "labels_fg": "#333333",
+    "buttons_bg": "#E1E1E1",
+    "buttons_fg": "#333333",
+    "drawing_default": "#000000", # High contrast black
+    "drawing_secondary": "#0078D4", # A nice blue for previews
+}
+
 # =============================================================
-# Theme management functions
+# Theme State Management
 # =============================================================
-def set_theme(mode: Literal["dark", "light"]):
-    """Change global theme."""
-    global current_theme
-    current_theme = DARK_THEME if mode == "dark" else LIGHT_THEME
+_current_theme: Dict[str, str] = DARK_THEME
+_current_mode: Literal["dark", "light"] = "dark"
+
+def set_theme(mode: Literal["dark", "light"]) -> None:
+    """Change global theme and mode."""
+    global _current_theme, _current_mode
+    _current_mode = mode
+    _current_theme = DARK_THEME if mode == "dark" else LIGHT_THEME
 
 def get_color(key: str) -> str:
-    """Return color for the current theme."""
-    return current_theme.get(key, "#252526")
+    """Return color for the current theme from the single source of truth."""
+    return _current_theme.get(key, "#FF00FF") # Magenta as an error color
 
-def toggle_theme() -> str:
-    """Switch between dark and light."""
-    global current_theme
-    if current_theme is DARK_THEME:
-        current_theme = LIGHT_THEME
-        return "light"
-    else:
-        current_theme = DARK_THEME
-        return "dark"
+def get_current_mode() -> Literal["dark", "light"]:
+    """Return current theme mode."""
+    return _current_mode

@@ -10,7 +10,7 @@ import tkinter as tk
 from typing import Optional, Tuple
 
 from ..ui.base_tool import BaseTool
-from ..ui import tools_manager
+from ..ui.theme_manager import get_color
 
 
 class LineTool(BaseTool):
@@ -45,12 +45,14 @@ class LineTool(BaseTool):
         # Clear the previous preview
         self._clear_preview()
 
+        preview_color = get_color("drawing_secondary")
+
         # Draw the new preview with a dashed line
         self.preview_shape_id = self.canvas.create_line(
             self.start_point[0], self.start_point[1],
             event.x, event.y,
-            fill=tools_manager.current_color(),
-            width=tools_manager.current_width(),
+            fill=preview_color,
+            width=2,
             dash=(4, 4)  # Dashed line for preview
         )
 
@@ -62,13 +64,15 @@ class LineTool(BaseTool):
         # Clear the preview before drawing the final line
         self._clear_preview()
 
+        final_color = get_color("drawing_default")
+
         # Draw the final line
         self.canvas.create_line(
             self.start_point[0], self.start_point[1],
             event.x, event.y,
-            fill=tools_manager.current_color(),
-            width=tools_manager.current_width(),
-            tags="permanent"
+            fill=final_color,
+            width=2,
+            tags=("permanent", "default_color")
         )
         # TODO: Remove debug print statements in production.
         print(f"LineTool: Second click at ({event.x}, {event.y}). Line finalized.")

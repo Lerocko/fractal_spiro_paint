@@ -9,8 +9,6 @@ from .theme_manager import get_color
 # =============================================================
 # Constants
 # =============================================================
-DEFAULT_BG = "#252526"
-DEFAULT_FG = "white"
 FILE_BUTTONS = ["New", "Open", "Save", "Save As", "Export", "Exit", "Light"]
 
 class Menubar(tk.Frame):
@@ -23,8 +21,6 @@ class Menubar(tk.Frame):
     def __init__(
         self,
         parent:tk.Widget,
-        bg: str = DEFAULT_BG,
-        fg: str = DEFAULT_FG,
         on_click_callback=None
     ):
         """
@@ -32,13 +28,15 @@ class Menubar(tk.Frame):
 
         Args:
             parent (tk.Widget): The parent frame or window.
-            bg (str): Background color.
-            fg (str): Foreground (text) color.
             on_click_callback (Callable[[str], None], optional): Function to call on button click.
         """
-        super().__init__(parent, bg=bg)
-        self.bg = bg
-        self.fg = fg
+        # Set default colors from the theme manager at initialization
+        default_bg = get_color("files_frame")
+        default_fg = get_color("buttons_fg")
+
+        super().__init__(parent, bg=default_bg)
+        self.bg = default_bg
+        self.fg = default_fg
         self.on_click_callback = on_click_callback
                 
         self.file_buttons_widgets: list[tk.Button] = []

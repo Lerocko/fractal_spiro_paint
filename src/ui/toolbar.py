@@ -9,12 +9,6 @@ from .theme_manager import get_color
 from .config import BUTTONS_DICTIONARY
 
 # ------------------------------------------------------------
-# Constants
-# ------------------------------------------------------------
-DEFAULT_BG = "#252526"
-DEFAULT_FG = "white"
-
-# ------------------------------------------------------------
 # Class Toolbar
 # ------------------------------------------------------------
 class Toolbar(tk.Frame):
@@ -27,8 +21,6 @@ class Toolbar(tk.Frame):
     def __init__(
         self,
         parent: tk.Widget,
-        bg: str = DEFAULT_BG,
-        fg: str = DEFAULT_FG,
         on_click_callback: Optional[Callable[[str, str], None]] = None
     ):
         """
@@ -36,13 +28,15 @@ class Toolbar(tk.Frame):
 
         Args:
             parent (tk.Widget): Parent frame or window.
-            bg (str): Background color.
-            fg (str): Foreground color.
             on_click_callback (Callable[[str, str], None], optional): Callback invoked on button click.
         """
-        super().__init__(parent, bg=bg)
-        self.bg = bg
-        self.fg = fg
+        # Set default colors from the theme manager at initialization
+        default_bg = get_color("toolbar_frame")
+        default_fg = get_color("buttons_fg")
+        
+        super().__init__(parent, bg=default_bg)
+        self.bg = default_bg
+        self.fg = default_fg
         self.on_click_callback = on_click_callback
 
         # Containers
@@ -55,7 +49,7 @@ class Toolbar(tk.Frame):
     def generate_tools(self) -> None:
         """Create subframes and buttons for all categories."""
         for category in BUTTONS_DICTIONARY.keys():
-            subframe = tk.Frame(self, bg=self.bg)
+            subframe = tk.Frame(self, bg=get_color("subframe"))
             subframe.pack(side=tk.LEFT, fill=tk.Y, expand=True)
             self.subframes_dic[category] = subframe
 

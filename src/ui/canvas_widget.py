@@ -19,8 +19,6 @@ if TYPE_CHECKING:
 # ------------------------------------------------------------
 SECONDARY_CANVAS_WIDTH = 200
 SECONDARY_CANVAS_HEIGHT = 150
-DEFAULT_BG = "#252526"
-DEFAULT_FG = "#e6e6e6"
 
 # ------------------------------------------------------------
 # Main Canvas
@@ -31,20 +29,24 @@ class MainCanvas(tk.Frame):
     Now delegates all drawing logic to the active tool instance.
     """
 
-    def __init__(self, parent: tk.Widget, bg: str = DEFAULT_BG, fg: str = DEFAULT_FG) -> None:
-        super().__init__(parent, bg=bg)
-        self.bg = bg
-        self.fg = fg
+    def __init__(self, parent: tk.Widget) -> None:
+        # Set default colors from the theme manager at initialization
+        default_bg = get_color("canvas_main")
+        default_fg = get_color("text_primary")
+
+        super().__init__(parent, bg=default_bg)
+        self.bg = default_bg
+        self.fg = default_fg
 
         self.canvas: Optional[tk.Canvas] = None
-        self.draw_color: str = "#F0F0F0"
+        self.draw_color: str = get_color("drawing_default") # Use theme manager
 
         self.is_drawing: bool = False
         self.active_tool_instance: Optional[BaseTool] = None
         
     def generate_main_canvas(self) -> None:
         """Create and pack the main canvas."""
-        self.canvas = tk.Canvas(self, bg=self.bg, cursor="cross")
+        self.canvas = tk.Canvas(self, bg=self.bg, cursor="cross", highlightthickness=0, borderwidth=0)
         self.canvas.pack(fill=tk.BOTH, expand=True)
         self._bind_events_main_canvas()
 
@@ -73,6 +75,23 @@ class MainCanvas(tk.Frame):
         """Sets the default drawing color for the canvas."""
         self.draw_color = color
 
+    def update_drawings_theme(self) -> None:
+        """
+        Updates the color of all drawings that use the default theme color.
+        This preserves user-selected colors.
+        """
+        if not self.canvas:
+            return
+
+        # Find all items on the canvas that have the 'default_color' tag
+        items_to_update = self.canvas.find_withtag("default_color")
+
+        # Get the new default drawing color from the theme manager
+        new_default_color = get_color("drawing_default")
+
+        # Apply the new color to all those items
+        for item_id in items_to_update:
+            self.canvas.itemconfig(item_id, fill=new_default_color)
     # ------------------------------------------------------------
     # Delegating Event Handlers
     # ------------------------------------------------------------
@@ -108,10 +127,22 @@ class SecondaryCanvas(tk.Canvas):
     Secondary canvas, hidden by default and shown when a specific
     tool/category is active.
     """
-    def __init__(self, parent: tk.Widget, bg: str = DEFAULT_BG, fg: str = DEFAULT_FG) -> None:
-        super().__init__(parent, bg=bg, cursor="cross", width=SECONDARY_CANVAS_WIDTH, height=SECONDARY_CANVAS_HEIGHT)
-        self.bg = bg
-        self.fg = fg
+    def __init__(self, parent: tk.Widget) -> None:
+        # Set default colors from the theme manager at initialization
+        default_bg = get_color("canvas_sec")
+        default_fg = get_color("text_primary")
+
+        super().__init__(
+            parent, 
+            bg=default_bg, cursor="cross", 
+            width=SECONDARY_CANVAS_WIDTH, 
+            height=SECONDARY_CANVAS_HEIGHT, 
+            highlightthickness=2, 
+            highlightbackground=get_color("labels_fg")
+        )
+
+        self.bg = default_bg
+        self.fg = default_fg
         self.current_tool: str | None = None
         self.start_x: int | None = None
         self.start_y: int | None = None
