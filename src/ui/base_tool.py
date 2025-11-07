@@ -69,6 +69,9 @@ class BaseTool(ABC):
         """
         pass
 
+    def on_keyboard(self, event: tk.Event) -> None:
+        pass
+
     def _clear_preview(self) -> None:
         """Removes the current preview shape from the canvas."""
         if self.preview_shape_id:

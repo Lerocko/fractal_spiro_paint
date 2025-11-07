@@ -55,6 +55,8 @@ class MainCanvas(tk.Frame):
         self.canvas.bind("<Button-1>", self.on_click)
         self.canvas.bind("<Motion>", self.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
+        self.canvas.bind("<Return>", self.on_keyboard)
+        self.canvas.bind("<KeyPress-c>", self.on_keyboard)
 
     def set_active_tool(self, tool_name: str) -> None:
         """
@@ -111,6 +113,10 @@ class MainCanvas(tk.Frame):
         """Delegates drag events to the active tool if a drawing is in progress."""
         if self.is_drawing and self.active_tool_instance:
             self.active_tool_instance.on_drag(event)
+
+    def on_keyboard(self, event: tk.Event) -> None:
+        if self.is_drawing and self.active_tool_instance:
+            self.active_tool_instance.on_keyboard(event)
 
     def on_release(self, event: tk.Event) -> None:
         """
