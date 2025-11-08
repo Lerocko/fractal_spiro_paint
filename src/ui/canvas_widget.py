@@ -48,6 +48,7 @@ class MainCanvas(tk.Frame):
         """Create and pack the main canvas."""
         self.canvas = tk.Canvas(self, bg=self.bg, cursor="cross", highlightthickness=0, borderwidth=0)
         self.canvas.pack(fill=tk.BOTH, expand=True)
+        self.canvas.focus_set() 
         self._bind_events_main_canvas()
 
     def _bind_events_main_canvas(self) -> None:
@@ -103,11 +104,9 @@ class MainCanvas(tk.Frame):
             return
 
         if not self.is_drawing:
-            self.active_tool_instance.on_first_click(event)
-            self.is_drawing = True
+            self.is_drawing = self.active_tool_instance.on_first_click(event)
         else:
-            self.active_tool_instance.on_second_click(event)
-            self.is_drawing = False
+            self.is_drawing = self.active_tool_instance.on_second_click(event)
         
     def on_drag(self, event: tk.Event) -> None:
         """Delegates drag events to the active tool if a drawing is in progress."""
@@ -115,8 +114,9 @@ class MainCanvas(tk.Frame):
             self.active_tool_instance.on_drag(event)
 
     def on_keyboard(self, event: tk.Event) -> None:
+        print(f"Keyboard event received: {event.keysym}, is_drawing: {self.is_drawing}") # Debug
         if self.is_drawing and self.active_tool_instance:
-            self.active_tool_instance.on_keyboard(event)
+            self.is_drawing = self.active_tool_instance.on_keyboard(event)
 
     def on_release(self, event: tk.Event) -> None:
         """

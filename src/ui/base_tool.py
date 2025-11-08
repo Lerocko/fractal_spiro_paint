@@ -30,6 +30,8 @@ class BaseTool(ABC):
         """
         self.canvas = canvas
         self.preview_shape_id: Optional[int] = None
+        self.preview_circle_id: Optional[int] = None
+        self.preview_radius_id: Optional[int] = None
 
     @abstractmethod
     def on_first_click(self, event: tk.Event) -> None:
@@ -68,12 +70,27 @@ class BaseTool(ABC):
             event: The Tkinter event object containing final click coordinates.
         """
         pass
-
+    
+    @abstractmethod
     def on_keyboard(self, event: tk.Event) -> None:
+        """
+        Handles the enter keyboard click event.
+
+        This method is called to finalize the drawing of the shape and desactived the tool in used.
+
+        Args:
+            event: The Tkinter event object containing enter keyboard.
+        """
         pass
 
     def _clear_preview(self) -> None:
-        """Removes the current preview shape from the canvas."""
+        """Clears any known preview elements."""
         if self.preview_shape_id:
             self.canvas.delete(self.preview_shape_id)
             self.preview_shape_id = None
+        if self.preview_circle_id:
+            self.canvas.delete(self.preview_circle_id)
+            self.preview_circle_id = None
+        if self.preview_radius_id:
+            self.canvas.delete(self.preview_radius_id)
+            self.preview_radius_id = None

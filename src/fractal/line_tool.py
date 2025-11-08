@@ -36,6 +36,7 @@ class LineTool(BaseTool):
         self.start_point = (event.x, event.y)
         # TODO: Remove debug print statements in production.
         print(f"LineTool: First click at {self.start_point}")
+        return True
 
     def on_drag(self, event: tk.Event) -> None:
         """Updates the line preview as the mouse moves."""
@@ -79,3 +80,12 @@ class LineTool(BaseTool):
 
         # Reset the start point for the next line
         self.start_point = None
+        return False
+
+    def on_keyboard(self, event):
+        if event.keysym == "Return":
+            self._clear_preview()
+            self.start_point = None
+            print("LineTool desactived.")
+            return False
+        return True

@@ -35,6 +35,7 @@ class PolylineTool(BaseTool):
         self.points.append((event.x, event.y))
         # TODO: Remove debug print statements in production.
         print(f"Polyline: First point at {self.points[0]}")
+        return True
 
     def on_drag(self, event: tk.Event) -> None:
         """Updates the line preview as the mouse moves."""
@@ -81,6 +82,7 @@ class PolylineTool(BaseTool):
         
         # TODO: Remove debug print statements in production.
         print(f"Polyline: New point in {self.points[-1]}. Point's Quantity: {len(self.points)}.")
+        return True
 
     def on_keyboard(self, event: tk.Event) -> None:
         """Use enter or c keyboards to finish or close th polyline"""
@@ -101,6 +103,8 @@ class PolylineTool(BaseTool):
         if event.keysym == "Return" or event.keysym == "c":
             self._finish_polyline()
             print("Polyline finylized.")
+        
+        return False
 
     def _finish_polyline(self):
         self._clear_preview()
