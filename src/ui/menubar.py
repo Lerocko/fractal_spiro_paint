@@ -3,7 +3,7 @@ menubar.py
 Creation of File buttons modules and catching their events.
 """
 import tkinter as tk
-from typing import Literal
+from typing import Optional, Callable
 from .theme_manager import get_color
 from config import FILE_BUTTONS
 
@@ -14,10 +14,9 @@ class Menubar(tk.Frame):
     Handles user interaction with file-related actions, such as
     New, Open, Save, Export, Exit, and toggling Dark/Light theme.
     """
-    def __init__(
-        self,
+    def __init__(self,
         parent:tk.Widget,
-        on_click_callback=None
+        on_click_callback: Optional[Callable[[str, str], None]] = None
     ):
         """
         Initialize the file menu bar.
