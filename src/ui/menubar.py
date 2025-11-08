@@ -5,11 +5,7 @@ Creation of File buttons modules and catching their events.
 import tkinter as tk
 from typing import Literal
 from .theme_manager import get_color
-
-# =============================================================
-# Constants
-# =============================================================
-FILE_BUTTONS = ["New", "Open", "Save", "Save As", "Export", "Exit", "Light"]
+from config import FILE_BUTTONS
 
 class Menubar(tk.Frame):
     """
