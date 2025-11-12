@@ -6,7 +6,7 @@ import tkinter as tk
 from typing import Dict, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .base_tool import BaseTool
+    from ..tools.base_tool import BaseTool
 # =============================================================
 # Global tool state
 # =============================================================
@@ -96,7 +96,7 @@ def get_active_tool_instance(canvas: tk.Canvas) -> Optional["BaseTool"]:
     Creates and returns an instance of the currently active tool.
     """
     if _active_tool_class:
-        from .base_tool import BaseTool
+        from ..tools.base_tool import BaseTool
         if issubclass(_active_tool_class, BaseTool):
             return _active_tool_class(canvas)
     return None

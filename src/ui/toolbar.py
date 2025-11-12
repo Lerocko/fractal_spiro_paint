@@ -6,7 +6,7 @@ Creation of Tools buttons modules and catching their events.
 import tkinter as tk
 from typing import Callable, Dict, List, Optional
 from .theme_manager import get_color
-from .config import BUTTONS_DICTIONARY
+from ..core.config import BUTTONS_DICTIONARY
 
 # ------------------------------------------------------------
 # Class Toolbar

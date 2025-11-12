@@ -1,18 +1,24 @@
+# =============================================================
+# File: canvas_widget.py
+# Project: Fractal Spiro Paint
+# Author: Leopoldo MZ (Lerocko)
+# Created: 2025-10-12
+# Refactored: 2025-11-12
+# Description:
+#     Canvas widgets for Fractal Spiro Paint.
+#     MainCanvas delegates all drawing logic to a CanvasController.
+# =============================================================
+
 """
 Canvas widget module.
 
-Provides the MainCanvas and SecondaryCanvas widgets. The MainCanvas
-has been refactored to use a modular tool-based architecture, delegating
-all drawing logic to active tool instances.
+Provides MainCanvas and SecondaryCanvas widgets.
+Delegates all drawing logic to the CanvasController.
 """
 
 import tkinter as tk
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 from .theme_manager import get_color
-from . import tools_manager
-
-if TYPE_CHECKING:
-    from ui.base_tool import BaseTool
 
 # ------------------------------------------------------------
 # Constants
@@ -25,18 +31,16 @@ SECONDARY_CANVAS_HEIGHT = 150
 # ------------------------------------------------------------
 class MainCanvas(tk.Frame):
     """
-    Main interactive drawing area of the application.
-    Now delegates all drawing logic to the active tool instance.
+    Main interactive drawing area of the application (View).
+    Delegates all drawing logic to the CanvasController.
     """
-
-    def __init__(self, parent: tk.Widget) -> None:
-        # Set default colors from the theme manager at initialization
+    def __init__(self, parent: tk.Widget, controller: Optional["CanvasController"] = None) -> None:
         default_bg = get_color("canvas_main")
-        default_fg = get_color("text_primary")
-
         super().__init__(parent, bg=default_bg)
+        
+        self.controller = controller
+        self.canvas: Optional[tk.Canvas] = None
         self.bg = default_bg
-        self.fg = default_fg
 
         self.canvas: Optional[tk.Canvas] = None
         self.draw_color: str = get_color("drawing_default") # Use theme manager
@@ -49,89 +53,47 @@ class MainCanvas(tk.Frame):
         self.canvas = tk.Canvas(self, bg=self.bg, cursor="cross", highlightthickness=0, borderwidth=0)
         self.canvas.pack(fill=tk.BOTH, expand=True)
         self.canvas.focus_set() 
-        self._bind_events_main_canvas()
+        self._bind_events()
 
-    def _bind_events_main_canvas(self) -> None:
-        """Bind mouse events to placeholder methods."""
-        self.canvas.bind("<Button-1>", self.on_click)
-        self.canvas.bind("<Motion>", self.on_drag)
-        self.canvas.bind("<ButtonRelease-1>", self.on_release)
-        self.canvas.bind("<Return>", self.on_keyboard)
-        self.canvas.bind("<KeyPress-c>", self.on_keyboard)
+    def _bind_events(self) -> None:
+        """Bind canvas events to the controller."""
+        if not self.controller:
+            return
+        
+        self.canvas.bind("<Button-1>", lambda e: self.controller.handle_click(e))
+        self.canvas.bind("<Motion>", lambda e: self.controller.handle_drag(e))
+        self.canvas.bind("<ButtonRelease-1>", lambda e: self.controller.handle_release(e))
+        self.canvas.bind("<Return>", lambda e: self.controller.handle_keyboard(e))
+        self.canvas.bind("<KeyPress-c>", lambda e: self.controller.handle_keyboard(e))
 
-    def set_active_tool(self, tool_name: str) -> None:
-        """
-        Sets the active tool by getting a new instance from the tools_manager.
-        """
-        if self.is_drawing and self.active_tool_instance:
-            self.active_tool_instance._clear_preview()
-            self.is_drawing = False
-        self.active_tool_instance = tools_manager.get_active_tool_instance(self.canvas)
-        print(f"Canvas: Active tool set to {tool_name}") # Debug
-
+    # =============================================================
+    # Theme Handling
+    # =============================================================
     def update_theme(self, mode: str) -> None:
         """Updates the canvas background color based on the theme."""
         if self.canvas:
             self.canvas.configure(bg=get_color("canvas_main"))
 
-    def set_draw_color(self, color: str) -> None:
-        """Sets the default drawing color for the canvas."""
-        self.draw_color = color
-
     def update_drawings_theme(self) -> None:
-        """
-        Updates the color of all drawings that use the default theme color.
-        This preserves user-selected colors.
-        """
+        """Updates the color of all drawings with the default theme color."""
         if not self.canvas:
             return
+        items = self.canvas.find_withtag("default_color")
+        new_color = get_color("drawing_default")
+        for item_id in items:
+            self.canvas.itemconfig(item_id, fill=new_color)
 
-        # Find all items on the canvas that have the 'default_color' tag
-        items_to_update = self.canvas.find_withtag("default_color")
-
-        # Get the new default drawing color from the theme manager
-        new_default_color = get_color("drawing_default")
-
-        # Apply the new color to all those items
-        for item_id in items_to_update:
-            self.canvas.itemconfig(item_id, fill=new_default_color)
-    # ------------------------------------------------------------
-    # Delegating Event Handlers
-    # ------------------------------------------------------------
-    def on_click(self, event: tk.Event) -> None:
-        """Delegates click events to the active tool."""
-        if not self.active_tool_instance:
-            return
-
-        if not self.is_drawing:
-            self.is_drawing = self.active_tool_instance.on_first_click(event)
-        else:
-            self.is_drawing = self.active_tool_instance.on_second_click(event)
-        
-    def on_drag(self, event: tk.Event) -> None:
-        """Delegates drag events to the active tool if a drawing is in progress."""
-        if self.is_drawing and self.active_tool_instance:
-            self.active_tool_instance.on_drag(event)
-
-    def on_keyboard(self, event: tk.Event) -> None:
-        print(f"Keyboard event received: {event.keysym}, is_drawing: {self.is_drawing}") # Debug
-        if self.is_drawing and self.active_tool_instance:
-            self.is_drawing = self.active_tool_instance.on_keyboard(event)
-
-    def on_release(self, event: tk.Event) -> None:
-        """
-        Release event is not used for the two-click logic, but is kept
-        in case it's needed for future tools.
-        """
-        pass
+    def get_canvas(self) -> Optional[tk.Canvas]:
+        """Returns the underlying tk.Canvas."""
+        return self.canvas
 
 # ------------------------------------------------------------
 # Secondary Canvas
 # ------------------------------------------------------------
 class SecondaryCanvas(tk.Canvas):
     """
-    Secondary canvas, hidden by default and shown when a specific
-    tool/category is active.
+    Secondary canvas, hidden by default and shown when needed.
+    Handles only UI positioning and theme.
     """
     def __init__(self, parent: tk.Widget) -> None:
         # Set default colors from the theme manager at initialization
@@ -157,15 +119,23 @@ class SecondaryCanvas(tk.Canvas):
         self._bind_events()
         self.place_forget()
 
+    # =============================================================
+    # Event placeholders (can be overridden)
+    # =============================================================
     def _bind_events(self) -> None:
-        """Bind mouse events to placeholder methods."""
+        """Bind mouse events to placeholders."""
         self.bind("<Button-1>", self.on_click)
         self.bind("<B1-Motion>", self.on_drag)
         self.bind("<ButtonRelease-1>", self.on_release)
 
-    def update_theme(self, mode: str) -> None:
-        """Updates the canvas background color based on the theme."""
-        self.configure(bg=get_color("canvas_sec"))
+    def on_click(self, event) -> None:
+        pass
+
+    def on_drag(self, event) -> None:
+        pass
+
+    def on_release(self, event) -> None:
+        pass
 
     # ------------------------------------------------------------
     # Show/Hide
@@ -182,13 +152,8 @@ class SecondaryCanvas(tk.Canvas):
         self.place_forget()
 
     # ------------------------------------------------------------
-    # Event placeholders (to be overridden by controller)
+    # Theme Handling
     # ------------------------------------------------------------
-    def on_click(self, event) -> None:
-        pass
-
-    def on_drag(self, event) -> None:
-        pass
-
-    def on_release(self, event) -> None:
-        pass
+    def update_theme(self, mode: str) -> None:
+        """Updates the canvas background color based on the theme."""
+        self.configure(bg=get_color("canvas_sec"))

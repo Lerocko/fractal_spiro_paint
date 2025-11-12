@@ -4,7 +4,7 @@ Orchestrates Fractal tools by using registered tool classes from tools_manager.
 """
 
 from typing import Optional, Tuple
-from ui import tools_manager
+from src.core import tools_manager
 import tkinter as tk
 
 # =============================================================

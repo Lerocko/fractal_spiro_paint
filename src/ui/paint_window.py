@@ -1,8 +1,13 @@
-"""
-paint_window.py
-Main GUI window for Fractal Spiro Paint.
-Integrates Toolbar and Canvas widgets modules.
-"""
+# =============================================================
+# File: paint_window.py
+# Project: Fractal Spiro Paint
+# Author: Leopoldo MZ (Lerocko)
+# Created: 2025-10-12
+# Refactored: 2025-11-12
+# Description:
+#     Main GUI window for Fractal Spiro Paint.
+#     Acts as a View, forwarding events to the App controller.
+# =============================================================
 
 import tkinter as tk
 from typing import Literal
@@ -10,7 +15,6 @@ from src.ui.toolbar import Toolbar
 from src.ui.menubar import Menubar
 from src.ui.canvas_widget import MainCanvas, SecondaryCanvas
 from src.ui.theme_manager import set_theme, get_color
-from src.ui import tools_manager
 
 # =============================================================
 # Constants
@@ -28,10 +32,16 @@ DEFAULT_THEME: Literal["dark", "light"] = "dark"
 # =============================================================
 class PaintWindow:
     """
-    Main application window for Fractal Spiro Paint.
+    Main application window (View).
     Manages Menubar, Toolbar, MainCanvas, SecondaryCanvas, and theme switching.
+    Delegates logic to the App controller.
     """
-    def __init__(self, width: int = WINDOW_WIDTH, height: int = WINDOW_HEIGHT) -> None:
+
+    # =============================================================
+    # Initialization
+    # =============================================================
+    def __init__(self, app_controller, width: int = WINDOW_WIDTH, height: int = WINDOW_HEIGHT) -> None:
+        self.app = app_controller
         self.width = width
         self.height = height
         self.current_theme = DEFAULT_THEME
@@ -71,30 +81,24 @@ class PaintWindow:
         self.main_canvas.pack(fill=tk.BOTH, expand=True)
 
         self.secondary_canvas = SecondaryCanvas(self.main_canvas)
+        self.app.canvas_controller = self.main_canvas.controller  # Link canvas controller to App
         
     # =============================================================
     # Event Handlers
     # =============================================================
     def on_tool_selected(self, category: str, tool: str) -> None:
-        """Handle toolbar button clicks."""
-        tools_manager.set_tools(category, tool)
-
-        if category in ["Fractal", "Spiro"]:
-            self.main_canvas.set_active_tool(tool)
-
-        if category == "Fractal":
-            self.secondary_canvas.show()
-        elif category == "Spiro":
-            self.secondary_canvas.hide()
+         """Handle toolbar tool selection."""
+        self.app.handle_tool_selection(category, tool)
 
     def on_file_action(self, action: str) -> None:
         """Handle file menu button clicks."""
-        
         if action in ["Light", "Dark"]:
             new_theme = "light" if self.current_theme == "dark" else "dark"
             self.toggle_theme(new_theme)
             # Update the Dark/Light button text
-            self.menubar.file_buttons_widgets[-1].configure(text="Light" if new_theme == "dark" else "Dark")
+            self.menubar.file_buttons_widgets[-1].configure(
+                text="Light" if new_theme == "dark" else "Dark"
+            )
 
     # =============================================================
     # Theme handling
@@ -110,18 +114,28 @@ class PaintWindow:
         self.secondary_canvas.update_theme(mode)
         self.main_canvas.update_drawings_theme()
         self.main_canvas.set_draw_color(get_color("drawing_default"))
-        
 
     # =============================================================
     # Window Events
     # =============================================================
     def _on_window_resize(self, event) -> None:
-        """Keep secondary canvas visible inside main canvas_frame."""
+        """Adjust secondary canvas position when the window is resized."""
         if self.secondary_canvas.winfo_ismapped():
             max_y = self.main_canvas.winfo_height() - SECONDARY_CANVAS_HEIGHT - 10
             if max_y < 0:
                 max_y = 10
             self.secondary_canvas.place(x=10, y=max_y)
+
+    # =============================================================
+    # Canvas Visibility
+    # =============================================================
+    def show_secondary_canvas(self) -> None:
+        """Make the secondary canvas visible."""
+        self.secondary_canvas.show()
+
+    def hide_secondary_canvas(self) -> None:
+        """Hide the secondary canvas."""
+        self.secondary_canvas.hide()
 
     # =============================================================
     # Main loop

@@ -5,7 +5,7 @@ Creation of File buttons modules and catching their events.
 import tkinter as tk
 from typing import Optional, Callable
 from .theme_manager import get_color
-from .config import FILE_BUTTONS
+from ..core.config import FILE_BUTTONS
 
 class Menubar(tk.Frame):
     """
