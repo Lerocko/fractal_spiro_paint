@@ -1,102 +1,133 @@
-"""
-tools_manager.py
-Control and managing activeted tools and theyre staites
-"""
+# =============================================================
+# File: tools_manager.py
+# Project: Fractal Spiro Paint
+# Author: Leopoldo MZ (Lerocko)
+# Created: 2025-10-12
+# Refactored: 2025-11-12
+# Description:
+#     Manages the registration and state of all drawing tools.
+#     Properly integrates with ThemeManager and supports both primary and secondary tools.
+# =============================================================
+
 import tkinter as tk
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..tools.base_tool import BaseTool
-# =============================================================
-# Global tool state
-# =============================================================
-main_category: Optional[str] = None
-main_tool: Optional[str] = None
-secondary_category: Optional[str] = None
-secondary_tool: Optional[str] = None
-current_theme: str = "dark"
-color: str = "white"
-width: int = 2
-eraser: bool = False
-fill: bool = False
-_active_tool_class: Optional[type] = None
 
 # =============================================================
-# Tools management functions
+# Tools Manager Class
 # =============================================================
-def set_tools(category: str, tool: str) -> None:
-    """Set the currently active tool according to its category.
-    Now also sets the active tool class.
+class ToolsManager:
     """
-    global main_category, main_tool, secondary_category, secondary_tool,  _active_tool_class
-
-    if category in ["Fractal", "Spiro"]:
-        main_category = category
-        main_tool = tool
-        _active_tool_class = get_tool(tool)
-    elif category in ["Drawing", "Edit"]:
-        secondary_category = category
-        secondary_tool = tool
-
-def get_active_tools() -> Dict[str, Optional[str]]:
-    return {
-        "main_category": main_category,
-        "main_tool": main_tool,
-        "secondary_category": secondary_category,
-        "secondary_tool": secondary_tool
-    }
-
-# =============================================================
-# Individual state accessors
-# =============================================================
-def current_main_category() -> Optional[str]:
-    return main_category
-
-def current_main_tool() -> Optional[str]:
-    return main_tool
-
-def current_secondary_tool() -> Optional[str]:
-    return secondary_tool
-
-def current_color() -> str:
-    global current_theme, color
-    if color is None:
-        return "white" if current_theme == "dark" else "black"
-    return color
-
-def current_width() -> str:
-    return width
-
-def is_eraser_active() -> bool:
-    return eraser
-
-def is_fill_active() -> bool:
-    return fill
-
-# =============================================================
-# Tool class registry
-# =============================================================
-
-_registered_tools: Dict[str, type] = {}
-
-def register_tool(name: str, cls: type) -> None:
+    Manages the registration and state of drawing tools.
+    This class is the single source of truth for tool state and acts as a factory
+    for tool instances.
     """
-    Register a tool class to make it available in the application.
-    This should be called once at application startup.
-    """
-    _registered_tools[name] = cls
-    print(f"Registered tool: {name}") #Debug
 
-def get_tool(name: str) -> Optional[type]:
-    """Retrieve a registered tool class by name."""
-    return _registered_tools.get(name)
+    # =============================================================
+    # Initialization
+    # =============================================================
+    def __init__(self) -> None:
+        """Initializes the ToolsManager with a clean, encapsulated state."""
+        # --- Primary Tool State (e.g., Fractal, Spiro) ---
+        self.main_category: Optional[str] = None
+        self.main_tool: Optional[str] = None
+        self._active_main_tool_class: Optional[type] = None
 
-def get_active_tool_instance(canvas: tk.Canvas) -> Optional["BaseTool"]:
-    """
-    Creates and returns an instance of the currently active tool.
-    """
-    if _active_tool_class:
-        from ..tools.base_tool import BaseTool
-        if issubclass(_active_tool_class, BaseTool):
-            return _active_tool_class(canvas)
-    return None
+        # --- Secondary Tool State (e.g., Drawing, Edit) ---
+        self.secondary_category: Optional[str] = None
+        self.secondary_tool: Optional[str] = None
+        self._active_secondary_tool_class: Optional[type] = None
+        
+        # --- Drawing State ---
+        self.width: int = 2
+        self.eraser: bool = False
+        self.fill: bool = False
+        
+        # --- Tool Registry ---
+        self._registered_tools: Dict[str, type] = {}
+
+    # =============================================================
+    # Tool Management Methods
+    # =============================================================
+    def set_active_tool(self, category: str, tool: str) -> None:
+        """
+        Set the currently active tool according to its category.
+        This method is the central point for updating tool state.
+        """
+        if category in ["Fractal", "Spiro"]:
+            self.main_category = category
+            self.main_tool = tool
+            self._active_main_tool_class = self.get_tool(tool)
+        elif category in ["Drawing", "Edit"]:
+            self.secondary_category = category
+            self.secondary_tool = tool
+            self._active_secondary_tool_class = self.get_tool(tool)
+
+    def get_active_tool_info(self) -> Dict[str, Optional[str]]:
+        """Returns a dictionary of the currently active tool info."""
+        return {
+            "main_category": self.main_category,
+            "main_tool": self.main_tool,
+            "secondary_category": self.secondary_category,
+            "secondary_tool": self.secondary_tool
+        }
+
+    # =============================================================
+    # Drawing State Accessors
+    # =============================================================
+    def get_drawing_color(self) -> str:
+        """
+        Returns the current drawing color.
+        Delegates to ThemeManager to get the default color for the current theme.
+        """
+        # Import here to avoid circular dependency with theme_manager
+        from .theme_manager import get_color
+        
+        # This logic can be expanded to support custom colors later
+        return get_color("drawing_default")
+
+    def get_width(self) -> int:
+        return self.width
+
+    def is_eraser_active(self) -> bool:
+        return self.eraser
+
+    def is_fill_active(self) -> bool:
+        return self.fill
+
+    # =============================================================
+    # Tool Class Registry (Core functionality)
+    # =============================================================
+    def register_tool(self, name: str, cls: type) -> None:
+        """
+        Register a tool class to make it available in the application.
+        """
+        self._registered_tools[name] = cls
+        print(f"Registered tool: {name}") # Debug
+
+    def get_tool(self, name: str) -> Optional[type]:
+        """Retrieve a registered tool class by name."""
+        return self._registered_tools.get(name)
+
+    def get_active_tool_instance(self, canvas: tk.Canvas) -> Optional["BaseTool"]:
+        """
+        Creates and returns an instance of the currently active MAIN tool.
+        """
+        if self._active_main_tool_class:
+            from ..tools.base_tool import BaseTool
+            if issubclass(self._active_main_tool_class, BaseTool):
+                return self._active_main_tool_class(canvas)
+        return None
+
+    def get_active_secondary_tool_instance(self, canvas: tk.Canvas) -> Optional["BaseTool"]:
+        """
+        Creates and returns an instance of the currently active SECONDARY tool.
+        This method will be useful for tools that modify the behavior of others.
+        """
+        if self._active_secondary_tool_class:
+            from ..tools.base_tool import BaseTool
+            if issubclass(self._active_secondary_tool_class, BaseTool):
+                return self._active_secondary_tool_class(canvas)
+        return None

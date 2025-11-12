@@ -14,7 +14,7 @@ from typing import Literal
 from src.ui.toolbar import Toolbar
 from src.ui.menubar import Menubar
 from src.ui.canvas_widget import MainCanvas, SecondaryCanvas
-from src.ui.theme_manager import set_theme, get_color
+from src.core.theme_manager import set_theme, get_color
 
 # =============================================================
 # Constants

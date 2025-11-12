@@ -1,6 +1,6 @@
 # =============================================================
 # File: app.py
-# Project: Fractal Paint
+# Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-11-12
 # Description:
@@ -33,8 +33,8 @@ class App:
     Manages the global state and coordinates UI components.
     """
 
-    def __init__(self) -> None:
-        self.tools_manager = ToolsManager()
+    def __init__(self, tools_manager: 'ToolsManager') -> None:
+        self.tools_manager = tools_manager
         self.theme_service = ThemeService()
         self.main_window: "PaintWindow" = None
         self.canvas_controller = None  # Will be added later
@@ -80,6 +80,8 @@ class App:
             else "dark"
         )
         self.theme_service.set_theme(new_mode)
+        self.main_window.menubar.file_buttons_widgets[-1].configure(
+        text="Light" if new_mode == "dark" else "Dark"
         print(f"App: Theme changed to {new_mode}")
 
     # =============================================================

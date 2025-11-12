@@ -18,7 +18,7 @@ Delegates all drawing logic to the CanvasController.
 
 import tkinter as tk
 from typing import Optional
-from .theme_manager import get_color
+from ..core.theme_manager import get_color
 
 # ------------------------------------------------------------
 # Constants

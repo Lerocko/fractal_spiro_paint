@@ -7,10 +7,11 @@ It registers all available tools and launches the main GUI window.
 """
 
 # --- Import necessary components ---
-from src.fractal.line_tool import LineTool
-from src.fractal.polyline_tool import PolylineTool
-from src.fractal.polygon import PolygonTool
-from src.core import tools_manager
+from src.tools.fractal.line_tool import LineTool
+from src.tools.fractal.polyline_tool import PolylineTool
+from src.tools.fractal.polygon import PolygonTool
+from src.core.tools_manager import ToolsManager
+from src.core.app from App
 from src.ui.paint_window import PaintWindow
 
 def main():
