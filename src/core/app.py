@@ -22,9 +22,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ui.paint_window import PaintWindow  # Prevent circular imports
     from ui.canvas_widget import MainCanvas
+    from ..core.app import App
 
 from .tools_manager import ToolsManager
 from .theme_service import ThemeService
+from .canvas_controller import CanvasController
 
 
 class App:
@@ -33,7 +35,7 @@ class App:
     Manages the global state and coordinates UI components.
     """
 
-    def __init__(self, tools_manager: 'ToolsManager') -> None:
+    def __init__(self, tools_manager: "ToolsManager") -> None:
         self.tools_manager = tools_manager
         self.theme_service = ThemeService()
         self.main_window: "PaintWindow" = None
@@ -48,6 +50,18 @@ class App:
         """
         self.main_window = main_window
         self.theme_service.register_observer(self.main_window.update_theme)
+        self.canvas_controller = CanvasController(self.main_window.main_canvas, self.tools_manager)
+        self.main_window.main_canvas.controller = self.canvas_controller
+
+    # =============================================================
+    # Menu Management
+    # =============================================================
+    def handle_file_action(self, action: str) -> None:
+        """
+        Handles actions from the file menu.
+        """
+        if action in ["Light", "Dark"]:
+            self.handle_theme_toggle()
 
     # =============================================================
     # Tool Management
@@ -81,7 +95,7 @@ class App:
         )
         self.theme_service.set_theme(new_mode)
         self.main_window.menubar.file_buttons_widgets[-1].configure(
-        text="Light" if new_mode == "dark" else "Dark"
+            text="Light" if new_mode == "dark" else "Dark")
         print(f"App: Theme changed to {new_mode}")
 
     # =============================================================

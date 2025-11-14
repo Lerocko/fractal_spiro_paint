@@ -3,18 +3,22 @@
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-10-12
-# Refactored: 2025-11-12
+# Refactored: 2025-11-15
 # Description:
 #     Main GUI window for Fractal Spiro Paint.
 #     Acts as a View, forwarding events to the App controller.
 # =============================================================
 
 import tkinter as tk
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
 from src.ui.toolbar import Toolbar
 from src.ui.menubar import Menubar
 from src.ui.canvas_widget import MainCanvas, SecondaryCanvas
 from src.core.theme_manager import set_theme, get_color
+
+if TYPE_CHECKING:
+    from ..core.app import App
+    from ui.canvas_widget import MainCanvas
 
 # =============================================================
 # Constants
@@ -40,7 +44,7 @@ class PaintWindow:
     # =============================================================
     # Initialization
     # =============================================================
-    def __init__(self, app_controller, width: int = WINDOW_WIDTH, height: int = WINDOW_HEIGHT) -> None:
+    def __init__(self, app_controller: "App", width: int = WINDOW_WIDTH, height: int = WINDOW_HEIGHT) -> None:
         self.app = app_controller
         self.width = width
         self.height = height
@@ -65,12 +69,12 @@ class PaintWindow:
     # =============================================================
     def _init_menubar(self) -> None:
         """Initialize the file menu buttons (Menubar)."""
-        self.menubar = Menubar(self.root, on_click_callback=self.on_file_action)
+        self.menubar = Menubar(self.root, on_click_callback=self.app.handle_file_action)
         self.menubar.pack(side=tk.TOP, fill=tk.X)
 
     def _init_toolbars(self) -> None:
         """Initialize toolbar buttons for each category."""
-        self.toolbar = Toolbar(self.root, on_click_callback=self.on_tool_selected)
+        self.toolbar = Toolbar(self.root, on_click_callback=self.app.handle_tool_selection)
         self.toolbar.generate_tools()
         self.toolbar.pack(side=tk.TOP, fill=tk.X)
 
@@ -81,32 +85,12 @@ class PaintWindow:
         self.main_canvas.pack(fill=tk.BOTH, expand=True)
 
         self.secondary_canvas = SecondaryCanvas(self.main_canvas)
-        self.app.canvas_controller = self.main_canvas.controller  # Link canvas controller to App
         
     # =============================================================
-    # Event Handlers
-    # =============================================================
-    def on_tool_selected(self, category: str, tool: str) -> None:
-         """Handle toolbar tool selection."""
-        self.app.handle_tool_selection(category, tool)
-
-    def on_file_action(self, action: str) -> None:
-        """Handle file menu button clicks."""
-        if action in ["Light", "Dark"]:
-            new_theme = "light" if self.current_theme == "dark" else "dark"
-            self.toggle_theme(new_theme)
-            # Update the Dark/Light button text
-            self.menubar.file_buttons_widgets[-1].configure(
-                text="Light" if new_theme == "dark" else "Dark"
-            )
-
-    # =============================================================
-    # Theme handling
+    # Observers
     # =============================================================   
-    def toggle_theme(self, mode: Literal["dark", "light"]) -> None:
+    def update_theme(self, mode: Literal["dark", "light"]) -> None:
         """Switch colors between dark and light themes."""
-        set_theme(mode)
-        self.current_theme = mode
         self.root.configure(bg=get_color("root"))
         self.menubar.update_theme(mode)
         self.toolbar.update_theme(mode)

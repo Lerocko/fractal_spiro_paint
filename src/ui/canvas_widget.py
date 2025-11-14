@@ -17,8 +17,12 @@ Delegates all drawing logic to the CanvasController.
 """
 
 import tkinter as tk
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from ..core.theme_manager import get_color
+
+if TYPE_CHECKING:
+    from ..core.canvas_controller import CanvasController
+    from ..tools.base_tool import BaseTool
 
 # ------------------------------------------------------------
 # Constants
@@ -41,10 +45,10 @@ class MainCanvas(tk.Frame):
         self.controller = controller
         self.canvas: Optional[tk.Canvas] = None
         self.bg = default_bg
-
-        self.canvas: Optional[tk.Canvas] = None
         self.draw_color: str = get_color("drawing_default") # Use theme manager
 
+        self.canvas: Optional[tk.Canvas] = None
+        
         self.is_drawing: bool = False
         self.active_tool_instance: Optional[BaseTool] = None
         
@@ -69,6 +73,10 @@ class MainCanvas(tk.Frame):
     # =============================================================
     # Theme Handling
     # =============================================================
+    def set_draw_color(self, color: str) -> None:
+        """Sets the default drawing color for the canvas."""
+        self.draw_color = color
+        
     def update_theme(self, mode: str) -> None:
         """Updates the canvas background color based on the theme."""
         if self.canvas:
