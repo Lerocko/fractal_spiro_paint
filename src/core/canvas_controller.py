@@ -38,24 +38,39 @@ class CanvasController:
         Called when the active tool is changed in the application.
         Clears previous tool preview and sets new active tool.
         """
+
+        print("DEBUG: CanvasController.on_tool_changed() has been called.") # Debug
+
         if self.is_drawing and self.active_tool_instance:
             self.active_tool_instance.clear_preview()
             self.is_drawing = False
 
         self.active_tool_instance = self.tools_manager.get_active_tool_instance(self.canvas)
-        print(f"CanvasController: Active tool set to {self.active_tool_instance}")
+        print(f"CanvasController: Active tool set to {self.active_tool_instance}") # Debug
 
     # =============================================================
     # Mouse Events
     # =============================================================
     def handle_click(self, event):
         """Handles a mouse click event on the canvas."""
-        if not self.active_tool_instance:
-            return
 
+        print(f"DEBUG: Click on CanvasController. is_drawing={self.is_drawing}") # Debug
+
+        if not self.active_tool_instance:
+
+            print("DEBUG: ERROR. There is not an activeted tool.") # Debug
+            
+            return
+    
         if not self.is_drawing:
+
+            print("DEBUG: Calling to on_first_click de la herramienta.") # Debug
+
             self.is_drawing = self.active_tool_instance.on_first_click(event)
         else:
+
+            print("DEBUG: Calling to on_second_click de la herramienta.") # Debug
+
             self.is_drawing = self.active_tool_instance.on_second_click(event)
 
     def handle_drag(self, event):
@@ -73,5 +88,8 @@ class CanvasController:
     # =============================================================
     def handle_keyboard(self, event):
         """Handles a keyboard event on the canvas."""
+
+        print(f"DEBUG: Keyboard '{event.keysym}' pressed. is_drawing={self.is_drawing}") # Debug
+
         if self.is_drawing and self.active_tool_instance:
             self.active_tool_instance.on_keyboard(event)

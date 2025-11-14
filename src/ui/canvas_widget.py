@@ -94,6 +94,11 @@ class MainCanvas(tk.Frame):
     def get_canvas(self) -> Optional[tk.Canvas]:
         """Returns the underlying tk.Canvas."""
         return self.canvas
+    
+    def set_controller(self, controller: 'CanvasController') -> None:
+        """Injects the controller after it's created."""
+        self.controller = controller
+        self._bind_events()
 
 # ------------------------------------------------------------
 # Secondary Canvas

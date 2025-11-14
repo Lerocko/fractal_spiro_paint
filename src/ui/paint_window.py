@@ -14,7 +14,7 @@ from typing import Literal, TYPE_CHECKING
 from src.ui.toolbar import Toolbar
 from src.ui.menubar import Menubar
 from src.ui.canvas_widget import MainCanvas, SecondaryCanvas
-from src.core.theme_manager import set_theme, get_color
+from src.core.theme_manager import get_color
 
 if TYPE_CHECKING:
     from ..core.app import App

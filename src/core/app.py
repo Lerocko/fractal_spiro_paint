@@ -51,7 +51,7 @@ class App:
         self.main_window = main_window
         self.theme_service.register_observer(self.main_window.update_theme)
         self.canvas_controller = CanvasController(self.main_window.main_canvas, self.tools_manager)
-        self.main_window.main_canvas.controller = self.canvas_controller
+        self.main_window.main_canvas.set_controller(self.canvas_controller)
 
     # =============================================================
     # Menu Management

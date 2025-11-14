@@ -9,8 +9,8 @@ import tkinter as tk
 import math
 from typing import Optional, Tuple, List
 
-from ..ui.base_tool import BaseTool
-from ..ui.theme_manager import get_color
+from src.tools.base_tool import BaseTool
+from src.core.theme_manager import get_color
 
 
 class PolygonTool(BaseTool):
@@ -160,3 +160,7 @@ class PolygonTool(BaseTool):
         self._clear_preview()
         self.center_point = None
         self.radius = 0
+
+    def clear_preview(self) -> None:
+        """Public method to clear the preview."""
+        self._clear_preview()

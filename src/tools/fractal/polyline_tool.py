@@ -8,8 +8,8 @@ for drawing opened polylines or closed polylines on the canvas using a two-click
 import tkinter as tk
 from typing import Optional, Tuple, List
 
-from ..ui.base_tool import BaseTool
-from ..ui.theme_manager import get_color
+from src.tools.base_tool import BaseTool
+from src.core.theme_manager import get_color
 
 
 class PolylineTool(BaseTool):
@@ -110,3 +110,7 @@ class PolylineTool(BaseTool):
         self._clear_preview()
         self.points = []
         self.line_ids = []
+
+    def clear_preview(self) -> None:
+        """Public method to clear the preview."""
+        self._clear_preview()

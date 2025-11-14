@@ -9,8 +9,8 @@ for drawing straight lines on the canvas using a two-click interaction.
 import tkinter as tk
 from typing import Optional, Tuple
 
-from ..ui.base_tool import BaseTool
-from ..ui.theme_manager import get_color
+from src.tools.base_tool import BaseTool
+from src.core.theme_manager import get_color
 
 
 class LineTool(BaseTool):
@@ -89,3 +89,7 @@ class LineTool(BaseTool):
             print("LineTool desactived.")
             return False
         return True
+    
+    def clear_preview(self) -> None:
+        """Public method to clear the preview."""
+        self._clear_preview()
