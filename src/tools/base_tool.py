@@ -10,8 +10,7 @@ Strategy design pattern.
 
 from abc import ABC, abstractmethod
 import tkinter as tk
-from typing import Optional, Tuple
-
+from typing import Optional, Any
 
 class BaseTool(ABC):
     """
@@ -72,7 +71,7 @@ class BaseTool(ABC):
         pass
     
     @abstractmethod
-    def on_keyboard(self, event: tk.Event) -> None:
+    def on_keyboard(self, event: Any) -> None:
         """
         Handles the enter keyboard click event.
 

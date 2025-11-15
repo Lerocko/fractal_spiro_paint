@@ -8,9 +8,12 @@
 #     Handles drawing logic by delegating to the active tool from the ToolsManager.
 # =============================================================
 
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from .tools_manager import ToolsManager
-from ..tools.base_tool import BaseTool
+
+if TYPE_CHECKING:
+    from ui.canvas_widget import MainCanvas
+    from ..tools.base_tool import BaseTool
 
 # =============================================================
 # CanvasController Class
@@ -23,7 +26,7 @@ class CanvasController:
     # =============================================================
     # Constructor
     # =============================================================
-    def __init__(self, canvas_widget, tools_manager: ToolsManager):
+    def __init__(self, canvas_widget: 'MainCanvas', tools_manager: ToolsManager):
         self.canvas_widget = canvas_widget
         self.canvas = canvas_widget.get_canvas()
         self.tools_manager = tools_manager
