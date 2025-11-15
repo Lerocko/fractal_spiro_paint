@@ -1,9 +1,14 @@
-"""
-polyline_tool.py
-
-Contains the `PolylineTool` class, a concrete implementation of `BaseTool`
-for drawing opened polylines or closed polylines on the canvas using a two-click interaction.
-"""
+# =============================================================
+# File: polygon_tool.py
+# Project: Fractal Spiro Paint
+# Author: Leopoldo MZ (Lerocko)
+# Created: 2025-11-12
+# Refactored: 2025-11-15
+# Description:
+#     Tool for drawing regular polygons using two-click interaction.
+#     First click sets the center, second click sets the radius,
+#     then a popup asks for the number of sides.
+# =============================================================
 
 import tkinter as tk
 import math
@@ -12,38 +17,52 @@ from typing import Optional, Tuple, List
 from src.tools.base_tool import BaseTool
 from src.core.theme_manager import get_color
 
-
+# =============================================================
+# PolygonTool Class
+# =============================================================
 class PolygonTool(BaseTool):
     """
     Tool for drawing regular polygons.
-    - First click sets the center.
-    - Second click sets the radius and asks for the number of sides.
-    """
-    def __init__(self, canvas: tk.Canvas) -> None:
-        """
-        Initializes the Polygon.
 
-        Args:
-            canvas: The Tkinter canvas widget where the line will be drawn.
-        """
+    Workflow:
+    - First click → set center
+    - Drag → preview radius
+    - Second click → fix radius and ask for number of sides
+    - Popup Enter → finalize polygon
+    """
+
+    # ---------------------------------------------------------
+    # Constructor
+    # ---------------------------------------------------------
+    def __init__(self, canvas: tk.Canvas) -> None:
         super().__init__(canvas)
+
         self.center_point: Optional[Tuple[int, int]] = None
         self.radius: int = 0
+
+        # Popup UI
         self.popup: Optional[tk.Toplevel] = None
         self.entry: Optional[tk.Entry] = None
 
+        # Preview shapes
         self.preview_circle_id: Optional[int] = None
         self.preview_radius_id: Optional[int] = None
 
+    # ---------------------------------------------------------
+    # Mouse Events
+    # ---------------------------------------------------------
     def on_first_click(self, event: tk.Event) -> bool:
-        """Anchors the center point."""
+        """
+        Anchors the center point.
+        """
         self.center_point = (event.x, event.y)
-        # TODO: Remove debug print statements in production.
-        print(f"Polygon: Center at {self.center_point}")
+        print(f"Polygon: Center at {self.center_point}") # Debug
         return True
 
     def on_drag(self, event: tk.Event) -> None:
-        """Shows a preview of the circle that will contain the polygon."""
+        """
+        Shows a preview of the circle and radius line that will contain the polygon.
+        """
         if not self.center_point:
             return
 
@@ -55,6 +74,7 @@ class PolygonTool(BaseTool):
         dy = event.y - self.center_point[1]
         self.radius = int((dx**2 + dy**2)**0.5)
 
+        # Circle bounds
         x1 = self.center_point[0] - self.radius
         y1 = self.center_point[1] - self.radius
         x2 = self.center_point[0] + self.radius
@@ -68,13 +88,16 @@ class PolygonTool(BaseTool):
             width=2,
             dash=(4, 4)
         )
+
         # Draw the preview circumference with a dashed line
         self.preview_circle_id = self.canvas.create_oval(
             x1, y1, x2, y2, outline=preview_color, width=2, dash=(4,4)
         )
 
     def on_second_click(self, event: tk.Event) -> bool:
-        """Fixes the radius and asks for the number of sides."""
+        """
+        Fixes the radius and displays the input popup.
+        """
         if not self.center_point:
             return False
         
@@ -85,8 +108,13 @@ class PolygonTool(BaseTool):
         self._ask_for_sides()
         return True
     
-    def _ask_for_sides(self):
-        """Creates a small popup window to get the number of sides."""
+    # ---------------------------------------------------------
+    # Popup Window Logic
+    # ---------------------------------------------------------
+    def _ask_for_sides(self)  -> None:
+        """
+        Creates a small popup window to get the number of sides.
+        """
         self.popup = tk.Toplevel(self.canvas.master)
         self.popup.title("Polygon Sides")
         self.popup.geometry("200x80")
@@ -105,9 +133,12 @@ class PolygonTool(BaseTool):
         # Bind the Enter key of the popup to the confirmation action
         self.entry.bind("<Return>", lambda event: self._confirm_sides())
 
-    def _confirm_sides(self):
-        """Called when the user presses Enter in the popup."""
-        print("DEBUG: _confirm_sides llamado.")
+    def _confirm_sides(self)  -> None:
+        """
+        Triggered when the user presses Enter in the popup.
+        """
+        print("DEBUG: Confirm sides called.") # Debug
+
         try:
             num_sides = int(self.entry.get())
             if num_sides < 3:
@@ -117,16 +148,20 @@ class PolygonTool(BaseTool):
             points = self._calculate_polygon_points(self.center_point, self.radius, num_sides)
             final_color = get_color("drawing_default")
 
+            # Draw each segment of the polygon
             for i in range(len(points)):
                 start_point = points[i]
                 end_point = points[(i + 1) % len(points)]
+                
                 self.canvas.create_line(
                     start_point[0], start_point[1],
                     end_point[0], end_point[1],
-                    fill=final_color, width=2, tags=("permanent", "default_color")
+                    fill=final_color, 
+                    width=2, 
+                    tags=("permanent", "default_color")
                 )
 
-            print(f"DEBUG: Polígono dibujado. Vamos a desactivar.")
+            print(f"DEBUG: Polygon drawn. Ending tool.") # Debug
             self._finish_polygon()
 
             print(f"DEBUG: Antes de cambiar is_drawing, es: {self.canvas.master.is_drawing}")
@@ -140,27 +175,49 @@ class PolygonTool(BaseTool):
         if self.popup:
             self.popup.destroy()
 
-    def _calculate_polygon_points(self, center: Tuple[int, int], radius: int, num_sides: int) -> List[Tuple[int, int]]:
-        """Calculates the vertices of a regular polygon."""
+    # ---------------------------------------------------------
+    # Helper Methods
+    # ---------------------------------------------------------
+    def _calculate_polygon_points(
+        self, 
+        center: Tuple[int, int],
+        radius: int,
+        num_sides: int
+    ) -> List[Tuple[int, int]]:
+        """Computes the vertices of a regular polygon."""
         points = []
         angle_step = 2 * math.pi / num_sides
+
         for i in range(num_sides):
             angle = i * angle_step - math.pi / 2
             x = center[0] + radius * math.cos(angle)
             y = center[1] + radius * math.sin(angle)
             points.append((int(x), int(y)))
-        return points
 
-    def on_keyboard(self, event: tk.Event) -> None:
-        """Keyboard events are handled by the popup's entry widget."""
-        return True
+        return points
     
-    def _finish_polygon(self):
-        """Resets the tool state."""
+    def _finish_polygon(self) -> None:
+        """
+        Resets the tool state.
+        """
         self._clear_preview()
         self.center_point = None
         self.radius = 0
 
+    # ---------------------------------------------------------
+    # Keyboard
+    # ---------------------------------------------------------
+    def on_keyboard(self, event: tk.Event) -> bool:
+        """
+        Keyboard events are ignored; popup handles its own keys.
+        """
+        return True
+
+    # ---------------------------------------------------------
+    # Preview clearing
+    # ---------------------------------------------------------
     def clear_preview(self) -> None:
-        """Public method to clear the preview."""
+        """
+        Public method to clear the preview.
+        """
         self._clear_preview()

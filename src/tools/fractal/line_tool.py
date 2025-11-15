@@ -1,18 +1,22 @@
-"""
-Line tool module.
-line_tool.py
-
-Contains the `LineTool` class, a concrete implementation of `BaseTool`
-for drawing straight lines on the canvas using a two-click interaction.
-"""
+# =============================================================
+# File: line_tool.py
+# Project: Fractal Spiro Paint
+# Author: Leopoldo MZ (Lerocko)
+# Created: 2025-11-12
+# Refactored: 2025-11-15
+# Description:
+#     Concrete implementation of BaseTool for drawing straight
+#     lines using a two-click interaction with live preview.
+# =============================================================
 
 import tkinter as tk
 from typing import Optional, Tuple
-
 from src.tools.base_tool import BaseTool
 from src.core.theme_manager import get_color
 
-
+# =============================================================
+# LineTool Class
+# =============================================================
 class LineTool(BaseTool):
     """
     A tool for drawing straight lines.
@@ -21,6 +25,10 @@ class LineTool(BaseTool):
     see a preview, and clicks a second time to set the end point and
     finalize the line.
     """
+
+    # ---------------------------------------------------------
+    # Constructor
+    # ---------------------------------------------------------
     def __init__(self, canvas: tk.Canvas) -> None:
         """
         Initializes the LineTool.
@@ -31,15 +39,24 @@ class LineTool(BaseTool):
         super().__init__(canvas)
         self.start_point: Optional[Tuple[int, int]] = None
 
-    def on_first_click(self, event: tk.Event) -> None:
-        """Anchors the starting point for the line."""
+    # ---------------------------------------------------------
+    # Mouse Interaction
+    # ---------------------------------------------------------
+    def on_first_click(self, event: tk.Event) -> bool:
+        """
+        Anchors the starting point for the line.
+        
+        Returns:
+            bool: True if drawing should begin.
+        """
         self.start_point = (event.x, event.y)
-        # TODO: Remove debug print statements in production.
-        print(f"LineTool: First click at {self.start_point}")
+        print(f"LineTool: First click at {self.start_point}") # Debug
         return True
 
     def on_drag(self, event: tk.Event) -> None:
-        """Updates the line preview as the mouse moves."""
+        """
+        Updates the line preview as the mouse moves.
+        """
         if not self.start_point:
             return
 
@@ -57,10 +74,15 @@ class LineTool(BaseTool):
             dash=(4, 4)  # Dashed line for preview
         )
 
-    def on_second_click(self, event: tk.Event) -> None:
-        """Draws the final, permanent line on the canvas."""
+    def on_second_click(self, event: tk.Event) -> bool:
+        """
+        Draws the final, permanent line on the canvas.
+        
+        Returns:
+            bool: False to signal drawing completion.
+        """
         if not self.start_point:
-            return
+            return False
 
         # Clear the preview before drawing the final line
         self._clear_preview()
@@ -75,21 +97,27 @@ class LineTool(BaseTool):
             width=2,
             tags=("permanent", "default_color")
         )
-        # TODO: Remove debug print statements in production.
-        print(f"LineTool: Second click at ({event.x}, {event.y}). Line finalized.")
+        
+        print(f"LineTool: Second click at ({event.x}, {event.y}). Line finalized.") # Debug
 
         # Reset the start point for the next line
         self.start_point = None
         return False
 
-    def on_keyboard(self, event):
+    # ---------------------------------------------------------
+    # Keyboard Interaction
+    # ---------------------------------------------------------
+    def on_keyboard(self, event) -> bool:
+        """
+        Handles keyboard events while drawing.
+        """
         if event.keysym == "Return":
             self._clear_preview()
             self.start_point = None
-            print("LineTool desactived.")
+            print("LineTool desactived.") # Debug
             return False
         return True
     
     def clear_preview(self) -> None:
-        """Public method to clear the preview."""
+        """External method to clear the preview."""
         self._clear_preview()

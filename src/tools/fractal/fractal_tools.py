@@ -1,17 +1,28 @@
-"""
-fractal_tool.py
-Orchestrates Fractal tools by using registered tool classes from tools_manager.
-"""
+# =============================================================
+# File: fractal_tools.py
+# Project: Fractal Spiro Paint
+# Author: Leopoldo MZ (Lerocko)
+# Created: 2025-11-12
+# Refactored: 2025-11-15
+# Description:
+#     Orchestrates fractal tools by retrieving registered tool
+#     classes from ToolsManager and executing their draw method.
+# =============================================================
 
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Type
 from src.core import tools_manager
 import tkinter as tk
 
 # =============================================================
-# Fractal tools entry
+# Public API
 # =============================================================
 
-def use_tool(tool_name: str, canvas: tk.Canvas, start: Tuple[int, int], end: Tuple[int, int]) -> Optional[str]:
+def use_tool(
+    tool_name: str,
+    canvas: tk.Canvas,
+    start: Tuple[int, int],
+    end: Tuple[int, int]
+) -> Optional[str]:
     """
     Use the tool with the given name on the canvas with start/end coordinates.
     
@@ -24,14 +35,22 @@ def use_tool(tool_name: str, canvas: tk.Canvas, start: Tuple[int, int], end: Tup
     Returns:
         Optional[str]: Optional return value from the tool's draw method.
     """
-    # Obtener la clase de herramienta registrada
-    ToolClass = tools_manager.get_tool(tool_name)
+
+    # ---------------------------------------------------------
+    # Retrieve registered tool class
+    # ---------------------------------------------------------
+    ToolClass: Optional[Type] = tools_manager.get_tool(tool_name)
+
     if not ToolClass:
-        print(f"Tool '{tool_name}' is not registered.")
+        print(f"Tool '{tool_name}' is not registered.") # Debug
         return None
     
-    # Crear instancia y pasar canvas
+    # ---------------------------------------------------------
+    # Create tool instance
+    # ---------------------------------------------------------
     tool_instance = ToolClass(canvas)
     
-    # Ejecutar el método de dibujo
-    return tool_instance.draw(start, end)
+    # ---------------------------------------------------------
+    # Execute drawing
+    # ---------------------------------------------------------
+    return tool_instance.draw(start, end) # type: ignore
