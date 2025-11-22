@@ -27,6 +27,7 @@ if TYPE_CHECKING:
 from .tools_manager import ToolsManager
 from .theme_service import ThemeService
 from .canvas_controller import CanvasController
+from .shape_manager import ShapeManager
 
 
 class App:
@@ -39,7 +40,7 @@ class App:
         self.tools_manager = tools_manager
         self.theme_service = ThemeService()
         self.main_window: "PaintWindow" = None
-        self.canvas_controller = None  # Will be added later
+        self.shape_manager = ShapeManager()
 
     # =============================================================
     # UI Linking
@@ -50,9 +51,9 @@ class App:
         """
         self.main_window = main_window
         self.theme_service.register_observer(self.main_window.update_theme)
-        self.canvas_controller = CanvasController(self.main_window.main_canvas, self.tools_manager)
+        self.canvas_controller = CanvasController(self.main_window.main_canvas, self.tools_manager, self.shape_manager)
         self.main_window.main_canvas.set_controller(self.canvas_controller)
-
+        
     # =============================================================
     # Menu Management
     # =============================================================

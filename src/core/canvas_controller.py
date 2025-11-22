@@ -10,6 +10,7 @@
 
 from typing import Optional, TYPE_CHECKING
 from .tools_manager import ToolsManager
+from .shape_manager import ShapeManager
 
 if TYPE_CHECKING:
     from ui.canvas_widget import MainCanvas
@@ -26,10 +27,11 @@ class CanvasController:
     # =============================================================
     # Constructor
     # =============================================================
-    def __init__(self, canvas_widget: 'MainCanvas', tools_manager: ToolsManager):
+    def __init__(self, canvas_widget: 'MainCanvas', tools_manager: ToolsManager, shape_manager: ShapeManager):
         self.canvas_widget = canvas_widget
         self.canvas = canvas_widget.get_canvas()
         self.tools_manager = tools_manager
+        self.shape_manager = shape_manager
         self.is_drawing = False
         self.active_tool_instance: Optional[BaseTool] = None
 
