@@ -3,7 +3,7 @@
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-10-12
-# Refactored: 2025-14-12
+# Refactored: 2025-10-14
 # Description:
 #     Entry point for the Fractal Spiro Paint application.
 #     Refactored to follow the clean architecture with proper

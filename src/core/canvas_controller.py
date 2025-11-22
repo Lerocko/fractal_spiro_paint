@@ -3,6 +3,7 @@
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-11-12
+# Refactored: 2025-11-23
 # Description:
 #     Controller for canvas interactions.
 #     Handles drawing logic by delegating to the active tool from the ToolsManager.
@@ -50,7 +51,7 @@ class CanvasController:
             self.active_tool_instance.clear_preview()
             self.is_drawing = False
 
-        self.active_tool_instance = self.tools_manager.get_active_tool_instance(self.canvas)
+        self.active_tool_instance = self.tools_manager.get_active_tool_instance(self.canvas, self.shape_manager)
         print(f"CanvasController: Active tool set to {self.active_tool_instance}") # Debug
 
     # =============================================================

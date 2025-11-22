@@ -3,7 +3,7 @@
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-10-12
-# Refactored: 2025-11-12
+# Refactored: 2025-11-23
 # Description:
 #     Manages the registration and state of all drawing tools.
 #     Properly integrates with ThemeManager and supports both primary and secondary tools.
@@ -11,6 +11,7 @@
 
 import tkinter as tk
 from typing import Dict, Optional, TYPE_CHECKING
+from src.core.shape_manager import ShapeManager
 
 if TYPE_CHECKING:
     from ..tools.base_tool import BaseTool
@@ -111,14 +112,14 @@ class ToolsManager:
         """Retrieve a registered tool class by name."""
         return self._registered_tools.get(name)
 
-    def get_active_tool_instance(self, canvas: tk.Canvas) -> Optional["BaseTool"]:
+    def get_active_tool_instance(self, canvas: tk.Canvas, shape_manager: ShapeManager) -> Optional["BaseTool"]:
         """
         Creates and returns an instance of the currently active MAIN tool.
         """
         if self._active_main_tool_class:
             from ..tools.base_tool import BaseTool
             if issubclass(self._active_main_tool_class, BaseTool):
-                return self._active_main_tool_class(canvas)
+                return self._active_main_tool_class(canvas, shape_manager)
         return None
 
     def get_active_secondary_tool_instance(self, canvas: tk.Canvas) -> Optional["BaseTool"]:
