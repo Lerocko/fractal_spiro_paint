@@ -1,17 +1,22 @@
-"""
-Base tool module.
-base_tool.py
-
-Provides the abstract base class `BaseTool` that defines the interface
-for all drawing tools in the application. This ensures that every tool
-can be used by the main canvas in a consistent way, following the
-Strategy design pattern.
-"""
+# =============================================================
+# File: base_tool.py
+# Project: Fractal Spiro Paint
+# Author: Leopoldo MZ (Lerocko)
+# Created: 2025-11-12
+# Refactored: 2025-11-25
+# Description:
+#     Abstract base class for all drawing tools. Ensures that every
+#     tool implements the required interface and provides a preview
+#     clearing utility.
+# =============================================================
 
 from abc import ABC, abstractmethod
 import tkinter as tk
 from typing import Optional, Any
 
+# =============================================================
+# BaseTool Class
+# =============================================================
 class BaseTool(ABC):
     """
     Abstract base class for a drawing tool.
@@ -20,6 +25,7 @@ class BaseTool(ABC):
     follow. It manages the canvas reference and provides a utility method
     for handling shape previews.
     """
+
     def __init__(self, canvas: tk.Canvas) -> None:
         """
         Initializes the tool with a reference to the drawing canvas.
@@ -32,6 +38,9 @@ class BaseTool(ABC):
         self.preview_circle_id: Optional[int] = None
         self.preview_radius_id: Optional[int] = None
 
+    # ---------------------------------------------------------
+    # Abstract Methods
+    # ---------------------------------------------------------
     @abstractmethod
     def on_first_click(self, event: tk.Event) -> None:
         """
@@ -82,6 +91,9 @@ class BaseTool(ABC):
         """
         pass
 
+    # ---------------------------------------------------------
+    # Utilities
+    # ---------------------------------------------------------
     def _clear_preview(self) -> None:
         """Clears any known preview elements."""
         if self.preview_shape_id:
