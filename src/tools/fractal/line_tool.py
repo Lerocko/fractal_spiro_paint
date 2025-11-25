@@ -3,7 +3,7 @@
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-11-12
-# Refactored: 2025-11-15
+# Refactored: 2025-11-25
 # Description:
 #     Concrete implementation of BaseTool for drawing straight
 #     lines using a two-click interaction with live preview.
@@ -13,6 +13,7 @@ import tkinter as tk
 from typing import Optional, Tuple
 from src.tools.base_tool import BaseTool
 from src.core.theme_manager import get_color
+from src.core.shape_manager import  ShapeManager
 
 # =============================================================
 # LineTool Class
@@ -29,7 +30,7 @@ class LineTool(BaseTool):
     # ---------------------------------------------------------
     # Constructor
     # ---------------------------------------------------------
-    def __init__(self, canvas: tk.Canvas) -> None:
+    def __init__(self, canvas: tk.Canvas, shape_manager: ShapeManager) -> None:
         """
         Initializes the LineTool.
 
@@ -38,6 +39,7 @@ class LineTool(BaseTool):
         """
         super().__init__(canvas)
         self.start_point: Optional[Tuple[int, int]] = None
+        self.shape_manager = shape_manager
 
     # ---------------------------------------------------------
     # Mouse Interaction
@@ -88,17 +90,30 @@ class LineTool(BaseTool):
         self._clear_preview()
 
         final_color = get_color("drawing_default")
+        current_width = 2
 
         # Draw the final line
-        self.canvas.create_line(
+        line_id = self.canvas.create_line(
             self.start_point[0], self.start_point[1],
             event.x, event.y,
             fill=final_color,
-            width=2,
+            width=current_width,
             tags=("permanent", "default_color")
         )
+
+        # Register the point list
+        points_list = [(self.start_point[0], self.start_point[1]),(event.x, event.y)]
         
         print(f"LineTool: Second click at ({event.x}, {event.y}). Line finalized.") # Debug
+
+        # Register the line in shape manager
+        self.shape_manager.add_shape(
+            shape_type="line",
+            points=points_list,
+            item_ids=[line_id],
+            color=final_color,
+            width=current_width,
+        )
 
         # Reset the start point for the next line
         self.start_point = None

@@ -3,7 +3,7 @@
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-11-22
-# Refactored: 2025-11-22
+# Refactored: 2025-11-25
 # Description:
 #     Central manager to register and query shapes drawn on the main canvas
 #     and patterns created on the secondary canvas.
@@ -51,62 +51,32 @@ class ShapeManager:
     # ---------------------------------------------------------
     # Public Add Methods
     # ---------------------------------------------------------
-    def add_line(self, points: List[Tuple[int, int]], item_ids: List[int]) -> str:
+    def add_shape(self, shape_type: str, points: List[Tuple[int, int]], item_ids: List[int], color: str, width: int, closed: bool = False) -> str:
         """
-        Register a line shape.
+        Registers a shape in the ShapeManager.
+
+        This method handles any shape type and stores its metadata,
+        including points, canvas item IDs, color, width, and whether the shape is closed.
 
         Args:
-            points (List[Tuple[int, int]]): List of points defining the line.
-            item_ids (List[int]): Canvas item IDs corresponding to the line segments.
+            shape_type (str): Type of the shape (e.g., "line", "polyline", "polygon").
+            points (List[Tuple[int, int]]): List of points defining the shape.
+            item_ids (List[int]): Canvas item IDs associated with the shape.
+            color (str): The color used for drawing the shape.
+            width (int): The line width used for the shape.
+            closed (bool, optional): Indicates if the shape is closed (default is False).
 
         Returns:
-            str: Unique shape ID assigned to this line.
+            str: Unique ID assigned to the registered shape.
         """
         shape_id = self._new_shape_id()
-        self.shapes[shape_id] = {
-            "type": "line",
-            "points": points,
-            "items": item_ids
-        }
-        return shape_id
-
-    def add_polyline(self, points: List[Tuple[int, int]], item_ids: List[int], closed: bool = False) -> str:
-        """
-        Register a polyline shape.
-
-        Args:
-            points (List[Tuple[int, int]]): Points defining the polyline.
-            item_ids (List[int]): Canvas item IDs for each segment.
-            closed (bool, optional): Whether the polyline is closed. Defaults to False.
-
-        Returns:
-            str: Unique shape ID assigned to this polyline.
-        """
-        shape_id = self._new_shape_id()
-        self.shapes[shape_id] = {
-            "type": "polyline",
+        self.shapes[shape_id]={
+            "type": shape_type,
             "points": points,
             "items": item_ids,
-            "closed": closed
-        }
-        return shape_id
-
-    def add_polygon(self, points: List[Tuple[int, int]], item_ids: List[int]) -> str:
-        """
-        Register a polygon shape.
-
-        Args:
-            points (List[Tuple[int, int]]): Points defining the polygon vertices.
-            item_ids (List[int]): Canvas item IDs for polygon edges.
-
-        Returns:
-            str: Unique shape ID assigned to this polygon.
-        """
-        shape_id = self._new_shape_id()
-        self.shapes[shape_id] = {
-            "type": "polygon",
-            "points": points,
-            "items": item_ids
+            "color": color,
+            "width": width,
+            "closed": closed,
         }
         return shape_id
 
