@@ -98,4 +98,6 @@ class CanvasController:
         print(f"DEBUG: Keyboard '{event.keysym}' pressed. is_drawing={self.is_drawing}") # Debug
 
         if self.is_drawing and self.active_tool_instance:
-            self.active_tool_instance.on_keyboard(event)
+            result = self.active_tool_instance.on_keyboard(event)
+            if result is False:
+                self.is_drawing = False

@@ -129,7 +129,6 @@ class PolylineTool(BaseTool):
     # ---------------------------------------------------------
     def _finish_polyline(self, close: bool = False) -> None:
         """Registers the polyline in ShapeManager and clears current data."""
-        self._clear_preview()
         self.shape_manager.add_shape(
             shape_type="polyline",
             points=self.points.copy(),
@@ -138,5 +137,11 @@ class PolylineTool(BaseTool):
             width=self.line_width,
             closed=close
         )
+        self._clear_preview()
         self.points = []
         self.line_ids = []
+        return False
+    
+    def clear_preview(self) -> None:
+        """External method to clear the preview."""
+        self._clear_preview()
