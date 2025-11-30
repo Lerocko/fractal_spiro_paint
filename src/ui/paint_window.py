@@ -100,6 +100,8 @@ class PaintWindow:
         self.secondary_canvas.update_theme(mode)
         self.main_canvas.update_drawings_theme()
         self.main_canvas.set_draw_color(get_color("drawing_default"))
+        self.secondary_canvas.update_drawings_theme()
+        self.secondary_canvas.set_draw_color(get_color("drawing_default"))
 
     # =============================================================
     # Window Events
