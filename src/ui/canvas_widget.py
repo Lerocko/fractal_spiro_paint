@@ -23,6 +23,7 @@ from ..core.theme_manager import get_color
 if TYPE_CHECKING:
     from ..core.canvas_controller import CanvasController
     from ..tools.base_tool import BaseTool
+    from src.tools.fractal.polyline_tool import PolylineTool
 
 # ------------------------------------------------------------
 # Constants
@@ -38,7 +39,11 @@ class MainCanvas(tk.Frame):
     Main interactive drawing area of the application (View).
     Delegates all drawing logic to the CanvasController.
     """
-    def __init__(self, parent: tk.Widget, controller: Optional["CanvasController"] = None) -> None:
+    def __init__(
+        self,
+        parent: tk.Widget,
+        controller: Optional["CanvasController"] = None
+    ) -> None:
         default_bg = get_color("canvas_main")
         super().__init__(parent, bg=default_bg)
         
@@ -48,9 +53,6 @@ class MainCanvas(tk.Frame):
         self.draw_color: str = get_color("drawing_default") # Use theme manager
 
         self.canvas: Optional[tk.Canvas] = None
-        
-        self.is_drawing: bool = False
-        self.active_tool_instance: Optional[BaseTool] = None
         
     def generate_main_canvas(self) -> None:
         """Create and pack the main canvas."""
@@ -64,11 +66,11 @@ class MainCanvas(tk.Frame):
         if not self.controller:
             return
         
-        self.canvas.bind("<Button-1>", lambda e: self.controller.handle_click(e))
-        self.canvas.bind("<Motion>", lambda e: self.controller.handle_drag(e))
-        self.canvas.bind("<ButtonRelease-1>", lambda e: self.controller.handle_release(e))
-        self.canvas.bind("<Return>", lambda e: self.controller.handle_keyboard(e))
-        self.canvas.bind("<KeyPress-c>", lambda e: self.controller.handle_keyboard(e))
+        self.canvas.bind("<Button-1>", lambda e: self.controller.handle_click_main_canvas(e))
+        self.canvas.bind("<Motion>", lambda e: self.controller.handle_drag_main_canvas(e))
+        self.canvas.bind("<ButtonRelease-1>", lambda e: self.controller.handle_release_main_canvas(e))
+        self.canvas.bind("<Return>", lambda e: self.controller.handle_keyboard_main_canvas(e))
+        self.canvas.bind("<KeyPress-c>", lambda e: self.controller.handle_keyboard_main_canvas(e))
 
     # =============================================================
     # Theme Handling
@@ -108,7 +110,11 @@ class SecondaryCanvas(tk.Canvas):
     Secondary canvas, hidden by default and shown when needed.
     Handles only UI positioning and theme.
     """
-    def __init__(self, parent: tk.Widget) -> None:
+    def __init__(
+        self,
+        parent: tk.Canvas,
+        controller: Optional["CanvasController"] = None
+    ) -> None:
         # Set default colors from the theme manager at initialization
         default_bg = get_color("canvas_sec")
         default_fg = get_color("text_primary")
@@ -122,12 +128,9 @@ class SecondaryCanvas(tk.Canvas):
             highlightbackground=get_color("labels_fg")
         )
 
+        self.controller = controller
         self.bg = default_bg
         self.fg = default_fg
-        self.current_tool: str | None = None
-        self.start_x: int | None = None
-        self.start_y: int | None = None
-        self.temp_shape: int | None = None
 
         self._bind_events()
         self.place_forget()
@@ -137,19 +140,29 @@ class SecondaryCanvas(tk.Canvas):
     # =============================================================
     def _bind_events(self) -> None:
         """Bind mouse events to placeholders."""
-        self.bind("<Button-1>", self.on_click)
-        self.bind("<B1-Motion>", self.on_drag)
-        self.bind("<ButtonRelease-1>", self.on_release)
+        if not self.controller:
+            return
+        
+        self.bind("<Button-1>", lambda e: self.controller.handle_click_secondary_canvas(e))
+        self.bind("<Motion>", lambda e: self.controller.handle_drag_secondary_canvas(e))
+        self.bind("<ButtonRelease-1>", lambda e: self.controller.handle_release_secondary_canvas(e))
+        self.bind("<Return>", lambda e: self.controller.handle_keyboard_secondary_canvas(e))
 
-    def on_click(self, event) -> None:
-        pass
-
-    def on_drag(self, event) -> None:
-        pass
-
-    def on_release(self, event) -> None:
-        pass
-
+    # =============================================================
+    # Theme Handling
+    # =============================================================
+    def set_draw_color(self, color: str) -> None:
+        """Sets the default drawing color for the canvas."""
+        self.draw_color = color
+    
+    def get_canvas(self) -> Optional[tk.Canvas]:
+        """Returns the underlying tk.Canvas."""
+        return self
+    
+    def set_controller(self, controller: 'CanvasController') -> None:
+        """Injects the controller after it's created."""
+        self.controller = controller
+        self._bind_events()
     # ------------------------------------------------------------
     # Show/Hide
     # ------------------------------------------------------------
@@ -170,3 +183,10 @@ class SecondaryCanvas(tk.Canvas):
     def update_theme(self, mode: str) -> None:
         """Updates the canvas background color based on the theme."""
         self.configure(bg=get_color("canvas_sec"))
+
+    def update_drawings_theme(self) -> None:
+        """Updates the color of all drawings with the default theme color."""
+        items = self.find_withtag("default_color")
+        new_color = get_color("drawing_default")
+        for item_id in items:
+            self.itemconfig(item_id, fill=new_color)

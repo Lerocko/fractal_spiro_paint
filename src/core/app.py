@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ui.paint_window import PaintWindow  # Prevent circular imports
-    from ui.canvas_widget import MainCanvas
+    from ui.canvas_widget import MainCanvas, SecondaryCanvas
     from ..core.app import App
 
 from .tools_manager import ToolsManager
@@ -52,8 +52,9 @@ class App:
         """
         self.main_window = main_window
         self.theme_service.register_observer(self.main_window.update_theme)
-        self.canvas_controller = CanvasController(self.main_window.main_canvas, self.tools_manager, self.shape_manager)
+        self.canvas_controller = CanvasController(self.main_window.main_canvas, self.main_window.secondary_canvas, self.tools_manager, self.shape_manager)
         self.main_window.main_canvas.set_controller(self.canvas_controller)
+        self.main_window.secondary_canvas.set_controller(self.canvas_controller)
         
     # =============================================================
     # Menu Management
