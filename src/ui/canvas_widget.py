@@ -58,8 +58,7 @@ class MainCanvas(tk.Frame):
         """Create and pack the main canvas."""
         self.canvas = tk.Canvas(self, bg=self.bg, cursor="cross", highlightthickness=0, borderwidth=0)
         self.canvas.pack(fill=tk.BOTH, expand=True)
-        self.canvas.focus_set() 
-        self._bind_events()
+        self.canvas.focus_set()
 
     def _bind_events(self) -> None:
         """Bind canvas events to the controller."""
@@ -131,8 +130,7 @@ class SecondaryCanvas(tk.Canvas):
         self.controller = controller
         self.bg = default_bg
         self.fg = default_fg
-
-        self._bind_events()
+        
         self.place_forget()
 
     # =============================================================

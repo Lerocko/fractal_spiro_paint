@@ -63,6 +63,8 @@ class PaintWindow:
 
         # --- Bind window events ---
         self.root.bind("<Configure>", self._on_window_resize)
+        self.root.bind("<Return>", self._handle_global_keyboard)
+        self.root.bind("<KeyPress-c>", self._handle_global_keyboard)
 
     # =============================================================
     # Initialization Methods
@@ -121,6 +123,13 @@ class PaintWindow:
         """Hide the secondary canvas."""
         self.secondary_canvas.hide()
 
+    # =============================================================
+    # handle global keyboard
+    # =============================================================
+    def _handle_global_keyboard(self, event):
+        """Send the keyboard's event to canvas controller who it has the foco."""
+        self.app.handle_global_keyboard(event)
+        
     # =============================================================
     # Main loop
     # =============================================================

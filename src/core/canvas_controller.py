@@ -9,15 +9,17 @@
 #     Handles drawing logic by delegating to the active tool from the ToolsManager.
 # =============================================================
 
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, ForwardRef
 from .tools_manager import ToolsManager
 from .shape_manager import ShapeManager
 from src.tools.fractal.polyline_tool import PolylineTool
+from src.ui.canvas_widget import SecondaryCanvas
+import tkinter as tk
 
 if TYPE_CHECKING:
     from ui.canvas_widget import MainCanvas
-    from ui.canvas_widget import SecondaryCanvas
     from ..tools.base_tool import BaseTool
+
 
 # =============================================================
 # CanvasController Class
@@ -33,11 +35,13 @@ class CanvasController:
     def __init__(
         self,
         main_canvas: 'MainCanvas',
-        secondary_canvas: SecondaryCanvas,
+        secondary_canvas: 'SecondaryCanvas',
         tools_manager: ToolsManager,
-        shape_manager: ShapeManager
+        shape_manager: ShapeManager,
+        root: tk.Tk
     ):
         
+        self.root = root
         self.main_canvas = main_canvas
         self.secondary_canvas = secondary_canvas
 
@@ -63,9 +67,9 @@ class CanvasController:
 
         print("DEBUG: CanvasController.on_tool_changed() has been called.") # Debug
 
-        if self.is_drawing and self.active_tool_instance:
+        if self.is_drawing_on_main and self.active_tool_instance:
             self.active_tool_instance.clear_preview()
-            self.is_drawing = False
+            self.is_drawing_on_main = False
 
         self.active_tool_instance = self.tools_manager.get_active_tool_instance(self.canvas_main, self.shape_manager)
         print(f"CanvasController: Active tool set to {self.active_tool_instance}") # Debug
@@ -75,6 +79,7 @@ class CanvasController:
     # =============================================================
     def handle_click_main_canvas(self, event):
         """Handles a mouse click event on the canvas."""
+        self.canvas_main.focus_set()
         self.is_drawing_on_main = self._handle_click_logic(event, self.active_tool_instance, self.is_drawing_on_main)
 
     def handle_drag_main_canvas(self, event):
@@ -95,7 +100,7 @@ class CanvasController:
     def handle_keyboard_main_canvas(self, event):
         """Handles a keyboard event on the canvas."""
 
-        print(f"DEBUG: Keyboard '{event.keysym}' pressed. is_drawing={self.is_drawing}") # Debug
+        print(f"DEBUG: Keyboard '{event.keysym}' pressed. is_drawing={self.is_drawing_on_main}") # Debug
 
         if self.is_drawing_on_main and self.active_tool_instance:
             result = self.active_tool_instance.on_keyboard(event)
@@ -107,6 +112,7 @@ class CanvasController:
     # =============================================================
     def handle_click_secondary_canvas(self, event):
         """Handles a mouse click on the secondary canvas, always using PolylineTool."""
+        self.secondary_canvas.focus_set() 
         self.is_drawing_on_secondary = self._handle_click_logic(event, self.polyline_tool_instance, self.is_drawing_on_secondary)
 
     def handle_drag_secondary_canvas(self, event):
@@ -127,7 +133,7 @@ class CanvasController:
     def handle_keyboard_secondary_canvas(self, event):
         """Handles a keyboard event on the canvas."""
 
-        print(f"DEBUG: Keyboard '{event.keysym}' pressed. is_drawing={self.is_drawing}") # Debug
+        print(f"DEBUG: Keyboard '{event.keysym}' pressed. is_drawing={self.is_drawing_on_secondary}") # Debug
 
         if self.is_drawing_on_secondary and self.polyline_tool_instance:
             result = self.polyline_tool_instance.on_keyboard(event)
@@ -143,3 +149,15 @@ class CanvasController:
             return tool_instance.on_first_click(event)
         else:
             return tool_instance.on_second_click(event)
+        
+    # =============================================================
+    # Auxiliar handle global keyboard
+    # =============================================================
+    def handle_global_keyboard(self, event):
+        """Manage keyboard's events, dirigiendolos to the right canvas"""
+        focused_widget = self.root.focus_get()
+
+        if focused_widget == self.canvas_main:
+            self.handle_keyboard_main_canvas(event)
+        elif focused_widget == self.secondary_canvas:
+            self.handle_keyboard_secondary_canvas(event)

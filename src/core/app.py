@@ -52,7 +52,12 @@ class App:
         """
         self.main_window = main_window
         self.theme_service.register_observer(self.main_window.update_theme)
-        self.canvas_controller = CanvasController(self.main_window.main_canvas, self.main_window.secondary_canvas, self.tools_manager, self.shape_manager)
+        self.canvas_controller = CanvasController(
+            self.main_window.main_canvas, 
+            self.main_window.secondary_canvas, 
+            self.tools_manager, self.shape_manager,
+            self.main_window.root
+        )
         self.main_window.main_canvas.set_controller(self.canvas_controller)
         self.main_window.secondary_canvas.set_controller(self.canvas_controller)
         
@@ -109,3 +114,11 @@ class App:
         Handles window resize events and updates UI accordingly.
         """
         self.main_window._on_window_resize(event)
+
+    # =============================================================
+    # Handle global keyboard
+    # =============================================================
+    def handle_global_keyboard(self, event):
+        """The global event is received and re send it to canvas_controller"""
+        if self.canvas_controller:
+            self.canvas_controller.handle_global_keyboard(event)
