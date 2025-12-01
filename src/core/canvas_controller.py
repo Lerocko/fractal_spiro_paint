@@ -52,6 +52,7 @@ class CanvasController:
 
         self.active_tool_instance: Optional[BaseTool] = None
         self.polyline_tool_instance = PolylineTool(self.secondary_canvas.get_canvas(), self.shape_manager, category="Fractal")
+        self.polyline_tool_instance.on_keyboard = lambda event: True if event.keysym != 'Return' else PolylineTool.on_keyboard(self.polyline_tool_instance, event)
 
         self.is_drawing_on_main = False
         self.is_drawing_on_secondary = False
