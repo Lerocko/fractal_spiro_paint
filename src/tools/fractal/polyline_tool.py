@@ -32,7 +32,7 @@ class PolylineTool(BaseTool):
     single shape in ShapeManager.
     """
 
-    def __init__(self, canvas: tk.Canvas, shape_manager: ShapeManager) -> None:
+    def __init__(self, canvas: tk.Canvas, shape_manager: ShapeManager, category: str) -> None:
         """
         Initializes the PolylineTool.
 
@@ -45,6 +45,7 @@ class PolylineTool(BaseTool):
         self.points: List[Tuple[int, int]] = []
         self.line_ids: List[int] = []
         self.shape_manager = shape_manager
+        self.category = category
 
         # Default drawing parameters
         self.default_color = get_color("drawing_default")
@@ -54,7 +55,7 @@ class PolylineTool(BaseTool):
     # ---------------------------------------------------------
     # Mouse Interaction
     # ---------------------------------------------------------
-    def on_first_click(self, event: tk.Event) -> bool:
+    def on_first_click(self, event: tk.Event, category: str) -> bool:
         """Adds the first point of the polyline."""
         self.points.append((event.x, event.y))
         print(f"Polyline: First point at {self.points[0]}")  # Debug
@@ -74,7 +75,7 @@ class PolylineTool(BaseTool):
             dash=(4, 4),
         )
 
-    def on_second_click(self, event: tk.Event) -> None:
+    def on_second_click(self, event: tk.Event, category: str) -> None:
         """Draws the final permanent line to the new point."""
         if not self.points:
             return
@@ -131,6 +132,7 @@ class PolylineTool(BaseTool):
         """Registers the polyline in ShapeManager and clears current data."""
         self.shape_manager.add_shape(
             shape_type="polyline",
+            shape_category=self.category,
             points=self.points.copy(),
             item_ids=self.line_ids.copy(),
             color=self.default_color,

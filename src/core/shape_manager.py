@@ -51,7 +51,15 @@ class ShapeManager:
     # ---------------------------------------------------------
     # Public Add Methods
     # ---------------------------------------------------------
-    def add_shape(self, shape_type: str, points: List[Tuple[int, int]], item_ids: List[int], color: str, width: int, closed: bool = False) -> str:
+    def add_shape(
+        self, 
+        shape_type: str, 
+        shape_category: str, 
+        points: List[Tuple[int, int]], item_ids: List[int], 
+        color: str, 
+        width: int, 
+        closed: bool = False
+    ) -> str:
         """
         Registers a shape in the ShapeManager.
 
@@ -72,6 +80,7 @@ class ShapeManager:
         shape_id = self._new_shape_id()
         self.shapes[shape_id]={
             "type": shape_type,
+            "category": shape_category,
             "points": points,
             "items": item_ids,
             "color": color,

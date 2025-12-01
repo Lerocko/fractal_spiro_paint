@@ -30,7 +30,7 @@ class LineTool(BaseTool):
     # ---------------------------------------------------------
     # Constructor
     # ---------------------------------------------------------
-    def __init__(self, canvas: tk.Canvas, shape_manager: ShapeManager) -> None:
+    def __init__(self, canvas: tk.Canvas, shape_manager: ShapeManager, category: str) -> None:
         """
         Initializes the LineTool.
 
@@ -40,11 +40,12 @@ class LineTool(BaseTool):
         super().__init__(canvas)
         self.start_point: Optional[Tuple[int, int]] = None
         self.shape_manager = shape_manager
+        self.category = category
 
     # ---------------------------------------------------------
     # Mouse Interaction
     # ---------------------------------------------------------
-    def on_first_click(self, event: tk.Event) -> bool:
+    def on_first_click(self, event: tk.Event, category: str) -> bool:
         """
         Anchors the starting point for the line.
         
@@ -76,7 +77,7 @@ class LineTool(BaseTool):
             dash=(4, 4)  # Dashed line for preview
         )
 
-    def on_second_click(self, event: tk.Event) -> bool:
+    def on_second_click(self, event: tk.Event, category: str) -> bool:
         """
         Draws the final, permanent line on the canvas.
         
@@ -109,6 +110,7 @@ class LineTool(BaseTool):
         # Register the line in shape manager
         self.shape_manager.add_shape(
             shape_type="line",
+            shape_category=self.category,
             points=points_list,
             item_ids=[line_id],
             color=final_color,

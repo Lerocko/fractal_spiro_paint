@@ -35,10 +35,11 @@ class PolygonTool(BaseTool):
     # ---------------------------------------------------------
     # Constructor
     # ---------------------------------------------------------
-    def __init__(self, canvas: tk.Canvas, shape_manager: ShapeManager) -> None:
+    def __init__(self, canvas: tk.Canvas, shape_manager: ShapeManager, category: str) -> None:
         super().__init__(canvas)
 
         self.shape_manager = shape_manager
+        self.category = category
         self.center_point: Optional[Tuple[int, int]] = None
         self.radius: int = 0
 
@@ -53,7 +54,7 @@ class PolygonTool(BaseTool):
     # ---------------------------------------------------------
     # Mouse Events
     # ---------------------------------------------------------
-    def on_first_click(self, event: tk.Event) -> bool:
+    def on_first_click(self, event: tk.Event, category: str) -> bool:
         """Anchors the polygon center point."""
         self.center_point = (event.x, event.y)
         print(f"Polygon: Center at {self.center_point}") # Debug
@@ -95,7 +96,7 @@ class PolygonTool(BaseTool):
             dash=(4,4)
         )
 
-    def on_second_click(self, event: tk.Event) -> bool:
+    def on_second_click(self, event: tk.Event, category: str) -> bool:
         """Locks the radius and opens the popup for number of sides."""
         if not self.center_point:
             return False
@@ -160,6 +161,7 @@ class PolygonTool(BaseTool):
             # Register shape
             self.shape_manager.add_shape(
                 shape_type="polygon",
+                shape_category=self.category,
                 points=points.copy(),
                 item_ids=line_ids.copy(),
                 color=final_color,

@@ -3,7 +3,7 @@
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-10-12
-# Refactored: 2025-11-12
+# Refactored: 2025-11-30
 # Description:
 #     Canvas widgets for Fractal Spiro Paint.
 #     MainCanvas delegates all drawing logic to a CanvasController.
@@ -130,7 +130,7 @@ class SecondaryCanvas(tk.Canvas):
         self.controller = controller
         self.bg = default_bg
         self.fg = default_fg
-        
+
         self.place_forget()
 
     # =============================================================

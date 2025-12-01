@@ -3,7 +3,7 @@
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-11-12
-# Refactored: 2025-11-23
+# Refactored: 2025-11-30
 # Description:
 #     Main Application Controller.
 #     Orchestrates communication between the UI and business logic,

@@ -3,7 +3,7 @@
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-10-12
-# Refactored: 2025-11-15
+# Refactored: 2025-11-30
 # Description:
 #     Main GUI window for Fractal Spiro Paint.
 #     Acts as a View, forwarding events to the App controller.

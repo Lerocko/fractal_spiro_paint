@@ -112,14 +112,14 @@ class ToolsManager:
         """Retrieve a registered tool class by name."""
         return self._registered_tools.get(name)
 
-    def get_active_tool_instance(self, canvas: tk.Canvas, shape_manager: ShapeManager) -> Optional["BaseTool"]:
+    def get_active_tool_instance(self, canvas: tk.Canvas, shape_manager: ShapeManager, category: str) -> Optional["BaseTool"]:
         """
         Creates and returns an instance of the currently active MAIN tool.
         """
         if self._active_main_tool_class:
             from ..tools.base_tool import BaseTool
             if issubclass(self._active_main_tool_class, BaseTool):
-                return self._active_main_tool_class(canvas, shape_manager)
+                return self._active_main_tool_class(canvas, shape_manager, category)
         return None
 
     def get_active_secondary_tool_instance(self, canvas: tk.Canvas) -> Optional["BaseTool"]:

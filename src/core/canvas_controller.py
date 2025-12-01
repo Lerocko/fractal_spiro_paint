@@ -51,7 +51,7 @@ class CanvasController:
         self.shape_manager = shape_manager
 
         self.active_tool_instance: Optional[BaseTool] = None
-        self.polyline_tool_instance = PolylineTool(self.secondary_canvas.get_canvas(), self.shape_manager)
+        self.polyline_tool_instance = PolylineTool(self.secondary_canvas.get_canvas(), self.shape_manager, category="Fractal")
 
         self.is_drawing_on_main = False
         self.is_drawing_on_secondary = False
@@ -71,7 +71,10 @@ class CanvasController:
             self.active_tool_instance.clear_preview()
             self.is_drawing_on_main = False
 
-        self.active_tool_instance = self.tools_manager.get_active_tool_instance(self.canvas_main, self.shape_manager)
+        self.active_tool_instance = self.tools_manager.get_active_tool_instance(
+            self.canvas_main, 
+            self.shape_manager, 
+            category=self.tools_manager.main_category)
         print(f"CanvasController: Active tool set to {self.active_tool_instance}") # Debug
 
     # =============================================================
@@ -80,7 +83,11 @@ class CanvasController:
     def handle_click_main_canvas(self, event):
         """Handles a mouse click event on the canvas."""
         self.canvas_main.focus_set()
-        self.is_drawing_on_main = self._handle_click_logic(event, self.active_tool_instance, self.is_drawing_on_main)
+        self.is_drawing_on_main = self._handle_click_logic(
+            event, self.active_tool_instance, 
+            self.is_drawing_on_main, 
+            self.tools_manager.main_category
+            )
 
     def handle_drag_main_canvas(self, event):
         """Handles a mouse drag event on the canvas."""
@@ -113,7 +120,7 @@ class CanvasController:
     def handle_click_secondary_canvas(self, event):
         """Handles a mouse click on the secondary canvas, always using PolylineTool."""
         self.secondary_canvas.focus_set() 
-        self.is_drawing_on_secondary = self._handle_click_logic(event, self.polyline_tool_instance, self.is_drawing_on_secondary)
+        self.is_drawing_on_secondary = self._handle_click_logic(event, self.polyline_tool_instance, self.is_drawing_on_secondary, "Fractal")
 
     def handle_drag_secondary_canvas(self, event):
         """Handles a mouse drag event on the canvas."""
@@ -143,12 +150,12 @@ class CanvasController:
     # =============================================================
     # Auxiliar privet method
     # =============================================================
-    def _handle_click_logic(self, event, tool_instance, is_drawing_flag):
+    def _handle_click_logic(self, event, tool_instance, is_drawing_flag, category: str):
         """Lógica interna para manejar clics, reutilizable para ambos canvas."""
         if not is_drawing_flag:
-            return tool_instance.on_first_click(event)
+            return tool_instance.on_first_click(event, category)
         else:
-            return tool_instance.on_second_click(event)
+            return tool_instance.on_second_click(event, category)
         
     # =============================================================
     # Auxiliar handle global keyboard
