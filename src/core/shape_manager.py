@@ -84,6 +84,7 @@ class ShapeManager:
             "points": points,
             "items": item_ids,
             "color": color,
+            "original_color": color,
             "width": width,
             "closed": closed,
         }

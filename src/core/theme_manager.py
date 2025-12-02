@@ -20,6 +20,8 @@ DARK_THEME = {
     "buttons_fg": "#FFFFFF",
     "drawing_default": "#F0F0F0", # High contrast white
     "drawing_secondary": "#4FC3F7", # A nice blue for previews
+    "selection_preview_color": "#4FC3F7",
+    "selection_color": "#FFD700",
 }
 
 LIGHT_THEME = {
@@ -35,6 +37,8 @@ LIGHT_THEME = {
     "buttons_fg": "#333333",
     "drawing_default": "#000000", # High contrast black
     "drawing_secondary": "#0078D4", # A nice blue for previews
+    "selection_preview_color": "#0078D4",
+    "selection_color": "#FFA500",
 }
 
 # =============================================================

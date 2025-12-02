@@ -115,6 +115,7 @@ class LineTool(BaseTool):
             item_ids=[line_id],
             color=final_color,
             width=current_width,
+            original_color=final_color,
         )
 
         # Reset the start point for the next line

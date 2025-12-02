@@ -137,7 +137,8 @@ class PolylineTool(BaseTool):
             item_ids=self.line_ids.copy(),
             color=self.default_color,
             width=self.line_width,
-            closed=close
+            closed=close,
+            original_color=self.default_color,
         )
         self._clear_preview()
         self.points = []

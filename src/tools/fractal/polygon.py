@@ -165,7 +165,8 @@ class PolygonTool(BaseTool):
                 points=points.copy(),
                 item_ids=line_ids.copy(),
                 color=final_color,
-                width=2
+                width=2,
+                original_color=final_color,
             )
 
             print(f"DEBUG: Polygon drawn. Ending tool.") # Debug

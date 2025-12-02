@@ -11,6 +11,7 @@
 # =============================================================
 
 # --- Import necessary components ---
+from src.tools.selection.selection_tool import SelectionTool
 from src.tools.fractal.line_tool import LineTool
 from src.tools.fractal.polyline_tool import PolylineTool
 from src.tools.fractal.polygon import PolygonTool
@@ -33,6 +34,7 @@ def main():
     # --- 2. Register all available drawing tools ---
     # We register the tools in the specific instance we just created.
     print("Registering tools...")
+    tools_manager.register_tool("Selection", SelectionTool)
     tools_manager.register_tool("Line", LineTool)
     tools_manager.register_tool("Polyline", PolylineTool)
     tools_manager.register_tool("Polygon", PolygonTool)

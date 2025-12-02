@@ -15,6 +15,7 @@ FILE_BUTTONS = ["New", "Open", "Save", "Save As", "Export", "Exit", "Light"]
 # Button dictionary for the toolbar
 # =============================================================
 BUTTONS_DICTIONARY: Dict[str, List[str]] = {
+    "Selection": ["Selection"],
     "Fractal": ["Line", "Polyline", "Polygon"],
     "Spiro": ["Circle", "Hypotrochoid", "Epitrochoid"],
     "Drawing": ["Color", "Width", "Type", "Eraser", "Fill"],
