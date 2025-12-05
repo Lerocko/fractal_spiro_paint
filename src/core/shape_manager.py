@@ -34,6 +34,7 @@ class ShapeManager:
         """
         self.shapes = {}
         self._counter = 0
+        
 
     # ---------------------------------------------------------
     # Helpers
@@ -58,7 +59,8 @@ class ShapeManager:
         points: List[Tuple[int, int]], item_ids: List[int], 
         color: str, 
         width: int, 
-        closed: bool = False
+        closed: bool = False,
+        original_color: Optional[str] = None,
     ) -> str:
         """
         Registers a shape in the ShapeManager.
@@ -86,6 +88,7 @@ class ShapeManager:
             "color": color,
             "width": width,
             "closed": closed,
+            "original_color": color
         }
         return shape_id
 

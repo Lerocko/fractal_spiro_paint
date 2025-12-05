@@ -42,7 +42,7 @@ class BaseTool(ABC):
     # Abstract Methods
     # ---------------------------------------------------------
     @abstractmethod
-    def on_first_click(self, event: tk.Event, category: str) -> None:
+    def on_first_click(self, event: tk.Event, category: str) -> bool:
         """
         Handles the first mouse click event.
 
@@ -68,7 +68,7 @@ class BaseTool(ABC):
         pass
 
     @abstractmethod
-    def on_second_click(self, event: tk.Event, category: str) -> None:
+    def on_second_click(self, event: tk.Event, category: str) -> bool:
         """
         Handles the second mouse click event.
 
@@ -80,7 +80,7 @@ class BaseTool(ABC):
         pass
     
     @abstractmethod
-    def on_keyboard(self, event: Any) -> None:
+    def on_keyboard(self, event: Any) -> bool:
         """
         Handles the enter keyboard click event.
 

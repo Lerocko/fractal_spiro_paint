@@ -129,7 +129,7 @@ class SelectionTool(BaseTool):
                 selected_item_ids.extend(shape['items'])
 
         for item_id in selected_item_ids:
-            self.canvas.itemconfig(item_id, fill="selection_color", width=3)
+            self.canvas.itemconfig(item_id, fill=get_color("selection_color"), width=3)
 
         print(f"Figuras seleccionadas: {selected_item_ids}")
         self._clear_preview()

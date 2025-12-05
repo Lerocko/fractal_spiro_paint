@@ -88,7 +88,8 @@ class CanvasController:
         """Handles a mouse click event on the canvas."""
         self.canvas_main.focus_set()
         self.is_drawing_on_main = self._handle_click_logic(
-            event, self.active_tool_instance, 
+            event, 
+            self.active_tool_instance, 
             self.is_drawing_on_main, 
             self.tools_manager.main_category
             )

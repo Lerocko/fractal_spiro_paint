@@ -50,7 +50,8 @@ def main():
     paint_window = PaintWindow(app)
     app.set_ui(paint_window)
     print("UI initialized and linked to App.")
-    tools_manager.set_active_tool("Selection", SelectionTool)
+    tools_manager.set_active_tool("Selection", "Selection")
+    app.canvas_controller.on_tool_changed()
 
     # --- 5. Start the application ---
     print("Starting application...")

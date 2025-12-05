@@ -75,7 +75,7 @@ class PolylineTool(BaseTool):
             dash=(4, 4),
         )
 
-    def on_second_click(self, event: tk.Event, category: str) -> None:
+    def on_second_click(self, event: tk.Event, category: str) -> bool:
         """Draws the final permanent line to the new point."""
         if not self.points:
             return
@@ -143,7 +143,7 @@ class PolylineTool(BaseTool):
         self._clear_preview()
         self.points = []
         self.line_ids = []
-        return False
+        return
     
     def clear_preview(self) -> None:
         """External method to clear the preview."""
