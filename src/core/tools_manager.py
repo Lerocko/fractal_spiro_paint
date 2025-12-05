@@ -57,7 +57,11 @@ class ToolsManager:
         Set the currently active tool according to its category.
         This method is the central point for updating tool state.
         """
-        if category in ["Fractal", "Spiro"]:
+        if category == "Selection":
+            self.main_category = category
+            self.main_tool = tool
+            self._active_main_tool_class = self.get_tool(tool)
+        elif category in ["Fractal", "Spiro"]:
             self.main_category = category
             self.main_tool = tool
             self._active_main_tool_class = self.get_tool(tool)
@@ -116,6 +120,8 @@ class ToolsManager:
         """
         Creates and returns an instance of the currently active MAIN tool.
         """
+        print(f"DEBUG: _active_main_tool_class is {self._active_main_tool_class}") # Debug
+
         if self._active_main_tool_class:
             from ..tools.base_tool import BaseTool
             if issubclass(self._active_main_tool_class, BaseTool):

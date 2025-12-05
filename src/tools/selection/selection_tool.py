@@ -145,7 +145,7 @@ class SelectionTool(BaseTool):
         if event.keysym == "Escape":
             self._clear_preview()
             self.start_point = None
-            print("LineTool desactived.") # Debug
+            print("SelectionTool desactived.") # Debug
             return False
         return True
     

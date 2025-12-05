@@ -72,10 +72,13 @@ class CanvasController:
             self.active_tool_instance.clear_preview()
             self.is_drawing_on_main = False
 
+        print(f"DEBUG: Calling get_active_tool_instance with category: {self.tools_manager.main_category}") # Debug
+
         self.active_tool_instance = self.tools_manager.get_active_tool_instance(
             self.canvas_main, 
             self.shape_manager, 
             category=self.tools_manager.main_category)
+        
         print(f"CanvasController: Active tool set to {self.active_tool_instance}") # Debug
 
     # =============================================================
@@ -164,7 +167,11 @@ class CanvasController:
     def handle_global_keyboard(self, event):
         """Manage keyboard's events, dirigiendolos to the right canvas"""
         focused_widget = self.root.focus_get()
-
+        
+        if event.keysym == "Escape":
+            self.app.handle_tool_selection("Selection", "Selection")
+            return
+        
         if focused_widget == self.canvas_main:
             self.handle_keyboard_main_canvas(event)
         elif focused_widget == self.secondary_canvas:
