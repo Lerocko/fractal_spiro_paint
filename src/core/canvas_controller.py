@@ -81,6 +81,11 @@ class CanvasController:
         
         print(f"CanvasController: Active tool set to {self.active_tool_instance}") # Debug
 
+        if self.active_tool_instance:
+            self.active_tool_instance.app = self.app
+
+    def set_app_reference(self, app):
+        self.app = app
     # =============================================================
     # Mouse Events Main Canvas
     # =============================================================

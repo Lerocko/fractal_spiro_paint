@@ -55,9 +55,11 @@ class App:
         self.canvas_controller = CanvasController(
             self.main_window.main_canvas, 
             self.main_window.secondary_canvas, 
-            self.tools_manager, self.shape_manager,
+            self.tools_manager, 
+            self.shape_manager,
             self.main_window.root
         )
+        self.canvas_controller.set_app_reference(self)
         self.main_window.main_canvas.set_controller(self.canvas_controller)
         self.main_window.secondary_canvas.set_controller(self.canvas_controller)
         
@@ -88,6 +90,9 @@ class App:
 
         if self.canvas_controller:
             self.canvas_controller.on_tool_changed()
+
+    def on_shape_selected(self, selected_ids):
+        print(f"App: ¡Notificación recibida! Se seleccionaron las figuras con IDs: {selected_ids}")
 
     # =============================================================
     # Theme Management

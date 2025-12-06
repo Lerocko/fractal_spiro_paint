@@ -14,6 +14,7 @@ from typing import Optional, Tuple
 from src.tools.base_tool import BaseTool
 from src.core.theme_manager import get_color
 from src.core.shape_manager import  ShapeManager
+from src.core.app import App
 
 # =============================================================
 # LineTool Class
@@ -114,7 +115,7 @@ class SelectionTool(BaseTool):
         min_y, max_y = min(y1, y2), max(y1, y2)
 
         all_shapes = self.shape_manager.get_all_shapes()
-        selected_item_ids = []
+        self.selected_item_ids = []
 
         for shape in all_shapes:
             is_inside = True
@@ -126,12 +127,12 @@ class SelectionTool(BaseTool):
                     break
         
             if is_inside:
-                selected_item_ids.extend(shape['items'])
+                self.selected_item_ids.extend(shape['items'])
 
-        for item_id in selected_item_ids:
+        for item_id in self.selected_item_ids:
             self.canvas.itemconfig(item_id, fill=get_color("selection_color"), width=3)
 
-        print(f"Figuras seleccionadas: {selected_item_ids}")
+        print(f"Figuras seleccionadas: {self.selected_item_ids}")
         self._clear_preview()
         return False
     
@@ -142,6 +143,13 @@ class SelectionTool(BaseTool):
         """
         Handles keyboard events while selecting.
         """
+        print(f"DEBUG: Tecla presionada: {event.keysym}")
+        print(f"DEBUG: IDs seleccionados: {self.selected_item_ids}")
+        if self.selected_item_ids != [] and event.keysym == "Return":
+            self._clear_preview()
+            self.app.on_shape_selected(self.selected_item_ids)
+        
+        
         if event.keysym == "Escape":
             self._clear_preview()
             self.start_point = None
