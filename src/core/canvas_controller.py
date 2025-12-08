@@ -56,6 +56,7 @@ class CanvasController:
 
         self.is_drawing_on_main = False
         self.is_drawing_on_secondary = False
+        self.is_main_canvas_active = True
 
     # =============================================================
     # Tool Management
@@ -91,6 +92,8 @@ class CanvasController:
     # =============================================================
     def handle_click_main_canvas(self, event):
         """Handles a mouse click event on the canvas."""
+        if not self.is_main_canvas_active:
+            return
         self.canvas_main.focus_set()
         self.is_drawing_on_main = self._handle_click_logic(
             event, 
@@ -101,6 +104,8 @@ class CanvasController:
 
     def handle_drag_main_canvas(self, event):
         """Handles a mouse drag event on the canvas."""
+        if not self.is_main_canvas_active:
+            return
         if self.is_drawing_on_secondary:
             return
         if self.is_drawing_on_main and self.active_tool_instance:
@@ -126,7 +131,7 @@ class CanvasController:
             self.is_drawing_on_main = False
 
     # =============================================================
-    # Desable Events Main Canvas
+    # Disable and enable Events Main Canvas
     # =============================================================
     def disable_main_canvas(self):
         """Desenlaza los eventos del mouse del canvas principal."""
@@ -136,6 +141,15 @@ class CanvasController:
         self.canvas_main.unbind("<Return>")
         self.canvas_main.unbind("<KeyPress-c>")
         print("Main canvas desactivado.")
+
+    def enable_main_canvas(self):
+        """Vuelve a enlazar los eventos del mouse del canvas principal."""
+        self.canvas_main.bind("<Button-1>", lambda e: self.handle_click_main_canvas(e))
+        self.canvas_main.bind("<B1-Motion>", lambda e: self.handle_drag_main_canvas(e))
+        self.canvas_main.bind("<ButtonRelease-1>", lambda e: self.handle_release_main_canvas(e))
+        self.canvas_main.unbind("<Return>")
+        self.canvas_main.unbind("<KeyPress-c>")
+        print("Main canvas activado.")
 
     # =============================================================
     # Mouse Events Secondary Canvas
