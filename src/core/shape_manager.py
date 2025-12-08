@@ -127,3 +127,18 @@ class ShapeManager:
             List[Dict[str, Any]]: List of shapes matching the type.
         """
         return [s for s in self.shapes.values() if s["type"] == t]
+    
+    def get_shape_by_item_id(self, item_id: int)-> Optional[Dict[str, Any]]:
+        """
+        Get all shapes of a specific item.
+
+        Args:
+            item_id (int): item ids (1, 2, 3, ...).
+
+        Returns:
+            [Dict[str, Any]]: List of item ids matching the item.
+        """
+        for shape in self.shapes.values():
+            if item_id in shape['items']:
+                return shape
+        return None

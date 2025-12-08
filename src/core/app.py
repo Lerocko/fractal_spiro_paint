@@ -83,16 +83,18 @@ class App:
         print(f"App: Tool '{tool_name}' from category '{category}' selected.")
         self.tools_manager.set_active_tool(category, tool_name)
 
-        if category == "Fractal":
-            self.main_window.show_secondary_canvas()
-        elif category == "Spiro":
-            self.main_window.hide_secondary_canvas()
-
         if self.canvas_controller:
             self.canvas_controller.on_tool_changed()
 
     def on_shape_selected(self, selected_ids):
         print(f"App: ¡Notificación recibida! Se seleccionaron las figuras con IDs: {selected_ids}")
+        for item_id in selected_ids:
+            shape_info = self.shape_manager.get_shape_by_item_id(item_id)
+            if shape_info and shape_info["category"] != "Fractal":
+                print("App: There are figures that don't below to Fractal category")
+                return
+        self.main_window.show_secondary_canvas()
+        self.canvas_controller.disable_main_canvas()
 
     # =============================================================
     # Theme Management

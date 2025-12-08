@@ -43,7 +43,7 @@ class SelectionTool(BaseTool):
         self.start_point: Optional[Tuple[int, int]] = None
         self.shape_manager = shape_manager
         self.category = category
-        self.selected_item_ids
+        self.selected_item_ids = []
 
     # ---------------------------------------------------------
     # Mouse Interaction

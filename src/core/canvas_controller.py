@@ -119,10 +119,23 @@ class CanvasController:
 
         print(f"DEBUG: Keyboard '{event.keysym}' pressed. is_drawing={self.is_drawing_on_main}") # Debug
 
-        if self.is_drawing_on_main and self.active_tool_instance:
-            result = self.active_tool_instance.on_keyboard(event)
-            if result is False:
-                self.is_drawing_on_main = False
+        if not self.active_tool_instance:
+            return
+        result = self.active_tool_instance.on_keyboard(event)
+        if result is False:
+            self.is_drawing_on_main = False
+
+    # =============================================================
+    # Desable Events Main Canvas
+    # =============================================================
+    def disable_main_canvas(self):
+        """Desenlaza los eventos del mouse del canvas principal."""
+        self.canvas_main.unbind("<Button-1>")
+        self.canvas_main.unbind("<B1-Motion>")
+        self.canvas_main.unbind("<ButtonRelease-1>")
+        self.canvas_main.unbind("<Return>")
+        self.canvas_main.unbind("<KeyPress-c>")
+        print("Main canvas desactivado.")
 
     # =============================================================
     # Mouse Events Secondary Canvas
