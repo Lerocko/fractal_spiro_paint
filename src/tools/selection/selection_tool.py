@@ -15,6 +15,7 @@ from src.tools.base_tool import BaseTool
 from src.core.theme_manager import get_color
 from src.core.shape_manager import  ShapeManager
 from src.core.app import App
+from src.tools.fractal import fractal_drawer
 
 # =============================================================
 # LineTool Class
@@ -146,10 +147,10 @@ class SelectionTool(BaseTool):
         """
         print(f"DEBUG: Tecla presionada: {event.keysym}")
         print(f"DEBUG: IDs seleccionados: {self.selected_item_ids}")
+
         if self.selected_item_ids != [] and event.keysym == "Return":
             self._clear_preview()
             self.app.on_shape_selected(self.selected_item_ids)
-        
         
         if event.keysym == "Escape":
             self._clear_preview()

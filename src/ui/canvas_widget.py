@@ -51,8 +51,6 @@ class MainCanvas(tk.Frame):
         self.canvas: Optional[tk.Canvas] = None
         self.bg = default_bg
         self.draw_color: str = get_color("drawing_default") # Use theme manager
-
-        self.canvas: Optional[tk.Canvas] = None
         
     def generate_main_canvas(self) -> None:
         """Create and pack the main canvas."""

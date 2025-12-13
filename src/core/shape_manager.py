@@ -56,7 +56,8 @@ class ShapeManager:
         self, 
         shape_type: str, 
         shape_category: str, 
-        points: List[Tuple[int, int]], item_ids: List[int], 
+        points: List[Tuple[int, int]], 
+        item_ids: List[int], 
         color: str, 
         width: int, 
         closed: bool = False,
@@ -88,7 +89,7 @@ class ShapeManager:
             "color": color,
             "width": width,
             "closed": closed,
-            "original_color": color
+            "original_color": color,
         }
         return shape_id
 

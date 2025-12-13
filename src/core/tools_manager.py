@@ -123,7 +123,6 @@ class ToolsManager:
         print(f"DEBUG: _active_main_tool_class is {self._active_main_tool_class}") # Debug
 
         if self._active_main_tool_class:
-            from ..tools.base_tool import BaseTool
             if issubclass(self._active_main_tool_class, BaseTool):
                 return self._active_main_tool_class(canvas, shape_manager, category)
         return None

@@ -148,3 +148,7 @@ class PolylineTool(BaseTool):
     def clear_preview(self) -> None:
         """External method to clear the preview."""
         self._clear_preview()
+
+    def set_controller(self, controller):
+        """Stores a reference to the controller."""
+        self.controller = controller
