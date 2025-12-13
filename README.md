@@ -39,3 +39,16 @@ fractal_spiro_paint/
 3. Install dependencies: `pip install -r requirements.txt`
 4. Run the app: `python src/main.py`
 
+
+```markdown
+## Documentation
+
+The Fractal Spiro Paint project is documented in detail in the `docs/` folder:
+
+### Narrative Documentation
+- Spanish (personal reference): `docs/flow_fractal_spiro.md`
+- English: `docs/flow_fractal_spiro_en.md`
+
+### Visual Diagrams
+- Simple visual: `docs/flow_fractal_spiro_visual_en.md`
+- Combined architecture & runtime: `docs/flow_fractal_spiro_combined_en.md`
