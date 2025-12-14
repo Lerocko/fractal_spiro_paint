@@ -186,3 +186,7 @@ class SecondaryCanvas(tk.Canvas):
         new_color = get_color("drawing_default")
         for item_id in items:
             self.itemconfig(item_id, fill=new_color)
+
+    def clear(self):
+        """Borra todos los elementos dibujados en este canvas."""
+        self.delete("all")

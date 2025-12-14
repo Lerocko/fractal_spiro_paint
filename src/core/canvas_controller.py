@@ -184,6 +184,13 @@ class CanvasController:
             if result is False:
                 self.is_drawing_on_secondary = False
 
+                # --- Patrón terminado, ejecutar lógica ---
+                pattern_shape = self.shape_manager.get_last_shape()
+                self.secondary_canvas.clear()  # o un método que reinicie canvas
+                self.secondary_canvas.hide()
+                self.enable_main_canvas()
+                self.app.on_fractal_pattern_ready(pattern_shape)  # nuevo método en App
+
     # =============================================================
     # Auxiliar privet method
     # =============================================================

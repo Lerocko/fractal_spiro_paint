@@ -12,6 +12,7 @@
 import tkinter as tk
 from typing import Dict, Optional, TYPE_CHECKING
 from src.core.shape_manager import ShapeManager
+from src.tools.base_tool import BaseTool
 
 if TYPE_CHECKING:
     from ..tools.base_tool import BaseTool

@@ -127,7 +127,6 @@ class SelectionTool(BaseTool):
                 if not (min_x <= px <= max_x and min_y <= py <= max_y):
                     is_inside = False
                     break
-        
             if is_inside:
                 self.selected_item_ids.extend(shape['items'])
 

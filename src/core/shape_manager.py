@@ -143,3 +143,6 @@ class ShapeManager:
             if item_id in shape['items']:
                 return shape
         return None
+    
+    def get_last_shape(self):
+        return next(reversed(self.shapes.values()), None)

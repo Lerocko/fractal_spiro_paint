@@ -95,7 +95,10 @@ class App:
                 return
         self.main_window.show_secondary_canvas()
         self.canvas_controller.disable_main_canvas()
-
+    
+    def on_fractal_pattern_ready(self, pattern):
+        self.fractal_pattern = pattern
+        
     # =============================================================
     # Theme Management
     # =============================================================
