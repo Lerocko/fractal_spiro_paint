@@ -149,7 +149,7 @@ class SelectionTool(BaseTool):
 
         if self.selected_item_ids != [] and event.keysym == "Return":
             self._clear_preview()
-            self.app.on_shape_selected(self.selected_item_ids)
+            return False
         
         if event.keysym == "Escape":
             self._clear_preview()
@@ -161,3 +161,12 @@ class SelectionTool(BaseTool):
     def clear_preview(self) -> None:
         """External method to clear the preview."""
         self._clear_preview()
+
+    # ---------------------------------------------------------
+    # Collection of selected item IDs
+    # ---------------------------------------------------------
+    def get_selected_item_ids(self) -> list:
+        """
+        Returns the list of selected item IDs.
+        """
+        return self.selected_item_ids

@@ -10,6 +10,8 @@
 # =============================================================
 
 from typing import Optional, TYPE_CHECKING, ForwardRef
+
+from src.tools.selection.selection_tool import SelectionTool
 from .tools_manager import ToolsManager
 from .shape_manager import ShapeManager
 from src.tools.fractal.polyline_tool import PolylineTool
@@ -129,6 +131,14 @@ class CanvasController:
         result = self.active_tool_instance.on_keyboard(event)
         if result is False:
             self.is_drawing_on_main = False
+
+        if (
+        event.keysym == "Return"
+        and isinstance(self.active_tool_instance, SelectionTool)
+        and not self.is_drawing_on_main
+    ):
+            selected_ids = self.active_tool_instance.get_selected_item_ids()
+            self.app.on_shape_selected(selected_ids)
 
     # =============================================================
     # Disable and enable Events Main Canvas
