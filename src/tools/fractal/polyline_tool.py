@@ -2,18 +2,20 @@
 # File: polyline_tool.py
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
-# Created: 2025-11-12
-# Refactored: 2025-11-26
+# Refactored: 2025-12-19
 # Description:
 #     Concrete implementation of BaseTool for drawing open or
 #     closed polylines with multiple points, supporting live
 #     preview and proper registration in ShapeManager.
 # =============================================================
+
+import logging
 import tkinter as tk
 from typing import List, Tuple
-from src.tools.base_tool import BaseTool
-from src.core.theme_manager import get_color
+
 from src.core.shape_manager import ShapeManager
+from src.core.theme_manager import get_color, get_style
+from src.tools.base_tool import BaseTool
 
 # =============================================================
 # PolylineTool Class
@@ -24,12 +26,9 @@ class PolylineTool(BaseTool):
 
     Behavior:
     - Click to add points.
-    - Move mouse to see live dashed-line preview.
+    - Move mouse to see live dashed-line preview to the next point.
     - Press 'Enter' to finish the polyline.
     - Press 'c' to close the polyline and finish.
-
-    Supports open or closed polylines and registers them as a
-    single shape in ShapeManager.
     """
 
     def __init__(self, canvas: tk.Canvas, shape_manager: ShapeManager, category: str) -> None:
@@ -37,118 +36,153 @@ class PolylineTool(BaseTool):
         Initializes the PolylineTool.
 
         Args:
-            canvas: Tkinter Canvas to draw on.
+            canvas: The Tkinter Canvas to draw on.
             shape_manager: Instance to register finished shapes.
+            category: The category of the tool.
         """
-
         super().__init__(canvas)
         self.points: List[Tuple[int, int]] = []
         self.line_ids: List[int] = []
-        self.shape_manager = shape_manager
-        self.category = category
+        self.shape_manager: ShapeManager = shape_manager
+        self.category: str = category
 
-        # Default drawing parameters
-        self.default_color = get_color("drawing_default")
-        self.preview_color = get_color("drawing_secondary")
-        self.line_width = 2
-
-    # ---------------------------------------------------------
+    # =============================================================
     # Mouse Interaction
-    # ---------------------------------------------------------
+    # =============================================================
     def on_first_click(self, event: tk.Event, category: str) -> bool:
-        """Adds the first point of the polyline."""
-        self.points.append((event.x, event.y))
-        print(f"Polyline: First point at {self.points[0]}")  # Debug
+        """
+        Adds the first point of the polyline or subsequent points.
+
+        Args:
+            event: The Tkinter event object.
+            category: The category of the tool.
+
+        Returns:
+            True to continue drawing.
+        """
+        if not self.points:
+            self.points.append((event.x, event.y))
+            logging.info(f"PolylineTool: First point at {self.points[0]}")
+        else:
+            self._add_segment(event.x, event.y)
         return True
 
     def on_drag(self, event: tk.Event) -> None:
-        """Updates the live dashed-line preview as the mouse moves."""
+        """
+        Updates the live preview of the next segment as the mouse moves.
+
+        Args:
+            event: The Tkinter event object.
+        """
         if not self.points:
             return
+
         self._clear_preview()
         last_point = self.points[-1]
         self.preview_shape_id = self.canvas.create_line(
-            last_point[0], last_point[1],
-            event.x, event.y,
-            fill=self.preview_color,
-            width=self.line_width,
-            dash=(4, 4),
+            last_point[0], last_point[1], event.x, event.y,
+            fill=get_color("drawing_preview"),
+            width=get_style("line_width", "default"),
+            dash=get_style("line_type", "dashed")
         )
 
     def on_second_click(self, event: tk.Event, category: str) -> bool:
-        """Draws the final permanent line to the new point."""
-        if not self.points:
-            return
+        """
+        Handles subsequent clicks to add points to the polyline.
 
-        self._clear_preview()
-        last_point = self.points[-1]
-        line_id = self.canvas.create_line(
-            last_point[0], last_point[1],
-            event.x, event.y,
-            fill=self.default_color,
-            width=self.line_width,
-            tags=("permanent", "default_color")
-        )
-        self.line_ids.append(line_id)
-        self.points.append((event.x, event.y))
-        print(f"Polyline: Added point {self.points[-1]}. Total points: {len(self.points)}")
+        Args:
+            event: The Tkinter event object.
+            category: The category of the tool.
+
+        Returns:
+            True to continue drawing.
+        """
+        self._add_segment(event.x, event.y)
         return True
 
-    # ---------------------------------------------------------
+    # =============================================================
     # Keyboard Interaction
-    # ---------------------------------------------------------
+    # =============================================================
     def on_keyboard(self, event: tk.Event) -> bool:
         """
-        Finishes the polyline with Enter or closes it with 'c'.
+        Handles keyboard events to finalize or cancel the polyline.
+
+        Args:
+            event: The Tkinter event object.
+
+        Returns:
+            False if the tool should be deactivated, True otherwise.
         """
         if not self.points:
             return False
-            
-        if event.keysym in ("Return", "c"):
-            close = False
-            # If closing polyline, draw final connecting line
-            if event.keysym == "c" and len(self.points) > 2:
-                close = True
-                final_line = self.canvas.create_line(
-                    self.points[-1][0], self.points[-1][1],
-                    self.points[0][0], self.points[0][1],
-                    fill=self.default_color,
-                    width=self.line_width,
-                    tags=("permanent", "default_color")
-                )
-                self.line_ids.append(final_line)
-                self.points.append(self.points[0])
-                print("Polyline closed.") # Debug
 
-            self._finish_polyline(close)
-            print("Polyline finylized.") # Debug
-        
-        return False
+        if event.keysym == "Return":
+            self._finish_polyline(close=False)
+            return False
+        if event.keysym == "c" and len(self.points) > 2:
+            self._finish_polyline(close=True)
+            return False
+        if event.keysym == "Escape":
+            self._cancel_polyline()
+            return False
+        return True
 
-    # ---------------------------------------------------------
-    # Private Methods
-    # ---------------------------------------------------------
-    def _finish_polyline(self, close: bool = False) -> None:
-        """Registers the polyline in ShapeManager and clears current data."""
+    # =============================================================
+    # Private Helper Methods
+    # =============================================================
+    def _add_segment(self, x: int, y: int) -> None:
+        """
+        Draws a permanent segment and adds the new point to the list.
+
+        Args:
+            x: The x-coordinate of the new point.
+            y: The y-coordinate of the new point.
+        """
+        self._clear_preview()
+        last_point = self.points[-1]
+        line_id = self.canvas.create_line(
+            last_point[0], last_point[1], x, y,
+            fill=get_color("drawing_primary"),
+            width=get_style("line_width", "default"),
+            tags=("permanent", "default_color")
+        )
+        self.line_ids.append(line_id)
+        self.points.append((x, y))
+        logging.debug(f"PolylineTool: Added point ({x}, {y}). Total points: {len(self.points)}")
+
+    def _finish_polyline(self, close: bool) -> None:
+        """
+        Registers the polyline in ShapeManager and resets the tool's state.
+
+        Args:
+            close: If True, draws a final segment to close the shape.
+        """
+        if close:
+            self._add_segment(self.points[0][0], self.points[0][1])
+            logging.info("PolylineTool: Polyline closed.")
+
         self.shape_manager.add_shape(
             shape_type="polyline",
             shape_category=self.category,
             points=self.points.copy(),
             item_ids=self.line_ids.copy(),
-            color=self.default_color,
-            width=self.line_width,
+            color=get_color("drawing_primary"),
+            width=get_style("line_width", "default"),
             closed=close,
-            original_color=self.default_color,
+            original_color=get_color("drawing_primary"),
         )
-        self._clear_preview()
-        self.points = []
-        self.line_ids = []
-        return
-    
-    def clear_preview(self) -> None:
-        """External method to clear the preview."""
-        self._clear_preview()
+        logging.info("PolylineTool: Polyline finalized and registered.")
+        self._reset_state()
 
-    def set_controller(self, controller):
-        """Stores a reference to the controller."""
-        self.controller = controller
+    def _cancel_polyline(self) -> None:
+        """Cancels the current drawing operation and cleans up."""
+        logging.info("PolylineTool: Drawing cancelled.")
+        self._reset_state()
+
+    def _reset_state(self) -> None:
+        """Clears all temporary data and previews from the canvas."""
+        self._clear_preview()
+        for line_id in self.line_ids:
+            self.canvas.delete(line_id)
+        self.points.clear()
+        self.line_ids.clear()
