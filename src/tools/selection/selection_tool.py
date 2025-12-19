@@ -14,7 +14,6 @@ from typing import Optional, Tuple
 from src.tools.base_tool import BaseTool
 from src.core.theme_manager import get_color
 from src.core.shape_manager import  ShapeManager
-from src.core.app import App
 from src.tools.fractal import fractal_drawer
 
 # =============================================================
@@ -158,10 +157,6 @@ class SelectionTool(BaseTool):
             return False
         return True
     
-    def clear_preview(self) -> None:
-        """External method to clear the preview."""
-        self._clear_preview()
-
     # ---------------------------------------------------------
     # Collection of selected item IDs
     # ---------------------------------------------------------
@@ -170,3 +165,15 @@ class SelectionTool(BaseTool):
         Returns the list of selected item IDs.
         """
         return self.selected_item_ids
+    
+    # ---------------------------------------------------------
+    # Reset selection
+    # ---------------------------------------------------------
+    def reset(self) -> None:
+        """
+        Resets the selection state.
+        """
+        self.start_point = None
+        self.selected_item_ids.clear()
+        self._clear_preview()
+        

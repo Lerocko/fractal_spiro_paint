@@ -3,22 +3,23 @@
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-10-12
-# Refactored: 2025-11-30
+# Refactored: 2025-12-19
 # Description:
 #     Main GUI window for Fractal Spiro Paint.
 #     Acts as a View, forwarding events to the App controller.
 # =============================================================
 
+import logging
 import tkinter as tk
-from typing import Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
+
 from src.ui.toolbar import Toolbar
 from src.ui.menubar import Menubar
 from src.ui.canvas_widget import MainCanvas, SecondaryCanvas
 from src.core.theme_manager import get_color
 
 if TYPE_CHECKING:
-    from ..core.app import App
-    from ui.canvas_widget import MainCanvas
+    from src.core.app import App
 
 # =============================================================
 # Constants
@@ -37,60 +38,70 @@ DEFAULT_THEME: Literal["dark", "light"] = "dark"
 class PaintWindow:
     """
     Main application window (View).
+
     Manages Menubar, Toolbar, MainCanvas, SecondaryCanvas, and theme switching.
-    Delegates logic to the App controller.
+    Delegates all logical operations to the App controller.
     """
 
     # =============================================================
     # Initialization
     # =============================================================
     def __init__(self, app_controller: "App", width: int = WINDOW_WIDTH, height: int = WINDOW_HEIGHT) -> None:
-        self.app = app_controller
-        self.width = width
-        self.height = height
-        self.current_theme = DEFAULT_THEME
+        """
+        Initializes the PaintWindow.
 
-        # --- Main window ---
-        self.root = tk.Tk()
+        Args:
+            app_controller: The main application controller.
+            width: The initial width of the window.
+            height: The initial height of the window.
+        """
+        self.app: "App" = app_controller
+        self.width: int = width
+        self.height: int = height
+        self.current_theme: Literal["dark", "light"] = DEFAULT_THEME
+
+        self._init_main_window()
+        self._init_ui_components()
+        self._bind_events()
+        logging.info("PaintWindow initialized.")
+
+    def _init_main_window(self) -> None:
+        """Initializes the main Tkinter window."""
+        self.root: tk.Tk = tk.Tk()
         self.root.title("Fractal Spiro Paint")
-        self.root.geometry(f"{self.width}x{self.height}+{WINDOW_X_OFFSET}+{WINDOW_Y_OFFSET}") 
+        self.root.geometry(f"{self.width}x{self.height}+{WINDOW_X_OFFSET}+{WINDOW_Y_OFFSET}")
         self.root.configure(bg=get_color("root"))
 
-        # --- Initialize UI components ---
-        self._init_menubar()
-        self._init_toolbars()
-        self._init_canvases()
-
-        # --- Bind window events ---
-        self.root.bind("<Configure>", self._on_window_resize)
-
-    # =============================================================
-    # Initialization Methods
-    # =============================================================
-    def _init_menubar(self) -> None:
-        """Initialize the file menu buttons (Menubar)."""
-        self.menubar = Menubar(self.root, on_click_callback=self.app.handle_file_action)
+    def _init_ui_components(self) -> None:
+        """Initializes all UI components like menubar, toolbar, and canvases."""
+        self.menubar: Menubar = Menubar(self.root, on_click_callback=self.app.handle_file_action)
         self.menubar.pack(side=tk.TOP, fill=tk.X)
 
-    def _init_toolbars(self) -> None:
-        """Initialize toolbar buttons for each category."""
-        self.toolbar = Toolbar(self.root, on_click_callback=self.app.handle_tool_selection)
+        self.toolbar: Toolbar = Toolbar(self.root, on_click_callback=self.app.handle_tool_selection)
         self.toolbar.generate_tools()
         self.toolbar.pack(side=tk.TOP, fill=tk.X)
 
-    def _init_canvases(self) -> None:
-        """Initialize main and secondary canvases."""
-        self.main_canvas = MainCanvas(self.root)
+        self.main_canvas: MainCanvas = MainCanvas(self.root)
         self.main_canvas.generate_main_canvas()
         self.main_canvas.pack(fill=tk.BOTH, expand=True)
 
-        self.secondary_canvas = SecondaryCanvas(self.main_canvas)
-        
+        self.secondary_canvas: SecondaryCanvas = SecondaryCanvas(self.main_canvas)
+
+    def _bind_events(self) -> None:
+        """Binds window-level events."""
+        self.root.bind("<Configure>", self._on_window_resize)
+
     # =============================================================
     # Observers
-    # =============================================================   
+    # =============================================================
     def update_theme(self, mode: Literal["dark", "light"]) -> None:
-        """Switch colors between dark and light themes."""
+        """
+        Updates the theme of the window and all its components.
+
+        Args:
+            mode: The new theme mode ("dark" or "light").
+        """
+        self.current_theme = mode
         self.root.configure(bg=get_color("root"))
         self.menubar.update_theme(mode)
         self.toolbar.update_theme(mode)
@@ -100,12 +111,18 @@ class PaintWindow:
         self.main_canvas.set_draw_color(get_color("drawing_default"))
         self.secondary_canvas.update_drawings_theme()
         self.secondary_canvas.set_draw_color(get_color("drawing_default"))
+        logging.info(f"PaintWindow: Theme updated to {mode}.")
 
     # =============================================================
     # Window Events
     # =============================================================
-    def _on_window_resize(self, event) -> None:
-        """Adjust secondary canvas position when the window is resized."""
+    def _on_window_resize(self, event: tk.Event) -> None:
+        """
+        Adjusts secondary canvas position when the window is resized.
+
+        Args:
+            event: The Tkinter event object for the resize.
+        """
         if self.secondary_canvas.winfo_ismapped():
             max_y = self.main_canvas.winfo_height() - SECONDARY_CANVAS_HEIGHT - 10
             if max_y < 0:
@@ -116,16 +133,17 @@ class PaintWindow:
     # Canvas Visibility
     # =============================================================
     def show_secondary_canvas(self) -> None:
-        """Make the secondary canvas visible."""
+        """Makes the secondary canvas visible."""
         self.secondary_canvas.show()
 
     def hide_secondary_canvas(self) -> None:
-        """Hide the secondary canvas."""
+        """Hides the secondary canvas."""
         self.secondary_canvas.hide()
 
     # =============================================================
     # Main loop
     # =============================================================
     def start(self) -> None:
-        """Start the Tkinter main event loop."""
+        """Starts the Tkinter main event loop."""
+        logging.info("PaintWindow: Starting main loop.")
         self.root.mainloop()

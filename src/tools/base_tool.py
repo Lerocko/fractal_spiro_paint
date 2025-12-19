@@ -3,7 +3,7 @@
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-11-12
-# Refactored: 2025-11-25
+# Refactored: 2025-12-19
 # Description:
 #     Abstract base class for all drawing tools. Ensures that every
 #     tool implements the required interface and provides a preview
@@ -51,6 +51,10 @@ class BaseTool(ABC):
 
         Args:
             event: The Tkinter event object containing click coordinates.
+            category: The category of the tool (e.g., "Fractal").
+
+        Returns:
+            True if the tool should enter drawing mode, False otherwise.
         """
         pass
 
@@ -76,18 +80,25 @@ class BaseTool(ABC):
 
         Args:
             event: The Tkinter event object containing final click coordinates.
+            category: The category of the tool (e.g., "Fractal").
+
+        Returns:
+            False to signal drawing completion, True to continue.
         """
         pass
     
     @abstractmethod
     def on_keyboard(self, event: Any) -> bool:
         """
-        Handles the enter keyboard click event.
+        Handles keyboard events while the tool is active.
 
-        This method is called to finalize the drawing of the shape and desactived the tool in used.
+        This method can be used to finalize or cancel a drawing operation.
 
         Args:
-            event: The Tkinter event object containing enter keyboard.
+            event: The Tkinter event object containing key press information.
+
+        Returns:
+            False if the tool should be deactivated, True otherwise.
         """
         pass
 
@@ -95,7 +106,7 @@ class BaseTool(ABC):
     # Utilities
     # ---------------------------------------------------------
     def _clear_preview(self) -> None:
-        """Clears any known preview elements."""
+        """Clears any known preview elements from the canvas."""
         if self.preview_shape_id:
             self.canvas.delete(self.preview_shape_id)
             self.preview_shape_id = None
