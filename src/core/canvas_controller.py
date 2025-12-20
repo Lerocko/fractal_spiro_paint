@@ -67,7 +67,7 @@ class CanvasController:
         self.app: Optional['App'] = None
 
         self.active_tool_instance: Optional['BaseTool'] = None
-        self.polyline_tool_instance: PolylineTool = PolylineTool(self.canvas_secondary, self.shape_manager, category="Fractal")
+        self.polyline_tool_instance: Optional[BaseTool] = None
 
         self.is_drawing_on_main: bool = False
         self.is_drawing_on_secondary: bool = False
@@ -151,12 +151,15 @@ class CanvasController:
     # =============================================================
     def handle_click_secondary_canvas(self, event: tk.Event) -> None:
         """Handles a mouse click on the secondary canvas using the PolylineTool."""
+        if not self.polyline_tool_instance:
+            self._activate_pattern_tool()
+
         self.canvas_secondary.focus_set()
         self.is_drawing_on_secondary = self._handle_click_logic(event, self.polyline_tool_instance, "Fractal")
 
     def handle_drag_secondary_canvas(self, event: tk.Event) -> None:
         """Handles a mouse drag event on the secondary canvas."""
-        if self.is_drawing_on_secondary:
+        if self.is_drawing_on_secondary and self.polyline_tool_instance:
             self.polyline_tool_instance.on_drag(event)
 
     def handle_release_secondary_canvas(self, event: tk.Event) -> None:
@@ -165,10 +168,11 @@ class CanvasController:
 
     def handle_keyboard_secondary_canvas(self, event: tk.Event) -> None:
         """Handles a keyboard event on the secondary canvas."""
-        result = self.polyline_tool_instance.on_keyboard(event)
-        if result is False:
-            self.is_drawing_on_secondary = False
-            self._on_pattern_completed()
+        if self.polyline_tool_instance:
+            result = self.polyline_tool_instance.on_keyboard(event)
+            if result is False:
+                self.is_drawing_on_secondary = False
+                self._on_pattern_completed()
 
     def handle_escape_secondary_canvas(self, event: tk.Event) -> None:
         """Handles the Escape key to cancel pattern drawing and return to the main canvas."""
@@ -236,8 +240,19 @@ class CanvasController:
 
     def _cancel_pattern_creation(self) -> None:
         """Cancels the pattern creation process and resets the UI."""
-        self.polyline_tool_instance.clear_preview()
+        if self.polyline_tool_instance:
+            self.polyline_tool_instance.clear_preview()
         self.secondary_canvas_widget.clear()
         self.secondary_canvas_widget.hide()
         self.enable_main_canvas()
         logging.info("CanvasController: Pattern creation cancelled and UI reset.")
+
+    def _activate_pattern_tool(self) -> None:
+        """Activates the PolylineTool for pattern drawing on the secondary canvas."""
+        self.tools_manager.set_active_tool("Fractal", "Polyline", is_pattern_tool=True)
+        self.polyline_tool_instance = self.tools_manager.get_active_secondary_tool_instance(
+            self.canvas_secondary, 
+            self.shape_manager, 
+            category="Fractal", 
+            allow_close=False
+        )

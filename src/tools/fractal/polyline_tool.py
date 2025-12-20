@@ -31,7 +31,7 @@ class PolylineTool(BaseTool):
     - Press 'c' to close the polyline and finish.
     """
 
-    def __init__(self, canvas: tk.Canvas, shape_manager: ShapeManager, category: str) -> None:
+    def __init__(self, canvas: tk.Canvas, shape_manager: ShapeManager, category: str, allow_close: bool = True) -> None:
         """
         Initializes the PolylineTool.
 
@@ -45,6 +45,7 @@ class PolylineTool(BaseTool):
         self.line_ids: List[int] = []
         self.shape_manager: ShapeManager = shape_manager
         self.category: str = category
+        self.allow_close = allow_close
 
     # =============================================================
     # Mouse Interaction
@@ -119,7 +120,7 @@ class PolylineTool(BaseTool):
         if event.keysym == "Return":
             self._finish_polyline(close=False)
             return False
-        if event.keysym == "c" and len(self.points) > 2:
+        if event.keysym == "c" and self.allow_close and len(self.points) > 2:
             self._finish_polyline(close=True)
             return False
         if event.keysym == "Escape":

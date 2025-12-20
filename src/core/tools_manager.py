@@ -58,7 +58,7 @@ class ToolsManager:
     # =============================================================
     # Tool Management Methods
     # =============================================================
-    def set_active_tool(self, category: str, tool: str) -> None:
+    def set_active_tool(self, category: str, tool: str, is_pattern_tool: bool = False) -> None:
         """
         Sets the currently active tool based on its category and name.
 
@@ -69,6 +69,7 @@ class ToolsManager:
         Args:
             category: The category of the tool (e.g., "Fractal", "Drawing").
             tool: The registered name of the tool.
+            is_pattern_tool: True if this is the pattern tool for the secondary canvas.
         """
         tool_class = self.get_tool(tool)
         if not tool_class:
@@ -83,7 +84,7 @@ class ToolsManager:
             self.main_category = category
             self.main_tool = tool
             self._active_main_tool_class = tool_class
-        elif category in ["Drawing", "Edit"]:
+        elif category in ["Drawing", "Edit"] or is_pattern_tool:
             self.secondary_category = category
             self.secondary_tool = tool
             self._active_secondary_tool_class = tool_class
@@ -182,18 +183,25 @@ class ToolsManager:
             return self._active_main_tool_class(canvas, shape_manager, category)
         return None
 
-    def get_active_secondary_tool_instance(self, canvas: tk.Canvas) -> Optional[BaseTool]:
+    def get_active_secondary_tool_instance(self, canvas: tk.Canvas, shape_manager: ShapeManager, category: str, allow_close: bool = False) -> Optional[BaseTool]:
         """
         Creates and returns an instance of the currently active secondary tool.
 
         Args:
             canvas: The Tkinter canvas to pass to the tool.
+            shape_manager: The ShapeManager to pass to the tool.
+            category: The category of the tool.
+            allow_close: Whether the tool should allow closing (for PolylineTool).
 
         Returns:
             An instance of the active secondary tool, or None if no tool is active.
         """
         if self._active_secondary_tool_class:
             logging.debug(f"Creating instance of secondary tool: {self._active_secondary_tool_class.__name__}")
-            # Assuming secondary tools don't need shape_manager or category
-            return self._active_secondary_tool_class(canvas)
+            # Check if this is a PolylineTool to pass the allow_close parameter
+            if self._active_secondary_tool_class.__name__ == "PolylineTool":
+                return self._active_secondary_tool_class(canvas, shape_manager, category, allow_close=allow_close)
+            else:
+                # For other secondary tools, use default parameters
+                return self._active_secondary_tool_class(canvas, shape_manager, category)
         return None

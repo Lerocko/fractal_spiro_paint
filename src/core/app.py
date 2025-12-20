@@ -143,36 +143,39 @@ class App:
             logging.warning("App: No shapes or pattern available for fractal generation.")
             return
 
-        # NOTE: Replace "FractalTool" with the actual registered name of your fractal tool.
-        tool_name = "FractalTool"
-        tool_class = self.tools_manager.get_tool(tool_name)
-        if not tool_class:
-            logging.error(f"App: Tool '{tool_name}' not found in ToolsManager.")
-            return
+        # --- FUTURE IMPLEMENTATION ---
+        # This is where your fractal_drawing module will be called.
+        # For now, we just log the intent and prepare the data.
+        
+        # Extract points from selected shapes and the pattern.
+        selected_shapes_points = [shape.get("points") for shape in self.selected_shapes]
+        pattern_points = self.fractal_pattern.get("points")
+        
+        logging.info(
+            f"App: Ready to generate fractals. "
+            f"Pattern points: {pattern_points}, "
+            f"Selected shapes points: {selected_shapes_points}"
+        )
 
-        # The tool needs the main canvas and the shape manager to operate.
-        tool_instance = tool_class(self.main_window.main_canvas, self.shape_manager, "Fractal")
+        # TODO: Call the fractal_drawing module here.
+        # Example:
+        # from src.tools.fractal import fractal_drawing
+        # new_shape_data = fractal_drawing.generate(selected_shapes_points, pattern_points)
+        #
+        # if new_shape_data:
+        #     # Draw new shapes and register them in the shape_manager
+        #     # Optionally: delete the original shapes
+        #     pass
 
-        # The tool's apply_pattern method will handle the drawing logic.
-        # It should return the IDs of the newly created fractal shapes.
-        new_fractal_ids = tool_instance.apply_pattern(self.selected_shapes, self.fractal_pattern)
-
-        if new_fractal_ids:
-            logging.info(f"App: Fractal generated. New shape IDs: {new_fractal_ids}")
-            # Optional: Delete the original shapes that were used as a base.
-            for shape_info in self.selected_shapes:
-                for item_id in shape_info.get("item_ids", []):
-                    self.main_window.main_canvas.delete(item_id)
-            self.shape_manager.remove_shapes_by_ids([s.get("item_ids", [None])[0] for s in self.selected_shapes])
-        else:
-            logging.warning("App: Fractal generation did not produce any new shapes.")
+        # --- END OF FUTURE IMPLEMENTATION ---
 
         # Reset state and re-enable the main canvas.
+        # This part is crucial to unblock the UI.
         self.selected_shapes = []
         self.fractal_pattern = None
         self.main_window.hide_secondary_canvas()
         self.canvas_controller.enable_main_canvas()
-
+        logging.info("App: Fractal generation process finished. UI reset.")
 
     # =============================================================
     # Theme Management
