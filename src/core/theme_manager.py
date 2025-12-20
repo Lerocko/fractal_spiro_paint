@@ -54,6 +54,7 @@ DARK_PALETTE: ColorPalette = {
     "drawing_primary": "#d4d4d4",
     "drawing_secondary": "#569cd6",
     "drawing_preview": "#4e94ce",
+    "drawing_default": "#d4d4d4",
 }
 
 LIGHT_PALETTE: ColorPalette = {
@@ -71,15 +72,21 @@ LIGHT_PALETTE: ColorPalette = {
     "drawing_primary": "#000000",
     "drawing_secondary": "#0078d4",
     "drawing_preview": "#83b9f9",
+    "drawing_default": "#000000",
 }
 
 # =============================================================
 # Centralized Style Configuration
 # =============================================================
 STYLES: StyleConfig = {
-    "line_width": { ... },
-    "line_type": { ... },
-    # Añade esto
+    "line_width": {
+        "default": 1,
+        "thick": 3,
+    },
+    "line_type": {
+        "default": "",
+        "dashed": (5, 5),
+    },
     "ui_fonts": {
         "default": ("Arial", 10),
         "bold": ("Arial", 10, "bold"),
@@ -91,7 +98,6 @@ STYLES: StyleConfig = {
         "large": 10,
     }
 }
-
 
 # =============================================================
 # Theme State Management

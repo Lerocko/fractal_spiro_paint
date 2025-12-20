@@ -147,6 +147,10 @@ class SelectionTool(BaseTool):
         logging.info("SelectionTool: Resetting selection state.")
         self._reset_selection()
 
+    def clear_preview(self) -> None:
+        """Public method to clear the preview."""
+        self._clear_preview()
+
     # =============================================================
     # Private Helper Methods
     # =============================================================

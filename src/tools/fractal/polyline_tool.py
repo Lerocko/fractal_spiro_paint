@@ -128,6 +128,9 @@ class PolylineTool(BaseTool):
             return False
         return True
 
+    def clear_preview(self) -> None:
+        """Public method to clear the preview."""
+        self._clear_preview()
     # =============================================================
     # Private Helper Methods
     # =============================================================
@@ -183,7 +186,5 @@ class PolylineTool(BaseTool):
     def _reset_state(self) -> None:
         """Clears all temporary data and previews from the canvas."""
         self._clear_preview()
-        for line_id in self.line_ids:
-            self.canvas.delete(line_id)
         self.points.clear()
         self.line_ids.clear()

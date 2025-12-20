@@ -185,6 +185,7 @@ class CanvasController:
     def disable_main_canvas(self) -> None:
         """Disables user interaction with the main canvas."""
         self.is_main_canvas_active = False
+        self._activate_pattern_tool()
         logging.info("CanvasController: Main canvas disabled.")
 
     def enable_main_canvas(self) -> None:
@@ -249,10 +250,13 @@ class CanvasController:
 
     def _activate_pattern_tool(self) -> None:
         """Activates the PolylineTool for pattern drawing on the secondary canvas."""
-        self.tools_manager.set_active_tool("Fractal", "Polyline", is_pattern_tool=True)
-        self.polyline_tool_instance = self.tools_manager.get_active_secondary_tool_instance(
-            self.canvas_secondary, 
-            self.shape_manager, 
-            category="Fractal", 
-            allow_close=False
-        )
+        polyline_tool_class = self.tools_manager.get_tool("Polyline")
+        if polyline_tool_class:
+            self.polyline_tool_instance = polyline_tool_class(
+                self.canvas_secondary, 
+                self.shape_manager, 
+                category="Fractal", 
+                allow_close=False
+            )
+        else:
+            logging.error("CanvasController: PolylineTool not found in ToolsManager.")

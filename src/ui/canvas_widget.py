@@ -68,7 +68,7 @@ class MainCanvas(tk.Frame):
         
         event_bindings = {
             "<Button-1>": self.controller.handle_click_main_canvas,
-            "<B1-Motion>": self.controller.handle_drag_main_canvas,
+            "<Motion>": self.controller.handle_drag_main_canvas,
             "<ButtonRelease-1>": self.controller.handle_release_main_canvas,
             "<Return>": self.controller.handle_keyboard_main_canvas,
             "<KeyPress-c>": self.controller.handle_keyboard_main_canvas,
@@ -133,7 +133,7 @@ class SecondaryCanvas(tk.Canvas):
             parent: The parent widget (usually the MainCanvas).
             controller: The CanvasController to delegate events to.
         """
-        default_bg = get_color("canvas_sec")
+        default_bg = get_color("canvas_secondary")
         super().__init__(
             parent,
             bg=default_bg,
@@ -141,7 +141,7 @@ class SecondaryCanvas(tk.Canvas):
             width=SECONDARY_CANVAS_WIDTH,
             height=SECONDARY_CANVAS_HEIGHT,
             highlightthickness=2,
-            highlightbackground=get_color("labels_fg")
+            highlightbackground=get_color("panel")
         )
 
         self.controller: Optional["CanvasController"] = controller
@@ -160,7 +160,7 @@ class SecondaryCanvas(tk.Canvas):
 
         event_bindings = {
             "<Button-1>": self.controller.handle_click_secondary_canvas,
-            "<B1-Motion>": self.controller.handle_drag_secondary_canvas,
+            "<Motion>": self.controller.handle_drag_secondary_canvas,
             "<ButtonRelease-1>": self.controller.handle_release_secondary_canvas,
             "<Return>": self.controller.handle_keyboard_secondary_canvas,
             "<Escape>":self.controller.handle_escape_secondary_canvas,
@@ -178,7 +178,7 @@ class SecondaryCanvas(tk.Canvas):
     
     def update_theme(self, mode: str) -> None:
         """Updates the canvas background and highlight colors."""
-        self.configure(bg=get_color("canvas_sec"), highlightbackground=get_color("labels_fg"))
+        self.configure(bg=get_color("canvas_secondary"), highlightbackground=get_color("panel"))
         logging.info(f"SecondaryCanvas: Theme updated to {mode}.")
 
     def update_drawings_theme(self) -> None:
