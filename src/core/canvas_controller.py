@@ -108,7 +108,9 @@ class CanvasController:
     # =============================================================
     def handle_click_main_canvas(self, event: tk.Event) -> None:
         """Handles a mouse click event on the main canvas."""
+        logging.info(f"Click received. is_main_canvas_active: {self.is_main_canvas_active}, active_tool_instance is None: {self.active_tool_instance is None}")
         if not self.is_main_canvas_active or not self.active_tool_instance:
+            logging.warning("Click on main canvas ignored.")
             return
         self.canvas_main.focus_set()
         self.is_drawing_on_main = self._handle_click_logic(event, self.active_tool_instance, self.tools_manager.main_category)
@@ -220,9 +222,12 @@ class CanvasController:
     # =============================================================
     def _handle_click_logic(self, event: tk.Event, tool_instance: 'BaseTool', category: str) -> bool:
         """Internal logic to handle click events, reusable for both canvases."""
+        logging.info(f"_handle_click_logic: is_drawing_on_main={self.is_drawing_on_main}, is_drawing_on_secondary={self.is_drawing_on_secondary}")
         if not self.is_drawing_on_main and not self.is_drawing_on_secondary:
+            logging.info(f"_handle_click_logic: Calling on_first_click for {type(tool_instance).__name__}")
             return tool_instance.on_first_click(event, category)
         else:
+            logging.info(f"_handle_click_logic: Calling on_second_click for {type(tool_instance).__name__}")
             return tool_instance.on_second_click(event, category)
 
     def _cancel_current_operation(self) -> None:
@@ -246,6 +251,7 @@ class CanvasController:
         self.secondary_canvas_widget.clear()
         self.secondary_canvas_widget.hide()
         self.enable_main_canvas()
+        self.is_drawing_on_secondary = False
         logging.info("CanvasController: Pattern creation cancelled and UI reset.")
 
     def _activate_pattern_tool(self) -> None:

@@ -57,6 +57,7 @@ class SelectionTool(BaseTool):
         Returns:
             True to begin the selection process.
         """
+        logging.info(">>> SelectionTool.on_first_click was called <<<")
         self.start_point = (event.x, event.y)
         self._reset_selection() # Clear previous selection
         logging.debug(f"SelectionTool: Selection started at {self.start_point}.")
