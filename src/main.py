@@ -10,6 +10,8 @@
 # =============================================================
 
 import logging
+# Configure basic logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 import sys
 from typing import Type
 
@@ -22,9 +24,6 @@ from src.core.tools_manager import ToolsManager
 from src.core.app import App
 from src.ui.paint_window import PaintWindow
 from src.tools.base_tool import BaseTool # Assuming a base class exists
-
-# Configure basic logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main() -> None:
     """

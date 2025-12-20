@@ -1,123 +1,130 @@
 # =============================================================
-# File: toolbar.py
+# File: menubar.py
 # Project: Fractal Spiro Paint
-# Author: Leopoldo MZ (Lerocko)
-# Created: 2025-10-12
 # Refactored: 2025-12-19
 # Description:
-#     Creation of tool buttons and handling of their events.
+#     Creation of file menu buttons and handling of their events.
 # =============================================================
 
 import logging
 import tkinter as tk
-from typing import Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Callable, List, Optional
 
-from src.core.theme_manager import get_color
-from src.core.config import BUTTONS_DICTIONARY
+from src.core.theme_manager import get_color, get_style
+from src.core.config import FILE_BUTTONS
+
+if TYPE_CHECKING:
+    from src.ui.paint_window import PaintWindow
 
 # =============================================================
-# Toolbar Class
+# Menubar Class
 # =============================================================
-class Toolbar(tk.Frame):
+class Menubar(tk.Frame):
     """
-    Generates and manages the application's toolbar.
+    Generates and manages the application's file menu bar.
 
-    Responsible for creating category subframes, buttons, and delegating
-    button click events to a provided callback function.
+    This component handles user interaction with file-related actions.
+    It is fully theme-aware and dynamically updates its appearance.
     """
 
     def __init__(
         self,
         parent: tk.Widget,
-        on_click_callback: Optional[Callable[[str, str], None]] = None
+        on_click_callback: Optional[Callable[[str], None]] = None
     ) -> None:
         """
-        Initializes the Toolbar.
+        Initializes the Menubar.
 
         Args:
             parent: The parent widget (usually the main window).
-            on_click_callback: A function to be called when a tool button is clicked.
-                               It receives the category and tool name as arguments.
+            on_click_callback: Callback for menu button actions.
         """
-        # Set default colors from the theme manager at initialization
-        default_bg = get_color("toolbar_frame")
-        default_fg = get_color("buttons_fg")
-        
-        super().__init__(parent, bg=default_bg)
-        self.bg = default_bg
-        self.fg = default_fg
+        super().__init__(parent, bg=get_color("panel"), relief=tk.SUNKEN, bd=1)
         self.on_click_callback = on_click_callback
+        self._file_buttons: List[tk.Button] = []
 
-        # Containers for UI elements
-        self.subframes_dic: Dict[str, tk.Frame] = {}
-        self.buttons_dic: Dict[str, List[tk.Widget]] = {}
+        self._generate_file_buttons()
+        logging.info("Menubar: Initialized.")
 
     # =============================================================
-    # Toolbar Generation
+    # Private Generation Methods
     # =============================================================
-    def generate_tools(self) -> None:
-        """Creates subframes and buttons for all tool categories defined in the config."""
-        for category, tools in BUTTONS_DICTIONARY.items():
-            subframe = tk.Frame(self, bg=get_color("subframe"))
-            subframe.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
-            self.subframes_dic[category] = subframe
-            self.buttons_dic[category] = []
-
-            for i, tool_name in enumerate(tools):
-                row, col = divmod(i, 3)
-                btn = tk.Button(
-                    subframe,
-                    text=tool_name,
-                    bg=get_color("buttons_bg"),
-                    fg=self.fg,
-                    activebackground=get_color("buttons_active_bg"),
-                    activeforeground=get_color("buttons_active_fg"),
-                    relief=tk.FLAT,
-                    bd=1,
-                    command=lambda n=tool_name, c=category: self._on_button_click(c, n)
-                )
-                btn.grid(row=row, column=col, sticky="nsew", padx=3, pady=3, ipadx=5, ipady=5)
-                self.buttons_dic[category].append(btn)
-
-            # Add category label at the bottom of the subframe
-            label_row = (len(tools) + 2) // 3
-            label = tk.Label(subframe, text=f"{category}", bg=get_color("subframe"), fg=self.fg, font=("Arial", 8, "bold"))
-            label.grid(row=label_row, column=0, columnspan=3, sticky="ew", pady=(5, 0))
-            self.buttons_dic[category].append(label)
-            
-        logging.info("Toolbar: Generated all tool buttons.")
+    def _generate_file_buttons(self) -> None:
+        """Generates file menu buttons dynamically based on configuration."""
+        for name in FILE_BUTTONS:
+            side = tk.RIGHT if name in ("Light", "Dark") else tk.LEFT
+            button = tk.Button(
+                self,
+                text=name,
+                bg=get_color("surface"),
+                fg=get_color("text_primary"),
+                activebackground=get_color("accent"),
+                activeforeground=get_color("text_primary"),
+                relief=tk.FLAT,
+                bd=1,
+                font=get_style("ui_fonts", "default"),
+                command=lambda n=name: self._on_button_click(n)
+            )
+            button.pack(
+                side=side,
+                padx=get_style("ui_padding", "default"),
+                pady=get_style("ui_padding", "default")
+            )
+            self._file_buttons.append(button)
+        logging.info("Menubar: Generated all file buttons.")
 
     # =============================================================
     # Event Handling
     # =============================================================
-    def _on_button_click(self, category: str, tool_name: str) -> None:
+    def _on_button_click(self, action_name: str) -> None:
         """
         Internal handler for button click events.
 
         Args:
-            category: The category of the clicked tool.
-            tool_name: The name of the clicked tool.
+            action_name: The action associated with the clicked button.
         """
-        logging.info(f"Toolbar: Tool '{tool_name}' from category '{category}' clicked.")
+        logging.info(f"Menubar: Action '{action_name}' triggered.")
         if self.on_click_callback:
-            self.on_click_callback(category, tool_name)
+            self.on_click_callback(action_name)
 
     # =============================================================
     # Theme Handling
     # =============================================================
     def update_theme(self, mode: str) -> None:
         """
-        Updates the colors of the toolbar and its components based on the theme.
+        Updates the theme of the menubar and all its buttons.
 
         Args:
             mode: The current theme mode ("dark" or "light").
         """
-        self.configure(bg=get_color("toolbar_frame"))
-        for subframe in self.subframes_dic.values():
-            subframe.configure(bg=get_color("subframe"))
-            for widget in subframe.winfo_children():
-                if isinstance(widget, tk.Button):
-                    widget.configure(bg=get_color("buttons_bg"), fg=get_color("buttons_fg"))
-                elif isinstance(widget, tk.Label):
-                    widget.configure(bg=get_color("subframe"), fg=get_color("labels_fg"))
-        logging.info(f"Toolbar: Theme updated to {mode}.")
+        self.configure(bg=get_color("panel"))
+        for button in self._file_buttons:
+            self._configure_button(button)
+        logging.info(f"Menubar: Theme updated to '{mode}'.")
+
+    def update_theme_toggle_button(self, mode: str) -> None:
+        """
+        Updates the text of the theme toggle button.
+
+        Args:
+            mode: The current theme mode ("dark" or "light").
+        """
+        # Find the toggle button by checking its text
+        for button in self._file_buttons:
+            if button['text'] in ('Light', 'Dark'):
+                new_text = "Light" if mode == "dark" else "Dark"
+                button.configure(text=new_text)
+                logging.info(f"Menubar: Theme toggle button updated to '{new_text}'.")
+                break
+
+    # =============================================================
+    # Private Configuration Methods
+    # =============================================================
+    def _configure_button(self, button: tk.Button) -> None:
+        """Applies the current theme to a menu button."""
+        button.configure(
+            bg=get_color("surface"),
+            fg=get_color("text_primary"),
+            activebackground=get_color("accent"),
+            activeforeground=get_color("text_primary")
+        )

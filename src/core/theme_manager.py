@@ -77,15 +77,18 @@ LIGHT_PALETTE: ColorPalette = {
 # Centralized Style Configuration
 # =============================================================
 STYLES: StyleConfig = {
-    "line_width": {
-        "thin": 1,
-        "default": 2,
-        "thick": 4,
+    "line_width": { ... },
+    "line_type": { ... },
+    # Añade esto
+    "ui_fonts": {
+        "default": ("Arial", 10),
+        "bold": ("Arial", 10, "bold"),
+        "label": ("Arial", 8, "bold"),
     },
-    "line_type": {
-        "solid": "",
-        "dashed": (4, 2),
-        "dotted": (2, 2),
+    "ui_padding": {
+        "small": 2,
+        "default": 5,
+        "large": 10,
     }
 }
 

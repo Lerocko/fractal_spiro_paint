@@ -12,7 +12,7 @@ import logging
 import tkinter as tk
 from typing import Callable, Dict, List, Optional
 
-from src.core.theme_manager import get_color
+from src.core.theme_manager import get_color, get_style
 from src.core.config import BUTTONS_DICTIONARY
 
 # =============================================================
@@ -40,8 +40,8 @@ class Toolbar(tk.Frame):
                                It receives the category and tool name as arguments.
         """
         # Set default colors from the theme manager at initialization
-        default_bg = get_color("toolbar_frame")
-        default_fg = get_color("buttons_fg")
+        default_bg = get_color("panel")
+        default_fg = get_color("text_primary")
         
         super().__init__(parent, bg=default_bg)
         self.bg = default_bg
@@ -58,7 +58,7 @@ class Toolbar(tk.Frame):
     def generate_tools(self) -> None:
         """Creates subframes and buttons for all tool categories defined in the config."""
         for category, tools in BUTTONS_DICTIONARY.items():
-            subframe = tk.Frame(self, bg=get_color("subframe"))
+            subframe = tk.Frame(self, bg=get_color("surface"))
             subframe.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
             self.subframes_dic[category] = subframe
             self.buttons_dic[category] = []
@@ -68,10 +68,10 @@ class Toolbar(tk.Frame):
                 btn = tk.Button(
                     subframe,
                     text=tool_name,
-                    bg=get_color("buttons_bg"),
+                    bg=get_color("surface"),
                     fg=self.fg,
-                    activebackground=get_color("buttons_active_bg"),
-                    activeforeground=get_color("buttons_active_fg"),
+                    activebackground=get_color("accent"),
+                    activeforeground=get_color("text_primary"),
                     relief=tk.FLAT,
                     bd=1,
                     command=lambda n=tool_name, c=category: self._on_button_click(c, n)
@@ -81,7 +81,7 @@ class Toolbar(tk.Frame):
 
             # Add category label at the bottom of the subframe
             label_row = (len(tools) + 2) // 3
-            label = tk.Label(subframe, text=f"{category}", bg=get_color("subframe"), fg=self.fg, font=("Arial", 8, "bold"))
+            label = tk.Label(subframe, text=f"{category}", bg=get_color("surface"), fg=self.fg, font=get_style("ui_fonts", "label"))
             label.grid(row=label_row, column=0, columnspan=3, sticky="ew", pady=(5, 0))
             self.buttons_dic[category].append(label)
             
@@ -112,12 +112,12 @@ class Toolbar(tk.Frame):
         Args:
             mode: The current theme mode ("dark" or "light").
         """
-        self.configure(bg=get_color("toolbar_frame"))
+        self.configure(bg=get_color("panel"))
         for subframe in self.subframes_dic.values():
-            subframe.configure(bg=get_color("subframe"))
+            subframe.configure(bg=get_color("surface"))
             for widget in subframe.winfo_children():
                 if isinstance(widget, tk.Button):
-                    widget.configure(bg=get_color("buttons_bg"), fg=get_color("buttons_fg"))
+                    widget.configure(bg=get_color("surface"), fg=get_color("text_primary"))
                 elif isinstance(widget, tk.Label):
-                    widget.configure(bg=get_color("subframe"), fg=get_color("labels_fg"))
+                    widget.configure(bg=get_color("surface"), fg=get_color("text_primary"))
         logging.info(f"Toolbar: Theme updated to {mode}.")
