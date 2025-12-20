@@ -55,14 +55,14 @@ def main() -> None:
         app: App = App(tools_manager)
         logging.info("App controller initialized.")
 
-        # --- 3.5. Set the default active tool ---
-        app.handle_tool_selection("Selection", "Selection")
-        logging.info("Default tool 'Selection' activated.")
-
         # --- 4. Initialize and Link UI ---
         paint_window: PaintWindow = PaintWindow(app)
         app.set_ui(paint_window)
         logging.info("UI initialized and linked to App.")
+
+        # --- 4.5. Set the default active tool ---
+        app.handle_tool_selection("Selection", "Selection")
+        logging.info("Default tool 'Selection' activated.")
 
         # --- 5. Start the application ---
         logging.info("Starting application...")
