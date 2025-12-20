@@ -1,74 +1,130 @@
-"""
-menubar.py
-Creation of File buttons modules and catching their events.
-"""
-import tkinter as tk
-from typing import Optional, Callable
-from ..core.theme_manager import get_color
-from ..core.config import FILE_BUTTONS
+# =============================================================
+# File: menubar.py
+# Project: Fractal Spiro Paint
+# Refactored: 2025-12-19
+# Description:
+#     Creation of file menu buttons and handling of their events.
+# =============================================================
 
+import logging
+import tkinter as tk
+from typing import TYPE_CHECKING, Callable, List, Optional
+
+from src.core.theme_manager import get_color, get_style
+from src.core.config import FILE_BUTTONS
+
+if TYPE_CHECKING:
+    from src.ui.paint_window import PaintWindow
+
+# =============================================================
+# Menubar Class
+# =============================================================
 class Menubar(tk.Frame):
     """
-    Generator of file menu buttons.
+    Generates and manages the application's file menu bar.
 
-    Handles user interaction with file-related actions, such as
-    New, Open, Save, Export, Exit, and toggling Dark/Light theme.
+    This component handles user interaction with file-related actions.
+    It is fully theme-aware and dynamically updates its appearance.
     """
-    def __init__(self,
-        parent:tk.Widget,
-        on_click_callback: Optional[Callable[[str, str], None]] = None
-    ):
+
+    def __init__(
+        self,
+        parent: tk.Widget,
+        on_click_callback: Optional[Callable[[str], None]] = None
+    ) -> None:
         """
-        Initialize the file menu bar.
+        Initializes the Menubar.
 
         Args:
-            parent (tk.Widget): The parent frame or window.
-            on_click_callback (Callable[[str], None], optional): Function to call on button click.
+            parent: The parent widget (usually the main window).
+            on_click_callback: Callback for menu button actions.
         """
-        # Set default colors from the theme manager at initialization
-        default_bg = get_color("files_frame")
-        default_fg = get_color("buttons_fg")
-
-        super().__init__(parent, bg=default_bg)
-        self.bg = default_bg
-        self.fg = default_fg
+        super().__init__(parent, bg=get_color("panel"), relief=tk.SUNKEN, bd=1)
         self.on_click_callback = on_click_callback
-                
-        self.file_buttons_widgets: list[tk.Button] = []
-        self.generate_file_buttons()
+        self._file_buttons: List[tk.Button] = []
+
+        self._generate_file_buttons()
+        logging.info("Menubar: Initialized.")
 
     # =============================================================
-    # Button Generation
+    # Private Generation Methods
     # =============================================================
-    def generate_file_buttons(self) -> None:
-        """Generate file menu buttons dynamically."""
+    def _generate_file_buttons(self) -> None:
+        """Generates file menu buttons dynamically based on configuration."""
         for name in FILE_BUTTONS:
             side = tk.RIGHT if name in ("Light", "Dark") else tk.LEFT
             button = tk.Button(
                 self,
                 text=name,
-                bg=self.bg,
-                fg=self.fg,
-                width=8,
-                height=1,
-                command=lambda n=name: self.on_file_button_click(n)   
+                bg=get_color("surface"),
+                fg=get_color("text_primary"),
+                activebackground=get_color("accent"),
+                activeforeground=get_color("text_primary"),
+                relief=tk.FLAT,
+                bd=1,
+                font=get_style("ui_fonts", "default"),
+                command=lambda n=name: self._on_button_click(n)
             )
-            button.pack(side=side, padx=3, pady=5)
-            self.file_buttons_widgets.append(button)
+            button.pack(
+                side=side,
+                padx=get_style("ui_padding", "default"),
+                pady=get_style("ui_padding", "default")
+            )
+            self._file_buttons.append(button)
+        logging.info("Menubar: Generated all file buttons.")
+
+    # =============================================================
+    # Event Handling
+    # =============================================================
+    def _on_button_click(self, action_name: str) -> None:
+        """
+        Internal handler for button click events.
+
+        Args:
+            action_name: The action associated with the clicked button.
+        """
+        logging.info(f"Menubar: Action '{action_name}' triggered.")
+        if self.on_click_callback:
+            self.on_click_callback(action_name)
 
     # =============================================================
     # Theme Handling
     # =============================================================
-    def update_theme(self, mode) -> None:
-        """Update background and foreground colors for all buttons."""
-        self.configure(bg=get_color("files_frame"))
-        for button in self.file_buttons_widgets:
-            button.configure(bg=get_color("buttons_bg"),fg=get_color("buttons_fg"))
-   
+    def update_theme(self, mode: str) -> None:
+        """
+        Updates the theme of the menubar and all its buttons.
+
+        Args:
+            mode: The current theme mode ("dark" or "light").
+        """
+        self.configure(bg=get_color("panel"))
+        for button in self._file_buttons:
+            self._configure_button(button)
+        logging.info(f"Menubar: Theme updated to '{mode}'.")
+
+    def update_theme_toggle_button(self, mode: str) -> None:
+        """
+        Updates the text of the theme toggle button.
+
+        Args:
+            mode: The current theme mode ("dark" or "light").
+        """
+        # Find the toggle button by checking its text
+        for button in self._file_buttons:
+            if button['text'] in ('Light', 'Dark'):
+                new_text = "Light" if mode == "dark" else "Dark"
+                button.configure(text=new_text)
+                logging.info(f"Menubar: Theme toggle button updated to '{new_text}'.")
+                break
+
     # =============================================================
-    # Event Placeholders
+    # Private Configuration Methods
     # =============================================================
-    def on_file_button_click(self, name) -> None:
-        """Placeholder for file button click event."""
-        if self.on_click_callback:
-            self.on_click_callback(name)
+    def _configure_button(self, button: tk.Button) -> None:
+        """Applies the current theme to a menu button."""
+        button.configure(
+            bg=get_color("surface"),
+            fg=get_color("text_primary"),
+            activebackground=get_color("accent"),
+            activeforeground=get_color("text_primary")
+        )

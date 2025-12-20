@@ -1,22 +1,22 @@
 # =============================================================
 # File: polygon_tool.py
 # Project: Fractal Spiro Paint
-# Author: Leopoldo MZ (Lerocko)
-# Created: 2025-11-12
-# Refactored: 2025-11-29
+# Refactored: 2025-12-19
 # Description:
-#     Tool for drawing regular polygons using two-click interaction.
-#     First click sets the center, second click sets the radius,
-#     then a popup asks for the number of sides.
+#     Tool for drawing regular polygons.
+#     First click sets center, second click sets radius and rotation,
+#     then a dialog asks for the number of sides.
 # =============================================================
 
-import tkinter as tk
+import logging
 import math
-from typing import Optional, Tuple, List
+import tkinter as tk
+from tkinter import simpledialog
+from typing import List, Optional, Tuple
 
-from src.tools.base_tool import BaseTool
-from src.core.theme_manager import get_color
 from src.core.shape_manager import ShapeManager
+from src.core.theme_manager import get_color, get_style
+from src.tools.base_tool import BaseTool
 
 # =============================================================
 # PolygonTool Class
@@ -26,197 +26,172 @@ class PolygonTool(BaseTool):
     Tool for drawing regular polygons.
 
     Workflow:
-    - First click  → set center
-    - Drag         → preview radius (circle and radial line)
-    - Second click → fix radius and open popup for number of sides
-    - Enter        → finalize polygon and register in ShapeManager
+    - First click  → set center.
+    - Drag         → preview radius and rotation.
+    - Second click → fix radius and open dialog for number of sides.
+    - Enter in dialog → finalize polygon.
     """
 
-    # ---------------------------------------------------------
-    # Constructor
-    # ---------------------------------------------------------
     def __init__(self, canvas: tk.Canvas, shape_manager: ShapeManager, category: str) -> None:
-        super().__init__(canvas)
+        """
+        Initializes the PolygonTool.
 
-        self.shape_manager = shape_manager
-        self.category = category
+        Args:
+            canvas: The Tkinter Canvas to draw on.
+            shape_manager: Instance to register finished shapes.
+            category: The category of the tool.
+        """
+        super().__init__(canvas)
+        self.shape_manager: ShapeManager = shape_manager
+        self.category: str = category
         self.center_point: Optional[Tuple[int, int]] = None
         self.radius: int = 0
+        self.rotation_angle: float = 0.0
 
-        # Popup UI
-        self.popup: Optional[tk.Toplevel] = None
-        self.entry: Optional[tk.Entry] = None
-
-        # Preview shapes
-        self.preview_circle_id: Optional[int] = None
-        self.preview_radius_id: Optional[int] = None
-
-    # ---------------------------------------------------------
+    # =============================================================
     # Mouse Events
-    # ---------------------------------------------------------
+    # =============================================================
     def on_first_click(self, event: tk.Event, category: str) -> bool:
         """Anchors the polygon center point."""
         self.center_point = (event.x, event.y)
-        print(f"Polygon: Center at {self.center_point}") # Debug
+        logging.debug(f"PolygonTool: Center at {self.center_point}")
         return True
 
     def on_drag(self, event: tk.Event) -> None:
-        """Displays a preview of the radius and bounding circle."""
+        """Displays a preview of the radius and rotation as the mouse moves."""
         if not self.center_point:
             return
 
         self._clear_preview()
-        preview_color = get_color("drawing_secondary")
-        
-        # Radius calculation
+
+        # Calculate radius and angle for preview
         dx = event.x - self.center_point[0]
         dy = event.y - self.center_point[1]
-        self.radius = int((dx**2 + dy**2)**0.5)
+        self.radius = int(math.sqrt(dx**2 + dy**2))
+        self.rotation_angle = math.atan2(dy, dx) # Store rotation angle
 
-        # Circle bounds
-        x1 = self.center_point[0] - self.radius
-        y1 = self.center_point[1] - self.radius
-        x2 = self.center_point[0] + self.radius
-        y2 = self.center_point[1] + self.radius
-
-        # Preview radius line
-        self.preview_radius_id = self.canvas.create_line(
-            self.center_point[0], self.center_point[1],
-            event.x, event.y,
-            fill=preview_color,
-            width=2,
-            dash=(4, 4)
-        )
-
-        # Preview circle
-        self.preview_circle_id = self.canvas.create_oval(
-            x1, y1, x2, y2,
-            outline=preview_color,
-            width=2,
-            dash=(4,4)
-        )
+        self._draw_preview()
 
     def on_second_click(self, event: tk.Event, category: str) -> bool:
-        """Locks the radius and opens the popup for number of sides."""
+        """Locks the radius and opens a dialog for the number of sides."""
         if not self.center_point:
             return False
         
-        dx = event.x - self.center_point[0]
-        dy = event.y - self.center_point[1]
-        self.radius = int((dx**2 + dy**2)**0.5)
+        # Ensure radius is not zero
+        if self.radius == 0:
+            logging.warning("PolygonTool: Cannot create polygon with zero radius.")
+            return True
 
-        self._ask_for_sides()
+        num_sides = self._ask_for_sides()
+        if num_sides and num_sides >= 3:
+            self._finish_polygon(num_sides)
+            return False # Signal completion
+        return True # Continue drawing if dialog was cancelled
+
+    # =============================================================
+    # Keyboard Events
+    # =============================================================
+    def on_keyboard(self, event: tk.Event) -> bool:
+        """Handles keyboard events to cancel the drawing operation."""
+        if event.keysym == "Escape":
+            logging.info("PolygonTool: Drawing cancelled by user.")
+            self._cancel_drawing()
+            return False
         return True
-    
-    # ---------------------------------------------------------
-    # Popup Window Logic
-    # ---------------------------------------------------------
-    def _ask_for_sides(self)  -> None:
-        """Opens a popup window requesting the number of sides."""
-        self.popup = tk.Toplevel(self.canvas.master)
-        self.popup.title("Polygon Sides")
-        self.popup.geometry("200x80")
-        self.popup.resizable(False, False)
 
-        self.popup.transient(self.canvas.master)
-        self.popup.grab_set()
-
-        tk.Label(self.popup, text="Number of sides:").pack(pady=5)
-
-        self.entry = tk.Entry(self.popup)
-        self.entry.pack(pady=5)
-        self.entry.focus_set()
-
-        self.entry.bind("<Return>", lambda event: self._confirm_sides())
-
-    def _confirm_sides(self)  -> bool:
-        """Reads the number of sides, draws the polygon, and registers it."""
-        print("DEBUG: Confirm sides called.") # Debug
-
+    # =============================================================
+    # Private Helper Methods
+    # =============================================================
+    def _ask_for_sides(self) -> Optional[int]:
+        """Opens a professional dialog to request the number of sides."""
         try:
-            num_sides = int(self.entry.get())
-            if num_sides < 3:
-                print("A polygon must have at least 3 sides.") # Debug
-                return True
-                
-            points = self._calculate_polygon_points(self.center_point, self.radius, num_sides)
-            line_ids = []
-            final_color = get_color("drawing_default")
-
-            # Draw polygon edges
-            for i in range(len(points)):
-                start_point = points[i]
-                end_point = points[(i + 1) % len(points)]
-                
-                line_id = self.canvas.create_line(
-                    start_point[0], start_point[1],
-                    end_point[0], end_point[1],
-                    fill=final_color, 
-                    width=2, 
-                    tags=("permanent", "default_color")
-                )
-
-                line_ids.append(line_id)
-
-            # Register shape
-            self.shape_manager.add_shape(
-                shape_type="polygon",
-                shape_category=self.category,
-                points=points.copy(),
-                item_ids=line_ids.copy(),
-                color=final_color,
-                width=2,
-                original_color=final_color,
+            num_sides = simpledialog.askinteger(
+                "Polygon Sides",
+                "Enter the number of sides (3-20):",
+                parent=self.canvas,
+                minvalue=3, maxvalue=20
             )
+            return num_sides
+        except Exception as e:
+            logging.error(f"PolygonTool: Error in dialog: {e}")
+            return None
 
-            print(f"DEBUG: Polygon drawn. Ending tool.") # Debug
-            self._finish_polygon()
-            return False # Signal CanvasController to exit drawing mode
-
-        except ValueError:
-            print("Invalid input. Please enter a number.")
-        
-        finally:
-            if self.popup:
-                self.popup.destroy()
-
-    # ---------------------------------------------------------
-    # Helper Methods
-    # ---------------------------------------------------------
-    def _calculate_polygon_points(
-        self, 
-        center: Tuple[int, int],
-        radius: int,
-        num_sides: int
-    ) -> List[Tuple[int, int]]:
-        """Computes the vertices of a regular polygon."""
+    def _calculate_polygon_points(self, num_sides: int) -> List[Tuple[int, int]]:
+        """Computes the vertices of a regular polygon with rotation."""
         points = []
         angle_step = 2 * math.pi / num_sides
 
         for i in range(num_sides):
-            angle = i * angle_step - math.pi / 2
-            x = center[0] + radius * math.cos(angle)
-            y = center[1] + radius * math.sin(angle)
+            angle = i * angle_step + self.rotation_angle
+            x = self.center_point[0] + self.radius * math.cos(angle)
+            y = self.center_point[1] + self.radius * math.sin(angle)
             points.append((int(x), int(y)))
 
         return points
-    
-    def _finish_polygon(self) -> None:
-        """Clears preview and resets internal state."""
+
+    def _draw_preview(self) -> None:
+        """Draws the preview circle and radius line."""
+        preview_color = get_color("drawing_preview")
+        
+        # Preview circle
+        x1 = self.center_point[0] - self.radius
+        y1 = self.center_point[1] - self.radius
+        x2 = self.center_point[0] + self.radius
+        y2 = self.center_point[1] + self.radius
+        self.preview_circle_id = self.canvas.create_oval(
+            x1, y1, x2, y2,
+            outline=preview_color,
+            width=get_style("line_width", "default"),
+            dash=get_style("line_type", "dashed")
+        )
+
+        # Preview radius line
+        self.preview_radius_id = self.canvas.create_line(
+            self.center_point[0], self.center_point[1],
+            self.center_point[0] + self.radius, self.center_point[1],
+            fill=preview_color,
+            width=get_style("line_width", "default"),
+            dash=get_style("line_type", "dashed")
+        )
+
+    def _finish_polygon(self, num_sides: int) -> None:
+        """Draws the final polygon, registers it, and resets the tool."""
+        points = self._calculate_polygon_points(num_sides)
+        line_ids = []
+
+        # Draw polygon edges
+        for i in range(num_sides):
+            start_point = points[i]
+            end_point = points[(i + 1) % num_sides]
+            line_id = self.canvas.create_line(
+                start_point[0], start_point[1],
+                end_point[0], end_point[1],
+                fill=get_color("drawing_primary"),
+                width=get_style("line_width", "default"),
+                tags=("permanent", "default_color")
+            )
+            line_ids.append(line_id)
+
+        # Register shape
+        self.shape_manager.add_shape(
+            shape_type="polygon",
+            shape_category=self.category,
+            points=points,
+            item_ids=line_ids,
+            color=get_color("drawing_primary"),
+            width=get_style("line_width", "default"),
+            original_color=get_color("drawing_primary"),
+        )
+        logging.info(f"PolygonTool: Polygon with {num_sides} sides finalized.")
+        self._cancel_drawing()
+
+    def _cancel_drawing(self) -> None:
+        """Cancels the current drawing operation and resets the tool state."""
         self._clear_preview()
         self.center_point = None
         self.radius = 0
+        self.rotation_angle = 0.0
 
-    # ---------------------------------------------------------
-    # Keyboard
-    # ---------------------------------------------------------
-    def on_keyboard(self, event: tk.Event) -> bool:
-        """Keyboard input is ignored; popup handles Enter."""
-        return True
-
-    # ---------------------------------------------------------
-    # Preview clearing
-    # ---------------------------------------------------------
     def clear_preview(self) -> None:
-        """Public hook for clearing preview."""
+        """Public method to clear the preview."""
         self._clear_preview()

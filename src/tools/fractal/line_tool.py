@@ -1,19 +1,19 @@
 # =============================================================
 # File: line_tool.py
 # Project: Fractal Spiro Paint
-# Author: Leopoldo MZ (Lerocko)
-# Created: 2025-11-12
-# Refactored: 2025-11-25
+# Refactored: 2025-12-19
 # Description:
 #     Concrete implementation of BaseTool for drawing straight
 #     lines using a two-click interaction with live preview.
 # =============================================================
 
+import logging
 import tkinter as tk
 from typing import Optional, Tuple
+
+from src.core.shape_manager import ShapeManager
+from src.core.theme_manager import get_color, get_style
 from src.tools.base_tool import BaseTool
-from src.core.theme_manager import get_color
-from src.core.shape_manager import  ShapeManager
 
 # =============================================================
 # LineTool Class
@@ -27,115 +27,125 @@ class LineTool(BaseTool):
     finalize the line.
     """
 
-    # ---------------------------------------------------------
-    # Constructor
-    # ---------------------------------------------------------
     def __init__(self, canvas: tk.Canvas, shape_manager: ShapeManager, category: str) -> None:
         """
         Initializes the LineTool.
 
         Args:
             canvas: The Tkinter canvas widget where the line will be drawn.
+            shape_manager: The ShapeManager to register the final shape.
+            category: The category of the tool.
         """
         super().__init__(canvas)
         self.start_point: Optional[Tuple[int, int]] = None
-        self.shape_manager = shape_manager
-        self.category = category
+        self.shape_manager: ShapeManager = shape_manager
+        self.category: str = category
 
-    # ---------------------------------------------------------
+    # =============================================================
     # Mouse Interaction
-    # ---------------------------------------------------------
+    # =============================================================
     def on_first_click(self, event: tk.Event, category: str) -> bool:
         """
         Anchors the starting point for the line.
-        
+
+        Args:
+            event: The Tkinter event object containing click coordinates.
+            category: The category of the tool.
+
         Returns:
-            bool: True if drawing should begin.
+            True if drawing should begin.
         """
         self.start_point = (event.x, event.y)
-        print(f"LineTool: First click at {self.start_point}") # Debug
+        logging.info(f"LineTool: First click at {self.start_point}")
         return True
 
     def on_drag(self, event: tk.Event) -> None:
         """
         Updates the line preview as the mouse moves.
+
+        Args:
+            event: The Tkinter event object containing current mouse coordinates.
         """
         if not self.start_point:
             return
 
-        # Clear the previous preview
         self._clear_preview()
 
-        preview_color = get_color("drawing_secondary")
-
-        # Draw the new preview with a dashed line
         self.preview_shape_id = self.canvas.create_line(
             self.start_point[0], self.start_point[1],
             event.x, event.y,
-            fill=preview_color,
-            width=2,
-            dash=(4, 4)  # Dashed line for preview
+            fill=get_color("drawing_preview"),
+            width=get_style("line_width", "default"),
+            dash=get_style("line_type", "dashed")
         )
 
     def on_second_click(self, event: tk.Event, category: str) -> bool:
         """
         Draws the final, permanent line on the canvas.
-        
+
+        Args:
+            event: The Tkinter event object containing final click coordinates.
+            category: The category of the tool.
+
         Returns:
-            bool: False to signal drawing completion.
+            False to signal drawing completion.
         """
         if not self.start_point:
             return False
 
-        # Clear the preview before drawing the final line
         self._clear_preview()
 
-        final_color = get_color("drawing_default")
-        current_width = 2
-
-        # Draw the final line
+        points_list = [(self.start_point[0], self.start_point[1]), (event.x, event.y)]
         line_id = self.canvas.create_line(
             self.start_point[0], self.start_point[1],
             event.x, event.y,
-            fill=final_color,
-            width=current_width,
+            fill=get_color("drawing_primary"),
+            width=get_style("line_width", "default"),
             tags=("permanent", "default_color")
         )
 
-        # Register the point list
-        points_list = [(self.start_point[0], self.start_point[1]),(event.x, event.y)]
-        
-        print(f"LineTool: Second click at ({event.x}, {event.y}). Line finalized.") # Debug
+        logging.info(f"LineTool: Line finalized from {self.start_point} to ({event.x}, {event.y}).")
 
-        # Register the line in shape manager
         self.shape_manager.add_shape(
             shape_type="line",
             shape_category=self.category,
             points=points_list,
             item_ids=[line_id],
-            color=final_color,
-            width=current_width,
-            original_color=final_color,
+            color=get_color("drawing_primary"),
+            width=get_style("line_width", "default"),
+            original_color=get_color("drawing_primary"),
         )
 
-        # Reset the start point for the next line
         self.start_point = None
         return False
 
-    # ---------------------------------------------------------
+    # =============================================================
     # Keyboard Interaction
-    # ---------------------------------------------------------
-    def on_keyboard(self, event) -> bool:
+    # =============================================================
+    def on_keyboard(self, event: tk.Event) -> bool:
         """
-        Handles keyboard events while drawing.
+        Handles keyboard events to cancel the drawing operation.
+
+        Args:
+            event: The Tkinter event object for the key press.
+
+        Returns:
+            False if the tool was deactivated, True otherwise.
         """
-        if event.keysym == "Return":
-            self._clear_preview()
-            self.start_point = None
-            print("LineTool desactived.") # Debug
+        if event.keysym == "Escape":
+            logging.info("LineTool: Drawing cancelled by user.")
+            self._cancel_drawing()
             return False
         return True
-    
+
+    # =============================================================
+    # Private Helper Methods
+    # =============================================================
+    def _cancel_drawing(self) -> None:
+        """Cancels the current drawing operation and resets the tool state."""
+        self._clear_preview()
+        self.start_point = None
+
     def clear_preview(self) -> None:
-        """External method to clear the preview."""
+        """Public method to clear the preview."""
         self._clear_preview()
