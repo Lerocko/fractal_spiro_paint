@@ -137,10 +137,10 @@ class CanvasController:
         if (event.keysym == "Return" and
             isinstance(self.active_tool_instance, SelectionTool) and
             not self.is_drawing_on_main):
-            selected_shapes_data = self.active_tool_instance.get_selected_shapes_data()
-            if all(shape.get("category") == "Fractal" for shape in selected_shapes_data):
+            self.selected_shapes_data = self.active_tool_instance.get_selected_shapes_data()
+            if all(shape.get("category") == "Fractal" for shape in self.selected_shapes_data):
                 if self.app:
-                    self.app.start_fractal_workflow(selected_shapes_data)
+                    self.app.start_fractal_workflow(self.selected_shapes_data)
 
     def handle_escape_main_canvas(self, event: tk.Event) -> None:
         """Handles the Escape key to cancel operations and reset the tool."""

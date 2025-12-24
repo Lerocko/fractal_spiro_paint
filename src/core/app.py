@@ -18,6 +18,7 @@ from src.core.tools_manager import ToolsManager
 from src.core.theme_service import ThemeService
 from src.core.canvas_controller import CanvasController
 from src.core.shape_manager import ShapeManager
+from src.tools.fractal import FractalGenerator
 
 if TYPE_CHECKING:
     from src.ui.paint_window import PaintWindow
