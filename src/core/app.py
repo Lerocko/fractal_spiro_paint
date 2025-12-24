@@ -103,28 +103,6 @@ class App:
         if self.canvas_controller:
             self.canvas_controller.on_tool_changed()
 
-    def on_shape_selected(self, selected_ids: List[int]) -> None:
-        """
-        Handles the event when shapes are selected on the canvas.
-
-        Args:
-            selected_ids: A list of canvas item IDs that were selected.
-        """
-        logging.info(f"App: Received notification for selected shape IDs: {selected_ids}")
-        self.selected_shapes = []
-        for item_id in selected_ids:
-            shape_info = self.shape_manager.get_shape_by_item_id(item_id)
-            if shape_info and shape_info.get("category") != "Fractal":
-                logging.warning("App: A selected shape does not belong to the 'Fractal' category. Aborting.")
-                self.selected_shapes = []  # Clear selection
-                return
-            if shape_info:
-                self.selected_shapes.append(shape_info)
-
-        if self.selected_shapes:
-            self.main_window.show_secondary_canvas()
-            self.canvas_controller.disable_main_canvas()
-
     def on_fractal_pattern_ready(self, pattern: Any) -> None:
         """
         Receives a generated fractal pattern and triggers its application.

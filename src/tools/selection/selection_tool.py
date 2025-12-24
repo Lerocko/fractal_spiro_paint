@@ -10,7 +10,7 @@
 
 import logging
 import tkinter as tk
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Any
 
 from src.core.shape_manager import ShapeManager
 from src.core.theme_manager import get_color, get_style
@@ -42,6 +42,7 @@ class SelectionTool(BaseTool):
         self._selection_rect_id: Optional[int] = None
         self._selected_item_ids: List[int] = []
         self._original_item_colors: dict[int, str] = {}
+        self._selected_shapes_data: List[Dict[str, Any]] = []
 
     # =============================================================
     # Mouse Interaction
@@ -133,15 +134,15 @@ class SelectionTool(BaseTool):
 
     # =============================================================
     # Public API
-    # =============================================================
-    def get_selected_item_ids(self) -> List[int]:
+    # =============================================================    
+    def get_selected_shapes_data(self) -> List[Dict[str, Any]]:
         """
-        Returns the list of currently selected canvas item IDs.
+        Returns the metadata of the currently selected shapes.
 
         Returns:
-            A list of integer item IDs.
+            A list of dictionaries containing shape metadata.
         """
-        return self._selected_item_ids
+        return self._selected_shapes_data
 
     def reset(self) -> None:
         """Public method to reset the selection state."""
@@ -165,10 +166,10 @@ class SelectionTool(BaseTool):
         for item_id in item_ids:
             # Only select items that are registered in ShapeManager
             shape = self.shape_manager.get_shape_by_item_id(item_id)
-            if shape and shape.get("category") == "Fractal":
-                self._selected_item_ids.append(item_id)
+            if shape:
                 self._original_item_colors[item_id] = shape.get("original_color")
                 self.canvas.itemconfig(item_id, fill=get_color("selection"), width=get_style("line_width", "thick"))
+                self._selected_shapes_data.append(shape)
 
     def _reset_selection(self) -> None:
         """Deselects all items and clears the stored state."""
