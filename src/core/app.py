@@ -103,6 +103,18 @@ class App:
         if self.canvas_controller:
             self.canvas_controller.on_tool_changed()
 
+    # =============================================================
+    # Shape Selection and Fractal Generation
+    # =============================================================
+    def start_fractal_workflow(self, selected_shapes_data: List[Dict[str, Any]]) -> None:
+        """
+        Initiates the fractal generation workflow by showing the secondary canvas.
+        """
+        self.selected_shapes = selected_shapes_data
+        self.main_window.show_secondary_canvas()
+        self.canvas_controller.disable_main_canvas()
+        logging.info(f"App: Fractal workflow started with {len(selected_shapes_data)} selected shapes.")    
+
     def on_fractal_pattern_ready(self, pattern: Any) -> None:
         """
         Receives a generated fractal pattern and triggers its application.

@@ -166,7 +166,8 @@ class SelectionTool(BaseTool):
         for item_id in item_ids:
             # Only select items that are registered in ShapeManager
             shape = self.shape_manager.get_shape_by_item_id(item_id)
-            if shape:
+            if shape and shape not in self._selected_shapes_data:
+                self._selected_item_ids.append(item_id)
                 self._original_item_colors[item_id] = shape.get("original_color")
                 self.canvas.itemconfig(item_id, fill=get_color("selection"), width=get_style("line_width", "thick"))
                 self._selected_shapes_data.append(shape)
@@ -179,6 +180,7 @@ class SelectionTool(BaseTool):
         
         self._selected_item_ids.clear()
         self._original_item_colors.clear()
+        self._selected_shapes_data.clear()
         self._clear_preview()
 
     def _clear_preview(self) -> None:
