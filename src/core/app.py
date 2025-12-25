@@ -18,7 +18,7 @@ from src.core.tools_manager import ToolsManager
 from src.core.theme_service import ThemeService
 from src.core.canvas_controller import CanvasController
 from src.core.shape_manager import ShapeManager
-from src.tools.fractal import FractalGenerator
+from src.tools.fractal.fractal_drawer import FractalGenerator
 
 if TYPE_CHECKING:
     from src.ui.paint_window import PaintWindow
@@ -126,18 +126,20 @@ class App:
         self.fractal_pattern = pattern
         self.generate_fractals()
 
-    def generate_fractals(self) -> None:
+    def generate_fractals(self, depth: int = 1) -> None:
         """
-        Applies the generated fractal pattern to the selected shapes.
+        Generates fractals from the selected shapes using the current pattern,
+        and delegates the drawing and shape management to CanvasController.
+        
+        Args:
+            depth: Recursion depth for the fractal generation.
         """
         if not self.selected_shapes or not self.fractal_pattern:
             logging.warning("App: No shapes or pattern available for fractal generation.")
             return
-
-        # --- FUTURE IMPLEMENTATION ---
-        # This is where your fractal_drawing module will be called.
-        # For now, we just log the intent and prepare the data.
         
+        logging.info(f"App: {len(self.selected_shapes)} shapes selected, pattern ready.")
+
         # Extract points from selected shapes and the pattern.
         selected_shapes_points = [shape.get("points") for shape in self.selected_shapes]
         pattern_points = self.fractal_pattern.get("points")
@@ -148,25 +150,18 @@ class App:
             f"Selected shapes points: {selected_shapes_points}"
         )
 
-        # TODO: Call the fractal_drawing module here.
-        # Example:
-        # from src.tools.fractal import fractal_drawing
-        # new_shape_data = fractal_drawing.generate(selected_shapes_points, pattern_points)
-        #
-        # if new_shape_data:
-        #     # Draw new shapes and register them in the shape_manager
-        #     # Optionally: delete the original shapes
-        #     pass
+        # --- Call fractal generator ---
+        fractal_gen = FractalGenerator(selected_shapes_points, pattern_points)
+        generated_shapes = fractal_gen.generate(depth=depth)
 
-        # --- END OF FUTURE IMPLEMENTATION ---
+        # --- Delegate to CanvasController ---
+        # CanvasController handles drawing, registering new shapes, and cleaning up originals
+        self.canvas_controller.add_generated_fractal_shapes(generated_shapes)
 
-        # Reset state and re-enable the main canvas.
-        # This part is crucial to unblock the UI.
+        # --- Reset App state ---
         self.selected_shapes = []
         self.fractal_pattern = None
-        self.main_window.hide_secondary_canvas()
-        self.canvas_controller.enable_main_canvas()
-        logging.info("App: Fractal generation process finished. UI reset.")
+        logging.info("App: Fractal generation finished, state reset.")
 
     # =============================================================
     # Theme Management

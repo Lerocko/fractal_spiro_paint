@@ -3,15 +3,16 @@
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
 # Created: 2025-12-24
+# Refactored: 2025-12-26
 # Description:
-#     Pure fractal geometry generator.
-#     Receives base shapes and a pattern, generates fractal geometry,
-#     and returns new shapes data. No UI, no canvas.
+#     Fractal geometry generator.
+#     Receives base points and a pattern (lists of floats),
+#     generates fractal geometry, and returns new points.
+#     No UI, no canvas, no shape metadata.
 # =============================================================
 
 import math
-import logging
-from typing import List, Dict, Any, Tuple
+from typing import List, Tuple
 
 Point = Tuple[float, float]
 Polyline = List[Point]
@@ -21,48 +22,50 @@ class FractalGenerator:
     Fractal geometry engine.
 
     Public API:
-        - constructor(selected_shapes, pattern)
-        - generate(depth) -> List[Dict]
+        - constructor(base_shapes_points, pattern_points)
+        - generate(depth=1) -> List[List[float]]
     """
 
     def __init__(
         self,
-        selected_shapes: List[Dict[str, Any]],
-        pattern_shape: Dict[str, Any],
+        base_shapes_points: List[List[float]],
+        pattern_points: List[float],
     ) -> None:
-        self.selected_shapes = selected_shapes
-        self.raw_pattern: Polyline = self._points_to_polyline(pattern_shape["points"])
-        self.unit_pattern: Polyline = self._normalize_pattern(self.raw_pattern)
+        """
+        Args:
+            base_shapes_points: List of point lists for each shape.
+            pattern_points: List of points defining the pattern.
+        """
+        self.base_shapes_polylines: List[Polyline] = [
+            self._points_to_polyline(pts) for pts in base_shapes_points
+        ]
+        self.unit_pattern: Polyline = self._normalize_pattern(
+            self._points_to_polyline(pattern_points)
+        )
 
     # =============================================================
     # Public API
     # =============================================================
-    def generate(self, depth: int = 1) -> List[Dict[str, Any]]:
+    def generate(self, depth: int = 1) -> List[List[float]]:
         """
-        Generates fractal geometry for all selected shapes.
+        Generates fractal points for all base shapes.
 
         Args:
             depth: Recursion depth.
 
         Returns:
-            List of new shape dictionaries.
+            List of new point lists for each shape.
         """
-        new_shapes: List[Dict[str, Any]] = []
+        new_shapes_points: List[List[float]] = []
 
-        for shape in self.selected_shapes:
-            base_polyline = self._points_to_polyline(shape["points"])
-            fractal_polyline = self._apply_recursion(base_polyline, depth)
+        for polyline in self.base_shapes_polylines:
+            if len(polyline) < 2:
+                continue  # ignore degenerate shapes
 
-            new_shapes.append({
-                "type": "polyline",
-                "points": self._polyline_to_points(fractal_polyline),
-                "meta": {
-                    "generated_by": "fractal",
-                    "depth": depth,
-                },
-            })
+            fractal_polyline = self._apply_recursion(polyline, depth)
+            new_shapes_points.append(self._polyline_to_points(fractal_polyline))
 
-        return new_shapes
+        return new_shapes_points
 
     # =============================================================
     # Core Fractal Logic
@@ -86,7 +89,6 @@ class FractalGenerator:
 
     def _apply_pattern_to_segment(self, segment: Tuple[Point, Point]) -> Polyline:
         (x1, y1), (x2, y2) = segment
-
         dx = x2 - x1
         dy = y2 - y1
         length = math.hypot(dx, dy)
@@ -95,22 +97,16 @@ class FractalGenerator:
             return [segment[0], segment[1]]
 
         angle = math.atan2(dy, dx)
-
         cos_a = math.cos(angle)
         sin_a = math.sin(angle)
 
         transformed: Polyline = []
 
         for px, py in self.unit_pattern:
-            # scale
             sx = px * length
             sy = py * length
-
-            # rotate
             rx = sx * cos_a - sy * sin_a
             ry = sx * sin_a + sy * cos_a
-
-            # translate
             transformed.append((x1 + rx, y1 + ry))
 
         return transformed
@@ -120,18 +116,13 @@ class FractalGenerator:
     # =============================================================
     def _normalize_pattern(self, pattern: Polyline) -> Polyline:
         if len(pattern) < 2:
-            logging.warning("FractalGenerator: Pattern too small to normalize.")
             return pattern
 
-        start = pattern[0]
-        end = pattern[-1]
-
-        dx = end[0] - start[0]
-        dy = end[1] - start[1]
+        start, end = pattern[0], pattern[-1]
+        dx, dy = end[0] - start[0], end[1] - start[1]
         length = math.hypot(dx, dy)
 
         if length == 0:
-            logging.warning("FractalGenerator: Pattern has zero length.")
             return pattern
 
         angle = math.atan2(dy, dx)
@@ -139,17 +130,10 @@ class FractalGenerator:
         sin_a = math.sin(-angle)
 
         normalized: Polyline = []
-
         for x, y in pattern:
-            # translate to origin
-            tx = x - start[0]
-            ty = y - start[1]
-
-            # rotate to x-axis
+            tx, ty = x - start[0], y - start[1]
             rx = tx * cos_a - ty * sin_a
             ry = tx * sin_a + ty * cos_a
-
-            # scale to unit
             normalized.append((rx / length, ry / length))
 
         return normalized
