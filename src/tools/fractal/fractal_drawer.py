@@ -30,15 +30,18 @@ class FractalGenerator:
         self,
         base_shapes_points: List[List[float]],
         pattern_points: List[float],
+        is_closed_flags: List[bool],
     ) -> None:
         """
         Args:
             base_shapes_points: List of point lists for each shape.
             pattern_points: List of points defining the pattern.
+            is_closed_flags: List of booleans indicating if each shape is closed.
         """
         self.base_shapes_polylines: List[Polyline] = [
             self._points_to_polyline(pts) for pts in base_shapes_points
         ]
+        self.is_closed_flags: List[bool] = is_closed_flags
         self.unit_pattern: Polyline = self._normalize_pattern(
             self._points_to_polyline(pattern_points)
         )
@@ -58,11 +61,11 @@ class FractalGenerator:
         """
         new_shapes_points: List[List[float]] = []
 
-        for polyline in self.base_shapes_polylines:
+        for polyline, is_closed_flag in zip(self.base_shapes_polylines, self.is_closed_flags):
             if len(polyline) < 2:
                 continue  # ignore degenerate shapes
 
-            fractal_polyline = self._apply_recursion(polyline, depth)
+            fractal_polyline = self._apply_recursion(polyline, depth, is_closed_flag)
             new_shapes_points.append(self._polyline_to_points(fractal_polyline))
 
         return new_shapes_points
@@ -70,15 +73,23 @@ class FractalGenerator:
     # =============================================================
     # Core Fractal Logic
     # =============================================================
-    def _apply_recursion(self, polyline: Polyline, depth: int) -> Polyline:
+    def _apply_recursion(self, polyline: Polyline, depth: int, is_closed_flag: bool) -> Polyline:
         if depth <= 0:
             return polyline
 
         new_polyline: Polyline = []
-        is_closed = polyline[0] == polyline[-1]
+        num_points = len(polyline)
 
-        for i in range(len(polyline) - 1):
-            segment = (polyline[i], polyline[i + 1])
+        if is_closed_flag:
+            # For closed shapes: process (p0, p1), (p1, p2), ..., (pn-1, p0)
+            loop_range = range(num_points)
+        else:
+            # For open shapes: process (p0, p1), (p1, p2), ..., (pn-2, pn-1)
+            loop_range = range(num_points - 1)
+
+        for i in loop_range:
+            # The % operator ensures wrapping for closed shapes
+            segment = (polyline[i], polyline[(i + 1) % num_points])
             transformed = self._apply_pattern_to_segment(segment)
 
             if i > 0:
@@ -86,11 +97,7 @@ class FractalGenerator:
 
             new_polyline.extend(transformed)
 
-        # If the original shape was closed, ensure the new one is also closed
-        if is_closed and new_polyline[0] != new_polyline[-1]:
-            new_polyline.append(new_polyline[0])  # close the shape
-
-        return self._apply_recursion(new_polyline, depth - 1)
+        return self._apply_recursion(new_polyline, depth - 1, is_closed_flag)
 
     def _apply_pattern_to_segment(self, segment: Tuple[Point, Point]) -> Polyline:
         (x1, y1), (x2, y2) = segment

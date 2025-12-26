@@ -131,7 +131,7 @@ class App:
         self.fractal_pattern = pattern
         self.generate_fractals()
 
-    def generate_fractals(self, depth: int = 1) -> None:
+    def generate_fractals(self, depth: int = DEPHAULT_FRACTAL_DEPTH) -> None:
         """
         Generates fractals from the selected shapes using the current pattern,
         and delegates the drawing and shape management to CanvasController.
@@ -153,7 +153,10 @@ class App:
             flat_points = [coord for point in shape_point_list for coord in point]
             selected_shapes_points_flat.append(flat_points)
 
-        # --- 2. Extract and transform points from pattern ---
+        # --- 2. Extract the flat points from the fractal pattern for each shape ---
+        is_closed_flags = [shape.get("closed", False) for shape in self.selected_shapes]
+
+        # --- 2.1 Extract and transform points from pattern ---
         # De [(x,y), (x2, y2)] a [x, y, x2, y2]
         pattern_points_tuples = self.fractal_pattern.get("points")
         pattern_points_flat = [coord for point in pattern_points_tuples for coord in point]
@@ -161,12 +164,13 @@ class App:
         logging.info(
             f"App: Ready to generate fractals. "
             f"Pattern points (flat): {pattern_points_flat}, "
-            f"Selected shapes points (flat): {selected_shapes_points_flat}"
+            f"Selected shapes points (flat): {selected_shapes_points_flat},"
+            f"Closed flags: {is_closed_flags}"
         )
 
         # --- Call fractal generator ---
-        fractal_gen = FractalGenerator(selected_shapes_points_flat, pattern_points_flat)
-        generated_shapes = fractal_gen.generate(depth=DEPHAULT_FRACTAL_DEPTH)
+        fractal_gen = FractalGenerator(selected_shapes_points_flat, pattern_points_flat, is_closed_flags)
+        generated_shapes = fractal_gen.generate(depth)
 
         # --- Log the result received from FractalGenerator ---
         logging.info(f"App: Received {len(generated_shapes)} generated shapes from FractalGenerator.")

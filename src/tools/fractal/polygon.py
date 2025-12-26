@@ -180,6 +180,7 @@ class PolygonTool(BaseTool):
             item_ids=line_ids,
             color=get_color("drawing_primary"),
             width=get_style("line_width", "default"),
+            closed=True,
             original_color=get_color("drawing_primary"),
         )
         logging.info(f"PolygonTool: Polygon with {num_sides} sides finalized.")
