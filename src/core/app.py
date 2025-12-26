@@ -168,6 +168,10 @@ class App:
         fractal_gen = FractalGenerator(selected_shapes_points_flat, pattern_points_flat)
         generated_shapes = fractal_gen.generate(depth=DEPHAULT_FRACTAL_DEPTH)
 
+        # --- Log the result received from FractalGenerator ---
+        logging.info(f"App: Received {len(generated_shapes)} generated shapes from FractalGenerator.")
+        logging.debug(f"App: Generated shapes data: {generated_shapes}")
+
         # --- Delegate to CanvasController ---
         # CanvasController handles drawing, registering new shapes, and cleaning up originals
         self.canvas_controller.add_generated_fractal_shapes(generated_shapes)
