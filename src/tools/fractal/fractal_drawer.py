@@ -75,6 +75,7 @@ class FractalGenerator:
             return polyline
 
         new_polyline: Polyline = []
+        is_closed = polyline[0] == polyline[-1]
 
         for i in range(len(polyline) - 1):
             segment = (polyline[i], polyline[i + 1])
@@ -84,6 +85,10 @@ class FractalGenerator:
                 transformed = transformed[1:]  # avoid duplicated points
 
             new_polyline.extend(transformed)
+
+        # If the original shape was closed, ensure the new one is also closed
+        if is_closed and new_polyline[0] != new_polyline[-1]:
+            new_polyline.append(new_polyline[0])  # close the shape
 
         return self._apply_recursion(new_polyline, depth - 1)
 

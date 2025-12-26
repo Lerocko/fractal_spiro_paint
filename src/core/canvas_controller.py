@@ -2,7 +2,7 @@
 # File: canvas_controller.py
 # Project: Fractal Spiro Paint
 # Author: Leopoldo MZ (Lerocko)
-# Refactored: 2025-12-19
+# Refactored: 2025-12-26
 # Description:
 #     Controller for canvas interactions.
 #     Handles drawing logic by delegating to the active tool from the ToolsManager.
@@ -11,12 +11,13 @@
 
 import logging
 import tkinter as tk
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, List, Dict, Any
 
 from src.tools.selection.selection_tool import SelectionTool
 from src.core.tools_manager import ToolsManager
 from src.core.shape_manager import ShapeManager
 from src.tools.fractal.polyline_tool import PolylineTool
+from src.core.theme_manager import get_color, get_style
 
 if TYPE_CHECKING:
     from src.ui.canvas_widget import MainCanvas, SecondaryCanvas
@@ -217,6 +218,81 @@ class CanvasController:
             self.handle_keyboard_main_canvas(event)
         elif focused_widget == self.canvas_secondary:
             self.handle_keyboard_secondary_canvas(event)
+
+    # =============================================================
+    # Shape & Fractal Management
+    # =============================================================
+    def add_generated_fractal_shapes(self, generated_shapes: List[List[float]]) -> None:
+        """
+        Handles the final steps of fractal generation workflow:
+
+        1. Deletes the original shapes from the main canvas and ShapeManager.
+        2. Draws the new fractal shapes on the main canvas.
+        3. Registers the new fractal shapes in the ShapeManager.
+        4. Resets the UI to its default state (main canvas active, secondary hidden).
+
+        Args:
+            generated_shapes: A list of lists, where each inner list contains the flat
+                              coordinates [x1, y1, x2, y2, ..., xn, yn] of a generated fractal shape.
+        """
+        logging.info("CanvasController: Starting process to add generated fractal shapes.")
+        
+        # 1. Retrieve the data of the shapes that were selected for generation.
+        # This data is temporarily stored in the App instance.
+        if not self.app or not self.app.selected_shapes:
+            logging.error("CanvasController: Cannot proceed without selected shapes data from App.")
+            self.enable_main_canvas()
+            return
+        
+        original_shapes_data = self.app.selected_shapes
+
+        # 2. Delete original shapes from canvas and ShapeManager.
+        # We use the unique shape ID to ensure accurate removal.
+        for shape_data in original_shapes_data:
+            item_id = shape_data.get("item_ids", [None])[0]
+            if item_id:
+                shape_to_delete = self.shape_manager.get_shape_by_item_id(item_id)
+                if shape_to_delete:
+                    shape_id = shape_to_delete.get("shape_id")
+                    if shape_id:
+                        for item in shape_to_delete.get("item_ids", []):
+                            logging.info(f"CanvasController: Deleting original shape item ID {item} from canvas.")
+                            self.canvas_main.delete(item)
+                        self.shape_manager.remove_shapes_by_ids([shape_id])
+
+        # 3. Draw and new fractal shapes and register them in ShapeManager.
+        for points_flat in generated_shapes:
+            if len(points_flat) >= 4:  # Need at least two points to draw a line
+                logging.info(f"CanvasController: Drawing new fractal shape with points: {points_flat}")
+                
+                # Convert flat list to tuple for registration
+                points_tuple = [(points_flat[i], points_flat[i + 1]) for i in range(0, len(points_flat), 2)]
+
+                # Check if the shape shpuld be closed (first and last points are the same)
+                is_closed = points_tuple[0] == points_tuple[-1]
+
+                # Draw directly on the main canvas
+                item_ids = [self.canvas_main.create_line(
+                    *points_flat, 
+                    fill=get_color("drawing_primary"),
+                    width=get_style("line_width", "default"),
+                    tags=("default_color",)
+                )]
+
+                # Register the new shape in ShapeManager with descriptive metadata.
+                self.shape_manager.add_shape(
+                    shape_type="fractal_shape",
+                    shape_category="FractalGenerated",
+                    points=points_tuple,
+                    item_ids=item_ids,
+                    color=get_color("drawing_primary"),
+                    width=get_style("line_width", "default"),
+                    closed=is_closed
+                )
+
+        # 4. Reset UI to the deafault state.
+        self.enable_main_canvas()
+        logging.info("CanvasController: Fractal shapes added and UI reset successfully.")
 
     # =============================================================
     # Private Helper Methods

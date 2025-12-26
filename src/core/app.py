@@ -24,6 +24,11 @@ if TYPE_CHECKING:
     from src.ui.paint_window import PaintWindow
     from src.ui.canvas_widget import MainCanvas, SecondaryCanvas
 
+# ===============================================================
+# Constant Definitions
+# ===============================================================
+DEPHAULT_FRACTAL_DEPTH: int = 3
+
 # =============================================================
 # App Class
 # =============================================================
@@ -140,19 +145,28 @@ class App:
         
         logging.info(f"App: {len(self.selected_shapes)} shapes selected, pattern ready.")
 
-        # Extract points from selected shapes and the pattern.
-        selected_shapes_points = [shape.get("points") for shape in self.selected_shapes]
-        pattern_points = self.fractal_pattern.get("points")
+        # --- 1. Extract and transform points from selected shapes ---
+        # De [[(x,y), (x2, y2)], ...] a [[x, y, x2, y2], ...]
+        selected_shapes_points_raw = [shape.get("points") for shape in self.selected_shapes]
+        selected_shapes_points_flat = []
+        for shape_point_list in selected_shapes_points_raw:
+            flat_points = [coord for point in shape_point_list for coord in point]
+            selected_shapes_points_flat.append(flat_points)
+
+        # --- 2. Extract and transform points from pattern ---
+        # De [(x,y), (x2, y2)] a [x, y, x2, y2]
+        pattern_points_tuples = self.fractal_pattern.get("points")
+        pattern_points_flat = [coord for point in pattern_points_tuples for coord in point]
         
         logging.info(
             f"App: Ready to generate fractals. "
-            f"Pattern points: {pattern_points}, "
-            f"Selected shapes points: {selected_shapes_points}"
+            f"Pattern points (flat): {pattern_points_flat}, "
+            f"Selected shapes points (flat): {selected_shapes_points_flat}"
         )
 
         # --- Call fractal generator ---
-        fractal_gen = FractalGenerator(selected_shapes_points, pattern_points)
-        generated_shapes = fractal_gen.generate(depth=depth)
+        fractal_gen = FractalGenerator(selected_shapes_points_flat, pattern_points_flat)
+        generated_shapes = fractal_gen.generate(depth=DEPHAULT_FRACTAL_DEPTH)
 
         # --- Delegate to CanvasController ---
         # CanvasController handles drawing, registering new shapes, and cleaning up originals
