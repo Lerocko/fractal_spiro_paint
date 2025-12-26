@@ -244,21 +244,17 @@ class CanvasController:
             self.enable_main_canvas()
             return
         
-        original_shapes_data = self.app.selected_shapes
+        original_shapes_data = self.selected_shapes_data
 
         # 2. Delete original shapes from canvas and ShapeManager.
         # We use the unique shape ID to ensure accurate removal.
         for shape_data in original_shapes_data:
-            item_id = shape_data.get("item_ids", [None])[0]
-            if item_id:
-                shape_to_delete = self.shape_manager.get_shape_by_item_id(item_id)
-                if shape_to_delete:
-                    shape_id = shape_to_delete.get("shape_id")
-                    if shape_id:
-                        for item in shape_to_delete.get("item_ids", []):
-                            logging.info(f"CanvasController: Deleting original shape item ID {item} from canvas.")
-                            self.canvas_main.delete(item)
-                        self.shape_manager.remove_shapes_by_ids([shape_id])
+            shape_id = shape_data.get("id")
+            if shape_id:
+                item_ids_to_delete = shape_data.get("item_ids", [])
+                for item_id in item_ids_to_delete:
+                    self.canvas_main.delete(item_id)
+                self.shape_manager.remove_shapes_by_ids([shape_id])
 
         # 3. Draw and new fractal shapes and register them in ShapeManager.
         for points_flat in generated_shapes:
