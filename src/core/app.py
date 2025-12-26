@@ -138,21 +138,24 @@ class App:
             logging.warning("App: No shapes or pattern available for fractal generation.")
             return
         
-        logging.info(f"App: {len(self.selected_shapes)} shapes selected, pattern ready.")
-
-        # Extract points from selected shapes and the pattern.
-        selected_shapes_points = [shape.get("points") for shape in self.selected_shapes]
-        pattern_points = self.fractal_pattern.get("points")
+        # Transform points lists from the format of [(x1, y1), (x2, y2), ...] to [x1, y1, x2, y2, ...]
+        selected_shapes_points_raw = [shape.get("points") for shape in self.selected_shapes]
+        selected_shapes_points_flat = []
+        for shape_points in selected_shapes_points_raw:
+            flat_points = [coord for point in shape_points for coord in point]
+            selected_shapes_points_flat.append(flat_points)
         
-        logging.info(
-            f"App: Ready to generate fractals. "
-            f"Pattern points: {pattern_points}, "
-            f"Selected shapes points: {selected_shapes_points}"
-        )
+        # Transform pattern points similarly
+        pattern_points_tuple = self.fractal_pattern.get("points")
+        pattern_points_flat = [coord for point in pattern_points_tuple for coord in point]
 
         # --- Call fractal generator ---
-        fractal_gen = FractalGenerator(selected_shapes_points, pattern_points)
+        fractal_gen = FractalGenerator(selected_shapes_points_flat, pattern_points_flat)
         generated_shapes = fractal_gen.generate(depth=depth)
+
+        # --- Log the result received from FractalGenerator ---
+        logging.info(f"App: Received {len(generated_shapes)} generated shapes from FractalGenerator.")
+        logging.debug(f"App: Generated shapes data: {generated_shapes}")
 
         # --- Delegate to CanvasController ---
         # CanvasController handles drawing, registering new shapes, and cleaning up originals
