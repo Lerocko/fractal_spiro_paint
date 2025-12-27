@@ -10,6 +10,7 @@
 # =============================================================
 
 import logging
+
 # Configure basic logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 import sys
@@ -20,10 +21,11 @@ from src.tools.selection.selection_tool import SelectionTool
 from src.tools.fractal.line_tool import LineTool
 from src.tools.fractal.polyline_tool import PolylineTool
 from src.tools.fractal.polygon import PolygonTool
+from src.tools.spiro.circle_tool import CircleTool
 from src.core.tools_manager import ToolsManager
 from src.core.app import App
 from src.ui.paint_window import PaintWindow
-from src.tools.base_tool import BaseTool # Assuming a base class exists
+from src.tools.base_tool import BaseTool
 
 def main() -> None:
     """
@@ -46,6 +48,7 @@ def main() -> None:
             "Line": LineTool,
             "Polyline": PolylineTool,
             "Polygon": PolygonTool,
+            "Circle": CircleTool,
         }
         for name, tool_class in tools_to_register.items():
             tools_manager.register_tool(name, tool_class)
