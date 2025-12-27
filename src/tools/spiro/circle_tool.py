@@ -76,6 +76,17 @@ class CircleTool(BaseTool):
         dash = get_style("line_type", "default")
         self._draw_circle(event, color, width, dash)
         self._finalize_circle(event.x, event.y)
+        return False
+    
+    # =============================================================
+    # Keyboard Events
+    # =============================================================
+    def on_keyboard(self, event: tk.Event) -> bool:
+        """Handles keyboard events to cancel the drawing operation."""
+        if event.keysym == "Escape":
+            logging.info("CircleTool: Drawing cancelled via Escape key.")
+            self._cancel_drawing()
+            return False
         return True
 
     # =============================================================
