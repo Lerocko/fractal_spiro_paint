@@ -156,6 +156,12 @@ class ShapeManager:
         # The last inserted key is the last shape added
         last_shape_id = next(reversed(self._shapes))
         return self._shapes[last_shape_id]
+    
+    def get_spiro_shape_data(self) -> Optional[Dict[str, Any]]:
+        """
+        Retrieves the shape data for the all drawn Spiro circle.
+        """
+        return [shape for shape in self._shapes.values() if shape["category"] == "Spiro"]
 
     def clear_all(self) -> None:
         """Clears all registered shapes from the manager."""

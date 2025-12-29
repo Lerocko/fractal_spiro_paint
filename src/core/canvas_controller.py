@@ -10,8 +10,9 @@
 # =============================================================
 
 import logging
+import math
 import tkinter as tk
-from typing import Optional, TYPE_CHECKING, List, Dict, Any
+from typing import Optional, TYPE_CHECKING, List, Tuple
 
 from src.tools.selection.selection_tool import SelectionTool
 from src.core.tools_manager import ToolsManager
@@ -114,6 +115,11 @@ class CanvasController:
             logging.warning("Click on main canvas ignored.")
             return
         self.canvas_main.focus_set()
+
+        if self.tools_manager.main_category == "Spiro":
+            self._handle_spiro_click(event)
+            return
+        
         self.is_drawing_on_main = self._handle_click_logic(event, self.active_tool_instance, self.tools_manager.main_category)
 
     def handle_drag_main_canvas(self, event: tk.Event) -> None:
@@ -339,3 +345,69 @@ class CanvasController:
             )
         else:
             logging.error("CanvasController: PolylineTool not found in ToolsManager.")
+
+    def _handle_spiro_click(self, event: tk.Event) -> None:
+        """Handles click events specifically for Spiro tools, managing 3 clicks."""
+        logging.info(f"Spiro click - State: {self.spiro_state}, Drawing: {self.is_drawing_on_main}, Click at: ({event.x}, {event.y})")
+
+        if self.spiro_state is None:
+            # First click: Circle number 1
+            logging.info("Spiro: Processing first circle click")
+            if self.is_drawing_on_main:
+                self.spiro_state = "first_circle_drawn"
+                logging.info("Spiro: First circle completed. Ready for second circle.")
+            self.is_drawing_on_main = self._handle_click_logic(event, self.active_tool_instance, self.tools_manager.main_category)
+            
+        elif self.spiro_state == "first_circle_drawn":
+            # Second click: Calculate tangent and force the second radius point
+            logging.info("Spiro: Processing second circle click")
+            if self.is_drawing_on_main:
+                self.spiro_state = "second_circle_drawn"
+                logging.info("Spiro: Second circle completed. Ready for pen position.")
+                tangent_point = self._calculate_tangent_point(event)
+                logging.debug(f"Spiro: Original click: ({event.x}, {event.y}), Tangent: {tangent_point}")
+                event.x, event.y = tangent_point
+            else:
+                self.second_circle_center = (event.x, event.y)
+                logging.info(f"Spiro: Second circle center set at: {self.second_circle_center}")
+            self.is_drawing_on_main = self._handle_click_logic(event, self.active_tool_instance, self.tools_manager.main_category)
+
+        elif self.spiro_state == "second_circle_drawn":
+            # Third click: Pen position to finalize spiro drawing
+            logging.info("Spiro: Processing pen position click")
+            self.pen_position = (event.x, event.y)
+            logging.info(f"Spiro: Pen position set: ({event.x}, {event.y})")
+            self.app.finalize_spiro_setup()
+            self.spiro_state = None
+            self.is_drawing_on_main = False
+            logging.info("Spiro: Workflow complete. State reset.")
+
+    def _calculate_tangent_point(self, event: tk.Event) -> Tuple[int, int]:
+        """Calculates the tangent point for the second circle based on the first circle's center and radius."""
+        if not self.shape_manager.get_spiro_shape_data():
+            logging.error("Spiro: No first circle data available for tangent calculation.")
+            return (event.x, event.y)
+        
+        first_circle = self.shape_manager.get_spiro_shape_data()[0]
+        center_x1, center_y1 = first_circle["points"][0]
+        radius1 = math.dist(first_circle["points"][0], first_circle["points"][1])
+
+        center_x2, center_y2 = self.second_circle_center
+
+        dx = center_x2 - center_x1
+        dy = center_y2 - center_y1
+        distance = math.sqrt(dx * dx + dy * dy)
+
+        if distance == 0:
+            logging.warning("Spiro: Centers of both circles are the same. Cannot calculate tangent.")
+            return (self.second_circle_center)
+        
+        radius2 = distance - radius1
+
+        k = radius2 / distance
+        tangent_x = center_x2 - dx * k
+        tangent_y = center_y2 - dy * k
+
+        logging.debug(f"Spiro: Tangent calculated at ({tangent_x}, {tangent_y})")
+        logging.debug(f"Spiro: r1={radius1}, r2={radius2}, d={distance}, k={k}")
+        return (int(tangent_x), int(tangent_y))
