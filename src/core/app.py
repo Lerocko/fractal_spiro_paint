@@ -11,14 +11,16 @@
 # =============================================================
 
 import logging
+import math
 import tkinter as tk
-from typing import TYPE_CHECKING, List, Dict, Any, Optional
+from typing import TYPE_CHECKING, List, Dict, Any, Optional, Tuple
 
 from src.core.tools_manager import ToolsManager
 from src.core.theme_service import ThemeService
 from src.core.canvas_controller import CanvasController
 from src.core.shape_manager import ShapeManager
 from src.tools.fractal.fractal_drawer import FractalGenerator
+from src.tools.spiro.spiro_drawer import SpiroGenerator
 
 if TYPE_CHECKING:
     from src.ui.paint_window import PaintWindow
@@ -184,6 +186,66 @@ class App:
         self.selected_shapes = []
         self.fractal_pattern = None
         logging.info("App: Fractal generation finished, state reset.")
+
+    # =============================================================
+    # Spiro Generation
+    # =============================================================
+    def spiro_generator(self, spiro_shape_data: List[Dict[str, Any]], pen_position: Tuple[int, int]) -> None:
+        """
+        Initiates the spiro generation process.
+        
+        Args:
+            spiro_shape_data: The shape data for the drawn Spiro circles.
+            pen_position: The (x, y) position of the pen.
+        """
+        if not spiro_shape_data or len(spiro_shape_data) < 2:
+            logging.warning("App: Insufficient Spiro shape data for spiro generation.")
+            return
+        
+        # Extract circle data
+        first_circle_center = spiro_shape_data[0]["points"][0]
+        first_circle_radius = math.dist(
+            spiro_shape_data[0]["points"][0],
+            spiro_shape_data[0]["points"][1]
+        )
+        
+        second_circle_center = spiro_shape_data[1]["points"][0]
+        second_circle_radius = math.dist(
+            spiro_shape_data[1]["points"][0],
+            spiro_shape_data[1]["points"][1]
+        )
+        
+        logging.info(
+            f"App: Spiro generation started. "
+            f"Circle1: center={first_circle_center}, R={first_circle_radius:.1f} "
+            f"Circle2: center={second_circle_center}, r={second_circle_radius:.1f} "
+            f"Pen: {pen_position}"
+        )
+        
+        generator = SpiroGenerator(
+            fixed_center=first_circle_center,
+            fixed_radius=first_circle_radius,
+            rolling_center=second_circle_center,
+            rolling_radius=second_circle_radius,
+            pen_position=pen_position
+        )
+        
+        points = generator.generate()
+        
+        if not points:
+            logging.error("App: SpiroGenerator returned no points.")
+            return
+        
+        logging.info(f"App: Generated {len(points)} spirograph points.")
+        
+        # Delegate to CanvasController for drawing and cleanup
+        if self.canvas_controller:
+            self.canvas_controller.draw_spiro_and_cleanup(
+                spiro_points=points,
+                spiro_shape_data=spiro_shape_data
+            )
+        else:
+            logging.error("App: CanvasController not available for spiro drawing.")
 
     # =============================================================
     # Theme Management

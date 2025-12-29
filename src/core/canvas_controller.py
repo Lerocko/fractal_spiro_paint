@@ -12,7 +12,7 @@
 import logging
 import math
 import tkinter as tk
-from typing import Optional, TYPE_CHECKING, List, Tuple
+from typing import Any, Dict, Optional, TYPE_CHECKING, List, Tuple
 
 from src.tools.selection.selection_tool import SelectionTool
 from src.core.tools_manager import ToolsManager
@@ -74,6 +74,10 @@ class CanvasController:
         self.is_drawing_on_main: bool = False
         self.is_drawing_on_secondary: bool = False
         self.is_main_canvas_active: bool = True
+
+        self.spiro_state = None
+        self.second_circle_center = None
+        self.pen_position = None
 
         logging.info("CanvasController: Initialized.")
 
@@ -297,6 +301,71 @@ class CanvasController:
         logging.info("CanvasController: Fractal shapes added and UI reset successfully.")
 
     # =============================================================
+    # Spiro Management
+    # =============================================================
+    def draw_spiro_and_cleanup(self, spiro_points: List[Tuple[float, float]], spiro_shape_data: List[Dict[str, Any]]) -> None:
+        """
+        Draws spirograph, deletes base circles, and resets UI.
+        
+        Args:
+            spiro_points: List of (x, y) spirograph points.
+            spiro_shape_data: Original circle data for cleanup.
+        """
+        logging.info("CanvasController: Drawing spirograph and cleaning up base circles.")
+        
+        if not spiro_points:
+            logging.warning("CanvasController: No spiro points to draw.")
+            return
+        
+        if not spiro_shape_data or len(spiro_shape_data) < 2:
+            logging.warning("CanvasController: Insufficient circle data for cleanup.")
+            return
+        
+        # 1. Delete original circles from canvas and ShapeManager
+        for circle_data in spiro_shape_data:
+            shape_id = circle_data.get("id")
+            item_ids = circle_data.get("item_ids", [])
+            
+            # Delete from canvas
+            for item_id in item_ids:
+                self.canvas_main.delete(item_id)
+            
+            # Delete from ShapeManager
+            if shape_id:
+                self.shape_manager.remove_shapes_by_ids([shape_id])
+        
+        logging.info(f"CanvasController: Deleted {len(spiro_shape_data)} base circles.")
+        
+        # 2. Draw spirograph
+        flat_points = [coord for point in spiro_points for coord in point]
+        
+        if len(flat_points) >= 4:  # Need at least 2 points
+            item_id = self.canvas_main.create_line(
+                *flat_points,
+                fill=get_color("drawing_primary"),
+                width=get_style("line_width", "default"),
+                tags=("default_color",)
+            )
+            
+            # 3. Register new shape
+            self.shape_manager.add_shape(
+                shape_type="spirograph",
+                shape_category="SpiroGenerated",
+                points=spiro_points,  # Already List[Tuple]
+                item_ids=[item_id],
+                color=get_color("drawing_primary"),
+                width=get_style("line_width", "default"),
+                closed=False,
+                original_color=get_color("drawing_primary")
+            )
+            
+            logging.info(f"CanvasController: Spirograph drawn with {len(spiro_points)} points.")
+        
+        # 4. Reset UI
+        self.enable_main_canvas()
+        logging.info("CanvasController: Spiro workflow complete.")
+
+    # =============================================================
     # Private Helper Methods
     # =============================================================
     def _handle_click_logic(self, event: tk.Event, tool_instance: 'BaseTool', category: str) -> bool:
@@ -377,7 +446,8 @@ class CanvasController:
             logging.info("Spiro: Processing pen position click")
             self.pen_position = (event.x, event.y)
             logging.info(f"Spiro: Pen position set: ({event.x}, {event.y})")
-            self.app.finalize_spiro_setup()
+            self.spiro_shape_data = self.shape_manager.get_spiro_shape_data()
+            self.app.spiro_generator(self.spiro_shape_data, self.pen_position)
             self.spiro_state = None
             self.is_drawing_on_main = False
             logging.info("Spiro: Workflow complete. State reset.")
