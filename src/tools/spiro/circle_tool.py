@@ -115,7 +115,7 @@ class CircleTool(BaseTool):
         # Preview radius line
             self.preview_radius_id = self.canvas.create_line(
                 self.center_point[0], self.center_point[1],
-                self.center_point[0] + self.radius, self.center_point[1],
+                event.x, event.y,
                 fill=color,
                 width=width,
                 dash=dash
